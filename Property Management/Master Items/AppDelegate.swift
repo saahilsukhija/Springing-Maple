@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import FirebaseCore
+import FirebaseAuth
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -13,7 +16,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+
+        FirebaseApp.configure()
+        
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return true }
+        
+        // Create Google Sign In configuration object.
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+        
+        GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+            if error != nil || user == nil {
+                // Show the app's signed-out state.
+            } else {
+                // Show the app's signed-in state.
+            }
+        }
+        
         return true
     }
 
@@ -29,6 +48,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    }
+    
+    //MARK: Firebase
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+      return GIDSignIn.sharedInstance.handle(url)
     }
 
 
