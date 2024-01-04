@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+class Team {
+    
+    var id: String!
+    
+    init(_ id: String) {
+        self.id = id
+    }
+}

@@ -27,9 +27,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
             if error != nil || user == nil {
-                // Show the app's signed-out state.
+                print("no previous sign in")
             } else {
-                // Show the app's signed-in state.
+                print("user logged in: \(User.shared.getUserEmail())")
             }
         }
         

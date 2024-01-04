@@ -27,7 +27,7 @@ final class LocationManager: NSObject {
     typealias ReverseGeoLocationClosure = ((_ location:CLLocation?, _ placemark:CLPlacemark?,_ error: NSError?)->Void)
     private var geoLocationCompletionHandler: ReverseGeoLocationClosure?
     
-    var locationManager:CLLocationManager?
+    private var locationManager:CLLocationManager?
     
     var locationAccuracy = kCLLocationAccuracyBest
     
@@ -280,7 +280,7 @@ final class LocationManager: NSObject {
         switch status {
             
         case .authorizedWhenInUse,.authorizedAlways:
-           // self.locationManager?.startUpdatingLocation()
+            // self.locationManager?.startUpdatingLocation()
             self.locationManager?.startMonitoringVisits()
             //self.locationManager?.startMonitoringSignificantLocationChanges()
             print("started!")
@@ -342,17 +342,52 @@ extension LocationManager: CLLocationManagerDelegate {
     
     //MARK:- CLLocationManager Delegates
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("updated location: \(locations.last?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0))")
+        
+        //print("updated location: \(locations.last?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0))")
+        
+        guard locations.last != nil else {
+            print("error getting location");
+            return
+        }
+        
         lastLocation = locations.last
-        NotificationCenter.default.post(name: .locationUpdated, object: nil, userInfo: ["location": locations.last?.coordinate as Any])
+        
+//        let visit = Visit(
+//            coordinates: lastLocation!.coordinate,
+//            arrivalDate: Date(),
+//            departureDate: Date())
+//        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
+//        //print("enqueueing notification for visit \(fakeVisit)")
+//        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
+//        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
+//        
+//        Task {
+//            do {
+//                try await FirestoreDatabase.shared.uploadPrivateVisit(visit)
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//        }
     }
     
     func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
-        print("new visit detected")
-        print(visit.coordinate)
-        print(visit.arrivalDate)
-        print(visit.departureDate)
-        print(visit.horizontalAccuracy)
+        
+        let visit = Visit(
+            coordinates: lastLocation!.coordinate,
+            arrivalDate: Date(),
+            departureDate: Date())
+        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
+        //print("enqueueing notification for visit \(fakeVisit)")
+        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
+        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
+        
+        Task {
+            do {
+                try await FirestoreDatabase.shared.uploadPrivateVisit(visit)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {

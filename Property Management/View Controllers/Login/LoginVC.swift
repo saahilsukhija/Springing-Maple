@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import GoogleSignIn
 
 class LoginVC: UIViewController {
 
@@ -15,7 +16,32 @@ class LoginVC: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-
+    @IBAction func signInWithGoogleTapped(_ sender: Any) {
+        
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) { result, error in
+            guard error == nil else {
+                return
+            }
+            
+            guard let user = result?.user, let idToken = user.idToken?.tokenString else {
+                return
+            }
+            print("ID: " + idToken)
+            // let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            self.showSignInToast()
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
+    
+    func showSignInToast() {
+        
+        if(GIDSignIn.sharedInstance.currentUser != nil) {
+            showAnimationToast(animationName: "LoginSuccess", message: "Welcome, \(GIDSignIn.sharedInstance.currentUser!.profile!.givenName!)")
+        }
+        else {
+            print("not signed in")
+        }
+    }
     /*
     // MARK: - Navigation
 

@@ -1,0 +1,5 @@
+#import <Foundation/Foundation.h>
+@interface PodsDummy_Pods_Property_Management_Property_ManagementUITests : NSObject
+@end
+@implementation PodsDummy_Pods_Property_Management_Property_ManagementUITests
+@end

@@ -7,7 +7,25 @@
 		<key>Property Management.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>28</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>6D9E66752AF1CD1B002E9664</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6D9E668B2AF1CD1D002E9664</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6D9E66952AF1CD1D002E9664</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

@@ -9,9 +9,9 @@ import Foundation
 import GoogleSignIn
 import FirebaseFunctions
 
-class SheetsAssistant {
+class GoogleSheetAssistant {
     
-    static var shared = SheetsAssistant()
+    static var shared = GoogleSheetAssistant()
     var spreadsheetID: String
     var functions: Functions!
     
@@ -22,20 +22,38 @@ class SheetsAssistant {
     }
     
     func loadSpreadsheet() {
-        functions.httpsCallable("append_to_sheet").call(["spreadsheetID": spreadsheetID]) { result, error in
-          if let error = error as NSError? {
-            if error.domain == FunctionsErrorDomain {
-              let code = FunctionsErrorCode(rawValue: error.code)
-              let message = error.localizedDescription
-              let details = error.userInfo[FunctionsErrorDetailsKey]
-                print(message)
+
+    }
+    
+    func appendToSpreadsheet(_ values: [String : Any]) {
+        var dict: Dictionary<String, Any> = ["spreadsheetID": spreadsheetID, "apiKey": Constants.API_KEYS.google_sheet_api]
+        dict += values
+        functions.httpsCallable("append_to_spreadsheet").call(dict) { result, error in
+            if let error = error {
+                print("error: \(error)")
             }
-          }
-          if let data = result?.data as? [String: Any], let text = data["result"] as? String {
-              print("data: \(data)\ntext: " + text)
-          }
+            guard let val = result?.data as? String else {
+                return
+            }
+            print(val)
         }
     }
     
+    func appendToSpreadsheet(_ val: String) {
+        
+        functions.httpsCallable("append_to_spreadsheet").call(["spreadsheetID": spreadsheetID, "apiKey": Constants.API_KEYS.google_sheet_api, "value": val == "" ? "(none)" : val]) { result, error in
+            if let error = error {
+                print("error: \(error)")
+            }
+            guard let val = result?.data as? String else {
+                return
+            }
+            print(val)
+        }
+    }
+    
+    func appendToSpreadsheet(_ val: Int) {
+        appendToSpreadsheet(String(val))
+    }
     
 }
