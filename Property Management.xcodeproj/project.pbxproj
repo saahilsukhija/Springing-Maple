@@ -9,7 +9,12 @@
 /* Begin PBXBuildFile section */
 		2059A15D4325ED8D3D29FCE6 /* Pods_Property_Management_Property_ManagementUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 167838D5BFE2A18DB108A80F /* Pods_Property_Management_Property_ManagementUITests.framework */; };
 		2C3984CFB1CAF7C0BC421BB9 /* Pods_Property_ManagementTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73D0707DC6D5018C44F351E2 /* Pods_Property_ManagementTests.framework */; };
+		6D05E4A12B5324AB001DF6D2 /* SessionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D05E4A02B5324AB001DF6D2 /* SessionVC.swift */; };
+		6D05E4A32B534F38001DF6D2 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D05E4A22B534F38001DF6D2 /* Stopwatch.swift */; };
 		6D1B7CBC2B46C81700A9EC96 /* API_KEYS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1B7CBB2B46C81700A9EC96 /* API_KEYS.swift */; };
+		6D1B7CBE2B47644400A9EC96 /* Drive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1B7CBD2B47644400A9EC96 /* Drive.swift */; };
+		6D6B26862B4FE43500809D6D /* RecentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26852B4FE43500809D6D /* RecentLocation.swift */; };
+		6D6B26882B4FE47100809D6D /* RecentLocationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */; };
 		6D8191C62AF1DD3F0001E211 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8191C52AF1DD3F0001E211 /* HideKeyboard.swift */; };
 		6D8191C92AF1EFF50001E211 /* GoogleSheetAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8191C82AF1EFF50001E211 /* GoogleSheetAssistant.swift */; };
 		6D8191CE2AFB34940001E211 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8191CD2AFB34940001E211 /* Constants.swift */; };
@@ -38,7 +43,7 @@
 		6DAC41E52B4544EC0092A26F /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAC41E42B4544EC0092A26F /* LoginVC.swift */; };
 		6DAC41E82B4548020092A26F /* CheckMark.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DAC41E62B4548010092A26F /* CheckMark.json */; };
 		6DAC41E92B4548020092A26F /* CrossX.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DAC41E72B4548020092A26F /* CrossX.json */; };
-		6DAC41ED2B4664110092A26F /* VisitCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAC41EC2B4664110092A26F /* VisitCell.swift */; };
+		6DAC41ED2B4664110092A26F /* DriveCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAC41EC2B4664110092A26F /* DriveCell.swift */; };
 		6DAC41EF2B46663E0092A26F /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAC41EE2B46663E0092A26F /* Date.swift */; };
 		6DAC42192B468FCF0092A26F /* Montserrat-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6DAC41F22B468FC80092A26F /* Montserrat-Light.ttf */; };
 		6DAC421A2B468FCF0092A26F /* Montserrat-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6DAC41F32B468FC80092A26F /* Montserrat-ExtraLight.ttf */; };
@@ -61,6 +66,10 @@
 		6DAC423D2B468FCF0092A26F /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6DAC42172B468FCE0092A26F /* Montserrat-Medium.ttf */; };
 		6DAC423E2B468FCF0092A26F /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6DAC42182B468FCF0092A26F /* Montserrat-SemiBold.ttf */; };
 		6DAC42402B46A14C0092A26F /* LoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAC423F2B46A14C0092A26F /* LoadingScreen.swift */; };
+		6DB5024E2B48FC1E007FE430 /* DriveMapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB5024D2B48FC1E007FE430 /* DriveMapVC.swift */; };
+		6DB502502B48FF27007FE430 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB5024F2B48FF27007FE430 /* MapView.swift */; };
+		6DB502522B490240007FE430 /* SendComplete.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DB502512B490240007FE430 /* SendComplete.json */; };
+		6DB502542B49094F007FE430 /* TrashComplete.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DB502532B49094E007FE430 /* TrashComplete.json */; };
 		6DBAF51A2B3BC72A004D23EE /* NotificationNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBAF5192B3BC72A004D23EE /* NotificationNames.swift */; };
 		6DBAF51D2B40D002004D23EE /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBAF51C2B40D002004D23EE /* Visit.swift */; };
 		6DBAF5202B40DD6D004D23EE /* VisitQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBAF51F2B40DD6D004D23EE /* VisitQueue.swift */; };
@@ -70,6 +79,7 @@
 		6DDBF1AE2AFF2C080013A77B /* LoginSuccess.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DDBF1AD2AFF2C080013A77B /* LoginSuccess.json */; };
 		6DDBF2122B081D430013A77B /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDBF2112B081D430013A77B /* LocationManager.swift */; };
 		6DDBF2152B08226E0013A77B /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDBF2142B08226E0013A77B /* Dictionary.swift */; };
+		6DF90E332B48CB53007A116C /* RegisteredDrive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF90E322B48CB53007A116C /* RegisteredDrive.swift */; };
 		A01C904C56CC1D7A0427E64C /* Pods_Property_Management.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AF5E71E2D236475767F5506 /* Pods_Property_Management.framework */; };
 /* End PBXBuildFile section */
 
@@ -94,7 +104,12 @@
 		167838D5BFE2A18DB108A80F /* Pods_Property_Management_Property_ManagementUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Property_Management_Property_ManagementUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		261B3A137CED5B969EB5042C /* Pods-Property Management-Property ManagementUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Property Management-Property ManagementUITests.debug.xcconfig"; path = "Target Support Files/Pods-Property Management-Property ManagementUITests/Pods-Property Management-Property ManagementUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		3C7EC148C450BD7B0AF6AD68 /* Pods-Property Management.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Property Management.release.xcconfig"; path = "Target Support Files/Pods-Property Management/Pods-Property Management.release.xcconfig"; sourceTree = "<group>"; };
+		6D05E4A02B5324AB001DF6D2 /* SessionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionVC.swift; sourceTree = "<group>"; };
+		6D05E4A22B534F38001DF6D2 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
 		6D1B7CBB2B46C81700A9EC96 /* API_KEYS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API_KEYS.swift; sourceTree = "<group>"; };
+		6D1B7CBD2B47644400A9EC96 /* Drive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drive.swift; sourceTree = "<group>"; };
+		6D6B26852B4FE43500809D6D /* RecentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocation.swift; sourceTree = "<group>"; };
+		6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocationQueue.swift; sourceTree = "<group>"; };
 		6D8191C52AF1DD3F0001E211 /* HideKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		6D8191C82AF1EFF50001E211 /* GoogleSheetAssistant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetAssistant.swift; sourceTree = "<group>"; };
 		6D8191CD2AFB34940001E211 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -127,7 +142,7 @@
 		6DAC41E42B4544EC0092A26F /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		6DAC41E62B4548010092A26F /* CheckMark.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CheckMark.json; sourceTree = "<group>"; };
 		6DAC41E72B4548020092A26F /* CrossX.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CrossX.json; sourceTree = "<group>"; };
-		6DAC41EC2B4664110092A26F /* VisitCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitCell.swift; sourceTree = "<group>"; };
+		6DAC41EC2B4664110092A26F /* DriveCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveCell.swift; sourceTree = "<group>"; };
 		6DAC41EE2B46663E0092A26F /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		6DAC41F22B468FC80092A26F /* Montserrat-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Light.ttf"; sourceTree = "<group>"; };
 		6DAC41F32B468FC80092A26F /* Montserrat-ExtraLight.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-ExtraLight.ttf"; sourceTree = "<group>"; };
@@ -150,6 +165,10 @@
 		6DAC42172B468FCE0092A26F /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Medium.ttf"; sourceTree = "<group>"; };
 		6DAC42182B468FCF0092A26F /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
 		6DAC423F2B46A14C0092A26F /* LoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingScreen.swift; sourceTree = "<group>"; };
+		6DB5024D2B48FC1E007FE430 /* DriveMapVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveMapVC.swift; sourceTree = "<group>"; };
+		6DB5024F2B48FF27007FE430 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		6DB502512B490240007FE430 /* SendComplete.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = SendComplete.json; sourceTree = "<group>"; };
+		6DB502532B49094E007FE430 /* TrashComplete.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TrashComplete.json; sourceTree = "<group>"; };
 		6DBAF5192B3BC72A004D23EE /* NotificationNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationNames.swift; sourceTree = "<group>"; };
 		6DBAF51C2B40D002004D23EE /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
 		6DBAF51F2B40DD6D004D23EE /* VisitQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitQueue.swift; sourceTree = "<group>"; };
@@ -159,6 +178,7 @@
 		6DDBF1AD2AFF2C080013A77B /* LoginSuccess.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = LoginSuccess.json; sourceTree = "<group>"; };
 		6DDBF2112B081D430013A77B /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		6DDBF2142B08226E0013A77B /* Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
+		6DF90E322B48CB53007A116C /* RegisteredDrive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisteredDrive.swift; sourceTree = "<group>"; };
 		73D0707DC6D5018C44F351E2 /* Pods_Property_ManagementTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Property_ManagementTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AF5E71E2D236475767F5506 /* Pods_Property_Management.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Property_Management.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		88EB124C3863B456AB71970D /* Pods-Property Management-Property ManagementUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Property Management-Property ManagementUITests.release.xcconfig"; path = "Target Support Files/Pods-Property Management-Property ManagementUITests/Pods-Property Management-Property ManagementUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -195,6 +215,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6D05E49F2B532498001DF6D2 /* Session */ = {
+			isa = PBXGroup;
+			children = (
+				6D05E4A02B5324AB001DF6D2 /* SessionVC.swift */,
+			);
+			path = Session;
+			sourceTree = "<group>";
+		};
 		6D8191C42AF1DD230001E211 /* Custom UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -210,6 +238,7 @@
 				6DDBF1872AFF29990013A77B /* Toast.swift */,
 				6D8191C52AF1DD3F0001E211 /* HideKeyboard.swift */,
 				6DAC423F2B46A14C0092A26F /* LoadingScreen.swift */,
+				6DB5024F2B48FF27007FE430 /* MapView.swift */,
 			);
 			path = "Custom UI";
 			sourceTree = "<group>";
@@ -223,6 +252,7 @@
 				6D8191C82AF1EFF50001E211 /* GoogleSheetAssistant.swift */,
 				6D8191CD2AFB34940001E211 /* Constants.swift */,
 				6D1B7CBB2B46C81700A9EC96 /* API_KEYS.swift */,
+				6D05E4A22B534F38001DF6D2 /* Stopwatch.swift */,
 			);
 			path = "Cloud Helpers";
 			sourceTree = "<group>";
@@ -272,8 +302,7 @@
 				6D8191C42AF1DD230001E211 /* Custom UI */,
 				6DAC41E22B4544C80092A26F /* View Controllers */,
 				6D8191C72AF1EFD80001E211 /* Cloud Helpers */,
-				6D9E667F2AF1CD1B002E9664 /* Main.storyboard */,
-				6DAC41C22B4541BD0092A26F /* LoginScreens.storyboard */,
+				6DB5024C2B48FC01007FE430 /* Storyboards */,
 			);
 			path = "Property Management";
 			sourceTree = "<group>";
@@ -298,6 +327,7 @@
 		6DAC41E22B4544C80092A26F /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				6D05E49F2B532498001DF6D2 /* Session */,
 				6DAC41EA2B4663C90092A26F /* Home */,
 				6DAC41E32B4544D10092A26F /* Login */,
 			);
@@ -317,6 +347,7 @@
 			children = (
 				6DAC41EB2B4663CF0092A26F /* Table View Cells */,
 				6D9E667D2AF1CD1B002E9664 /* HomeVC.swift */,
+				6DB5024D2B48FC1E007FE430 /* DriveMapVC.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -324,15 +355,26 @@
 		6DAC41EB2B4663CF0092A26F /* Table View Cells */ = {
 			isa = PBXGroup;
 			children = (
-				6DAC41EC2B4664110092A26F /* VisitCell.swift */,
+				6DAC41EC2B4664110092A26F /* DriveCell.swift */,
 			);
 			path = "Table View Cells";
+			sourceTree = "<group>";
+		};
+		6DB5024C2B48FC01007FE430 /* Storyboards */ = {
+			isa = PBXGroup;
+			children = (
+				6D9E667F2AF1CD1B002E9664 /* Main.storyboard */,
+				6DAC41C22B4541BD0092A26F /* LoginScreens.storyboard */,
+			);
+			path = Storyboards;
 			sourceTree = "<group>";
 		};
 		6DBAF51B2B40CFF2004D23EE /* Location */ = {
 			isa = PBXGroup;
 			children = (
 				6DDBF2112B081D430013A77B /* LocationManager.swift */,
+				6D6B26852B4FE43500809D6D /* RecentLocation.swift */,
+				6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */,
 			);
 			path = Location;
 			sourceTree = "<group>";
@@ -345,6 +387,8 @@
 				6DAC41BE2B40F83D0092A26F /* User.swift */,
 				6DBAF51C2B40D002004D23EE /* Visit.swift */,
 				6DAC41C02B424F9C0092A26F /* Team.swift */,
+				6D1B7CBD2B47644400A9EC96 /* Drive.swift */,
+				6DF90E322B48CB53007A116C /* RegisteredDrive.swift */,
 			);
 			path = "Data Objects";
 			sourceTree = "<group>";
@@ -360,6 +404,8 @@
 		6DDBF1862AFF29830013A77B /* Animations */ = {
 			isa = PBXGroup;
 			children = (
+				6DB502532B49094E007FE430 /* TrashComplete.json */,
+				6DB502512B490240007FE430 /* SendComplete.json */,
 				6DAC41E62B4548010092A26F /* CheckMark.json */,
 				6DAC41E72B4548020092A26F /* CrossX.json */,
 				6DDBF1AD2AFF2C080013A77B /* LoginSuccess.json */,
@@ -547,6 +593,7 @@
 				6DAC42362B468FCF0092A26F /* Montserrat-ThinItalic.ttf in Resources */,
 				6D8EDE412AF1D2E0000483D3 /* GoogleService-Info.plist in Resources */,
 				6DAC421C2B468FCF0092A26F /* Montserrat-Italic.ttf in Resources */,
+				6DB502542B49094F007FE430 /* TrashComplete.json in Resources */,
 				6DAC423D2B468FCF0092A26F /* Montserrat-Medium.ttf in Resources */,
 				6DAC42192B468FCF0092A26F /* Montserrat-Light.ttf in Resources */,
 				6DAC423B2B468FCF0092A26F /* Montserrat-ExtraBoldItalic.ttf in Resources */,
@@ -562,6 +609,7 @@
 				6DAC42232B468FCF0092A26F /* Montserrat-LightItalic.ttf in Resources */,
 				6DAC41E82B4548020092A26F /* CheckMark.json in Resources */,
 				6D9E66812AF1CD1B002E9664 /* Main.storyboard in Resources */,
+				6DB502522B490240007FE430 /* SendComplete.json in Resources */,
 				6DAC421B2B468FCF0092A26F /* Montserrat-Bold.ttf in Resources */,
 				6DAC421A2B468FCF0092A26F /* Montserrat-ExtraLight.ttf in Resources */,
 			);
@@ -698,11 +746,15 @@
 				6D8191C62AF1DD3F0001E211 /* HideKeyboard.swift in Sources */,
 				6DDBF1882AFF29990013A77B /* Toast.swift in Sources */,
 				6DAC41D42B4542AF0092A26F /* Alert.swift in Sources */,
+				6D6B26882B4FE47100809D6D /* RecentLocationQueue.swift in Sources */,
 				6D9E667E2AF1CD1B002E9664 /* HomeVC.swift in Sources */,
 				6D1B7CBC2B46C81700A9EC96 /* API_KEYS.swift in Sources */,
+				6DB502502B48FF27007FE430 /* MapView.swift in Sources */,
 				6DBAF51D2B40D002004D23EE /* Visit.swift in Sources */,
+				6D05E4A12B5324AB001DF6D2 /* SessionVC.swift in Sources */,
 				6DBAF5222B40DE19004D23EE /* UserDefaults.swift in Sources */,
 				6DAC41DF2B4542B00092A26F /* RoundedButton.swift in Sources */,
+				6D1B7CBE2B47644400A9EC96 /* Drive.swift in Sources */,
 				6D8191C92AF1EFF50001E211 /* GoogleSheetAssistant.swift in Sources */,
 				6DAC41D52B4542AF0092A26F /* ExtraColors.swift in Sources */,
 				6D9E667A2AF1CD1B002E9664 /* AppDelegate.swift in Sources */,
@@ -713,12 +765,16 @@
 				6DBAF5202B40DD6D004D23EE /* VisitQueue.swift in Sources */,
 				6D9E667C2AF1CD1B002E9664 /* SceneDelegate.swift in Sources */,
 				6DAC41C12B424F9C0092A26F /* Team.swift in Sources */,
+				6DB5024E2B48FC1E007FE430 /* DriveMapVC.swift in Sources */,
+				6D05E4A32B534F38001DF6D2 /* Stopwatch.swift in Sources */,
 				6DAC41D62B4542AF0092A26F /* DesignableUITextField.swift in Sources */,
+				6DF90E332B48CB53007A116C /* RegisteredDrive.swift in Sources */,
 				6DBAF51A2B3BC72A004D23EE /* NotificationNames.swift in Sources */,
-				6DAC41ED2B4664110092A26F /* VisitCell.swift in Sources */,
+				6DAC41ED2B4664110092A26F /* DriveCell.swift in Sources */,
 				6DAC41EF2B46663E0092A26F /* Date.swift in Sources */,
 				6DAC41E52B4544EC0092A26F /* LoginVC.swift in Sources */,
 				6DAC41DE2B4542B00092A26F /* TitleLabel.swift in Sources */,
+				6D6B26862B4FE43500809D6D /* RecentLocation.swift in Sources */,
 				6D8191CE2AFB34940001E211 /* Constants.swift in Sources */,
 				6DDBF2122B081D430013A77B /* LocationManager.swift in Sources */,
 			);

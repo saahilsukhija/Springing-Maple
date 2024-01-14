@@ -44,6 +44,13 @@ extension UIViewController {
         })
     }
     
+    func showConfirmDriveToast(message: String = "Marked drive as done!") {
+        showAnimationToast(animationName: "SendComplete", message: message, duration: 2, color: .accent, fontColor: .accent)
+    }
+    
+    func showDeleteDriveToast(message: String = "Deleted drive!") {
+        showAnimationToast(animationName: "TrashComplete", message: message, duration: 2, color: .systemRed, fontColor: .systemRed)
+    }
     
     ///Shows a green toast
     func showSuccessToast(message: String) {
@@ -77,6 +84,7 @@ extension UIViewController {
         animationView.frame = CGRect(x: 5, y: 5, width: 50, height: 50)
         animationView.contentMode = .scaleAspectFill
         animationView.animationSpeed = speed
+        animationView.loopMode = .playOnce
         toastView.addSubview(animationView)
         
         let messageLabel = UILabel(frame: CGRect(x: toastView.frame.size.height, y: 5, width: toastView.frame.size.width - toastView.frame.size.height, height: 50))

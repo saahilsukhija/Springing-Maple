@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="RT2-dA-0lI">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Weu-Ak-G8C">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
@@ -242,6 +242,9 @@
                                                                             <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                             <state key="normal" title="Button"/>
                                                                             <buttonConfiguration key="configuration" style="plain" image="map" catalog="system"/>
+                                                                            <connections>
+                                                                                <action selector="mapButtonClicked:" destination="aCr-JE-pkE" eventType="touchUpInside" id="acd-P5-kXR"/>
+                                                                            </connections>
                                                                         </button>
                                                                     </subviews>
                                                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -315,10 +318,12 @@
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="containerView" destination="MrS-E0-cUR" id="WSE-tA-ZdJ"/>
+                                            <outlet property="dateLabel" destination="flN-hk-iqh" id="n2T-Vc-MeP"/>
                                             <outlet property="finalPlaceLabel" destination="uG5-jU-Gs6" id="Lek-3u-cTh"/>
                                             <outlet property="finalTimeLabel" destination="UL5-kg-tYa" id="LUc-V6-PzO"/>
                                             <outlet property="initialPlaceLabel" destination="0LK-v4-4DD" id="k8D-Rb-M8o"/>
                                             <outlet property="initialTimeLabel" destination="yNT-D9-Q4z" id="KC2-WD-6H9"/>
+                                            <outlet property="milesDrivenLabel" destination="UPD-di-XGR" id="NCh-fc-JWS"/>
                                             <outlet property="moneyTextField" destination="JHc-G1-c5F" id="nkn-k4-fvF"/>
                                             <outlet property="notesTextField" destination="UUR-AK-ANp" id="ssb-UY-Z5W"/>
                                             <outlet property="ticketNumberTextField" destination="8hc-iM-7rp" id="i9a-Bw-OWv"/>
@@ -350,12 +355,145 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="947.32824427480909" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="1885" y="-151"/>
         </scene>
-        <!--View Controller-->
+        <!--Session-->
+        <scene sceneID="Ur2-4U-w1q">
+            <objects>
+                <navigationController id="mIn-kx-Gwc" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Session" image="clock" catalog="system" selectedImage="clock.fill" id="Vz3-8U-xb7"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="dDO-AY-ZbG">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="72o-pe-3dP" kind="relationship" relationship="rootViewController" id="VBW-39-2bd"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="xMO-7x-4ZD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="920" y="581"/>
+        </scene>
+        <!--SessionVC-->
+        <scene sceneID="JWx-xu-qiT">
+            <objects>
+                <viewController id="72o-pe-3dP" customClass="SessionVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="xrM-Kv-tK7">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SVC-bI-2Yi">
+                                <rect key="frame" x="20" y="276" width="353" height="300"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6kV-cm-s58">
+                                        <rect key="frame" x="5" y="10" width="343" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="X3i-vE-Jlv"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="36"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h8Q-fg-GRB">
+                                        <rect key="frame" x="10" y="240" width="161.66666666666666" height="50"/>
+                                        <color key="backgroundColor" name="Map Green"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="KeZ-YS-71H"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" imagePadding="5">
+                                            <imageReference key="image" image="pause" catalog="system" symbolScale="small"/>
+                                            <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" weight="light"/>
+                                            <attributedString key="attributedTitle">
+                                                <fragment content="Start Break">
+                                                    <attributes>
+                                                        <font key="NSFont" size="14" name="MontserratRoman-Medium"/>
+                                                        <font key="NSOriginalFont" size="12" name="Helvetica"/>
+                                                    </attributes>
+                                                </fragment>
+                                            </attributedString>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="breakButtonClicked:" destination="72o-pe-3dP" eventType="touchUpInside" id="aza-Oa-puO"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PWK-7C-7dS">
+                                        <rect key="frame" x="176.66666666666663" y="240" width="166.33333333333337" height="50"/>
+                                        <color key="backgroundColor" name="Map Green"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="eGf-l0-ehf"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" imagePadding="5">
+                                            <imageReference key="image" image="car" catalog="system" symbolScale="small"/>
+                                            <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" scale="small" weight="light"/>
+                                            <attributedString key="attributedTitle">
+                                                <fragment content="Clock In">
+                                                    <attributes>
+                                                        <font key="NSFont" size="14" name="MontserratRoman-Medium"/>
+                                                        <font key="NSOriginalFont" size="12" name="Helvetica"/>
+                                                    </attributes>
+                                                </fragment>
+                                            </attributedString>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="clockInButtonClicked:" destination="72o-pe-3dP" eventType="touchUpInside" id="79k-1K-Qlm"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jee-DP-17i">
+                                        <rect key="frame" x="10" y="60" width="333" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="Pg8-LJ-nTC"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Montserrat-Medium" family="Montserrat" pointSize="22"/>
+                                        <color key="textColor" systemColor="systemGrayColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" name="BackgroundGray2"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="PWK-7C-7dS" secondAttribute="bottom" constant="10" id="25o-EO-eKU"/>
+                                    <constraint firstAttribute="trailing" secondItem="PWK-7C-7dS" secondAttribute="trailing" constant="10" id="2tZ-wP-XNp"/>
+                                    <constraint firstItem="Jee-DP-17i" firstAttribute="leading" secondItem="SVC-bI-2Yi" secondAttribute="leading" constant="10" id="7CB-x3-D65"/>
+                                    <constraint firstAttribute="trailing" secondItem="Jee-DP-17i" secondAttribute="trailing" constant="10" id="ByG-cc-SfF"/>
+                                    <constraint firstAttribute="height" constant="300" id="Hui-9u-I0x"/>
+                                    <constraint firstItem="6kV-cm-s58" firstAttribute="top" secondItem="SVC-bI-2Yi" secondAttribute="top" constant="10" id="Rru-zb-xq8"/>
+                                    <constraint firstItem="PWK-7C-7dS" firstAttribute="leading" secondItem="h8Q-fg-GRB" secondAttribute="trailing" constant="5" id="aRW-Hg-ubo"/>
+                                    <constraint firstItem="Jee-DP-17i" firstAttribute="top" secondItem="6kV-cm-s58" secondAttribute="bottom" id="bGd-Jk-U9e"/>
+                                    <constraint firstItem="6kV-cm-s58" firstAttribute="leading" secondItem="SVC-bI-2Yi" secondAttribute="leading" constant="5" id="bdG-Cc-wOo"/>
+                                    <constraint firstItem="h8Q-fg-GRB" firstAttribute="leading" secondItem="SVC-bI-2Yi" secondAttribute="leading" constant="10" id="cJP-yu-fRQ"/>
+                                    <constraint firstAttribute="trailing" secondItem="6kV-cm-s58" secondAttribute="trailing" constant="5" id="izN-IA-vpb"/>
+                                    <constraint firstAttribute="trailing" secondItem="h8Q-fg-GRB" secondAttribute="trailing" multiplier="2" constant="10" id="jIo-re-yk9"/>
+                                    <constraint firstAttribute="bottom" secondItem="h8Q-fg-GRB" secondAttribute="bottom" constant="10" id="yTy-Zg-dfz"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="dck-lh-yes"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="SVC-bI-2Yi" firstAttribute="centerY" secondItem="xrM-Kv-tK7" secondAttribute="centerY" id="Tkf-Po-6pS"/>
+                            <constraint firstItem="dck-lh-yes" firstAttribute="trailing" secondItem="SVC-bI-2Yi" secondAttribute="trailing" constant="20" id="ghp-DQ-hr7"/>
+                            <constraint firstItem="SVC-bI-2Yi" firstAttribute="centerX" secondItem="xrM-Kv-tK7" secondAttribute="centerX" id="w2O-I3-nDX"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="tKn-uY-Vac"/>
+                    <connections>
+                        <outlet property="backgroundView" destination="SVC-bI-2Yi" id="eNk-5z-zgj"/>
+                        <outlet property="breakButton" destination="h8Q-fg-GRB" id="Lw0-md-4Qm"/>
+                        <outlet property="breakLabel" destination="Jee-DP-17i" id="1Wf-ZI-aYm"/>
+                        <outlet property="clockInButton" destination="PWK-7C-7dS" id="PkQ-ya-QOe"/>
+                        <outlet property="timeLabel" destination="6kV-cm-s58" id="eeO-w9-esR"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gwS-0r-5Rs" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1884.7328244274809" y="580.98591549295782"/>
+        </scene>
+        <!--Drive MapVC-->
         <scene sceneID="CcU-D1-4GD">
             <objects>
-                <viewController id="tCS-Pk-Uhb" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="DriveMapScreen" id="tCS-Pk-Uhb" customClass="DriveMapVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="bH2-b4-1KO">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -364,25 +502,47 @@
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <standardMapConfiguration key="preferredConfiguration"/>
                             </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bDz-qn-vmK">
+                                <rect key="frame" x="5" y="64" width="60" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="1jA-Fv-GJa"/>
+                                    <constraint firstAttribute="width" secondItem="bDz-qn-vmK" secondAttribute="height" multiplier="1:1" id="aSD-i1-7JZ"/>
+                                </constraints>
+                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <imageReference key="image" image="xmark" catalog="system" symbolScale="large"/>
+                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" scale="large"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="closeButtonClicked:" destination="tCS-Pk-Uhb" eventType="touchUpInside" id="Fe6-42-fme"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Hx2-RK-jT5"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="k3J-6U-CDt" secondAttribute="bottom" id="0JO-jp-8EV"/>
+                            <constraint firstItem="bDz-qn-vmK" firstAttribute="leading" secondItem="Hx2-RK-jT5" secondAttribute="leading" constant="5" id="BgO-J2-DpB"/>
                             <constraint firstItem="Hx2-RK-jT5" firstAttribute="trailing" secondItem="k3J-6U-CDt" secondAttribute="trailing" id="Er2-Sk-9Vu"/>
                             <constraint firstItem="k3J-6U-CDt" firstAttribute="top" secondItem="bH2-b4-1KO" secondAttribute="top" id="QdM-Wk-502"/>
+                            <constraint firstItem="bDz-qn-vmK" firstAttribute="top" secondItem="Hx2-RK-jT5" secondAttribute="top" constant="5" id="V1Y-9v-2eZ"/>
                             <constraint firstItem="k3J-6U-CDt" firstAttribute="leading" secondItem="Hx2-RK-jT5" secondAttribute="leading" id="peL-1V-jLd"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="mapView" destination="k3J-6U-CDt" id="kqj-dT-GiM"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7HO-va-0d2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1850" y="4"/>
+            <point key="canvasLocation" x="2747" y="-151"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Drives-->
         <scene sceneID="8hv-Mu-yjs">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="RT2-dA-0lI" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Drives" image="car" catalog="system" selectedImage="car.fill" id="tTO-yw-pHc"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="A8S-u9-ha7">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -395,22 +555,51 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HOP-7m-y2l" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="921" y="-151"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="pha-UI-1tn">
+            <objects>
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="Weu-Ak-G8C" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="9YN-cv-piJ">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="tintColor" name="AccentColor"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="mIn-kx-Gwc" kind="relationship" relationship="viewControllers" id="gJ0-9M-aJe"/>
+                        <segue destination="RT2-dA-0lI" kind="relationship" relationship="viewControllers" id="VsA-bj-eVd"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Qk6-pV-JvL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
             <point key="canvasLocation" x="20.610687022900763" y="3.5211267605633805"/>
         </scene>
     </scenes>
     <resources>
         <image name="camera" catalog="system" width="128" height="93"/>
+        <image name="car" catalog="system" width="128" height="95"/>
+        <image name="car.fill" catalog="system" width="128" height="95"/>
         <image name="checkmark" catalog="system" width="128" height="114"/>
+        <image name="clock" catalog="system" width="128" height="123"/>
+        <image name="clock.fill" catalog="system" width="128" height="123"/>
         <image name="map" catalog="system" width="128" height="112"/>
         <image name="mappin.and.ellipse.circle.fill" catalog="system" width="128" height="123"/>
         <image name="menucard" catalog="system" width="108" height="128"/>
+        <image name="pause" catalog="system" width="88" height="128"/>
         <image name="person" catalog="system" width="128" height="121"/>
         <image name="trash" catalog="system" width="117" height="128"/>
+        <image name="xmark" catalog="system" width="128" height="113"/>
         <namedColor name="AccentColor">
             <color red="0.16470588235294117" green="0.41960784313725491" blue="0.73725490196078436" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Background Gray">
             <color red="0.9882352941176471" green="0.98039215686274506" blue="0.98431372549019602" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="BackgroundGray2">
+            <color red="0.96862745098039216" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Map Green">
             <color red="0.027450980392156862" green="0.45882352941176469" blue="0.16470588235294117" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -422,13 +611,13 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray2Color">
-            <color red="0.68235294120000001" green="0.68235294120000001" blue="0.69803921570000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.68235294117647061" green="0.68235294117647061" blue="0.69803921568627447" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGrayColor">
-            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -8,15 +8,7 @@
 import UIKit
 
 extension UIColor {
-    static var selectedBlueColor: UIColor {
-        return .init(named: "selectedBlueColor")!
-    }
-    
-    static var unselectedGrayColor: UIColor {
-        return .init(named: "unselectedGrayColor")!
-    }
-    
     static var accentColor: UIColor {
-        return .init(named: "limeColor")!
+        return .init(named: "AccentColor")!
     }
 }

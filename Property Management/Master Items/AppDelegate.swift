@@ -57,6 +57,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return GIDSignIn.sharedInstance.handle(url)
     }
 
+    func applicationWillTerminate(_ application: UIApplication) {
+        do {
+            try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
+        } catch {
+            print("error")
+        }
+    }
 
 }
 

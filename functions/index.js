@@ -37,6 +37,41 @@ exports.append_to_spreadsheet = onRequest(async (req, res) => {
   res.send({result: "Added row onto " + spreadsheetID});
 });
 
+exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
+  const spreadsheetID = req.body.data.spreadsheetID;
+  const apiKey = req.body.data.apiKey;
+  const initialLocation = req.body.data.initialLocation;
+  const finalLocation = req.body.data.finalLocation;
+  const initialTime = req.body.data.initialTime;
+  const finalTime = req.body.data.finalTime;
+  const moneySpent = req.body.data.money;
+  const ticketNumber = req.body.data.ticketNumber;
+  const notes = req.body.data.notes;
+  const receiptLink = "N/A";
+
+  const auth = await google.auth.getClient({
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+    ],
+  });
+  const range = "A1";
+
+  appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
+      [ticketNumber,
+        initialLocation, finalLocation,
+        initialTime, finalTime,
+        moneySpent, receiptLink,
+        notes]);
+  // const values = request.query.values
+
+  logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
+  logger.info("auth: " + auth.email, {structuredData: true});
+  // return {result: "Hello from " + spreadsheetID};
+
+  res.send({result: "Added row onto " + spreadsheetID});
+});
+
 /**
  * Adds a row to the spreadsheet
  * @param {auth} auth TODO: OAUTH

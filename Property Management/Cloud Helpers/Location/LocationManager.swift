@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreMotion
 
 final class LocationManager: NSObject {
     
@@ -23,16 +24,22 @@ final class LocationManager: NSObject {
     
     typealias LocationClosure = ((_ location:CLLocation?,_ error: NSError?)->Void)
     private var locationCompletionHandler: LocationClosure?
-    
     typealias ReverseGeoLocationClosure = ((_ location:CLLocation?, _ placemark:CLPlacemark?,_ error: NSError?)->Void)
     private var geoLocationCompletionHandler: ReverseGeoLocationClosure?
     
     private var locationManager:CLLocationManager?
+    private var activityManager: CMMotionActivityManager?
     
-    var locationAccuracy = kCLLocationAccuracyBest
+    private var locationAccuracy = kCLLocationAccuracyBest
     
     private var lastLocation:CLLocation?
+    private var lastActivity: CMMotionActivity?
+    
     private var reverseGeocoding = false
+    
+    private var isDriving = false
+    private var startDriveLocation: CLLocation?
+    private var startDriveTime: Date?
     
     //Singleton Instance
     static let shared: LocationManager = {
@@ -41,11 +48,12 @@ final class LocationManager: NSObject {
         return instance
     }()
     
-    private override init() {}
+    //private override init() {}
     
     //MARK:- Destroy the LocationManager
     deinit {
         destroyLocationManager()
+        destroyActivityManager()
     }
     
     //MARK:- Private Methods
@@ -65,7 +73,7 @@ final class LocationManager: NSObject {
         locationManager?.desiredAccuracy = locationAccuracy
         locationManager?.pausesLocationUpdatesAutomatically = false
         locationManager?.allowsBackgroundLocationUpdates = true
-        //locationManager?.activityType = .automotiveNavigation
+        locationManager?.activityType = .automotiveNavigation
         
         if #available(iOS 14.0, *) {
             self.check(status: locationManager?.authorizationStatus)
@@ -74,10 +82,22 @@ final class LocationManager: NSObject {
         }
     }
     
+    private func setupActivityManager() {
+        //print("setting up!")
+        activityManager = CMMotionActivityManager()
+        activityManager?.startActivityUpdates(to: OperationQueue.main, withHandler: { motion in
+            self.motionActivityDidUpdate(with: motion)
+        })
+    }
+    
     private func destroyLocationManager() {
         locationManager?.delegate = nil
         locationManager = nil
         lastLocation = nil
+    }
+    
+    private func destroyActivityManager() {
+        activityManager = nil
     }
     
     @objc private func sendPlacemark() {
@@ -136,6 +156,7 @@ final class LocationManager: NSObject {
         self.locationCompletionHandler = completionHandler
         
         setupLocationManager()
+        setupActivityManager()
     }
     
     
@@ -185,6 +206,7 @@ final class LocationManager: NSObject {
             self.geoLocationCompletionHandler = completionHandler
             
             setupLocationManager()
+            setupActivityManager()
         }
     }
     
@@ -282,8 +304,8 @@ final class LocationManager: NSObject {
         case .authorizedWhenInUse,.authorizedAlways:
             // self.locationManager?.startUpdatingLocation()
             self.locationManager?.startMonitoringVisits()
-            //self.locationManager?.startMonitoringSignificantLocationChanges()
-            print("started!")
+            self.locationManager?.startMonitoringSignificantLocationChanges()
+            print("started tracking location")
         case .denied:
             let deniedError = NSError(
                 domain: self.classForCoder.description(),
@@ -335,6 +357,18 @@ final class LocationManager: NSObject {
         return false
     }
     
+    func stopTracking() {
+        print("stopped tracking location")
+        locationManager?.stopUpdatingLocation()
+        locationManager?.stopMonitoringVisits()
+        activityManager?.stopActivityUpdates()
+    }
+    
+    func startTracking() {
+        print("started tracking")
+        setupLocationManager()
+        setupActivityManager()
+    }
     
 }
 
@@ -351,44 +385,44 @@ extension LocationManager: CLLocationManagerDelegate {
         }
         
         lastLocation = locations.last
-        
-//        let visit = Visit(
-//            coordinates: lastLocation!.coordinate,
-//            arrivalDate: Date(),
-//            departureDate: Date())
-//        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
-//        //print("enqueueing notification for visit \(fakeVisit)")
-//        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
-//        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
-//        
-//        Task {
-//            do {
-//                try await FirestoreDatabase.shared.uploadPrivateVisit(visit)
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//        }
+        RecentLocationQueue.shared.putLocation(RecentLocation(location: lastLocation, date: Date()))
+        //        let drive = Visit(
+        //            coordinates: lastLocation!.coordinate,
+        //            arrivalDate: Date(),
+        //            departureDate: Date())
+        //        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
+        //        //print("enqueueing notification for visit \(fakeVisit)")
+        //        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
+        //        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
+        //
+        //        Task {
+        //            do {
+        //                try await FirestoreDatabase.shared.uploadPrivateVisit(visit)
+        //            } catch {
+        //                print(error.localizedDescription)
+        //            }
+        //        }
     }
     
-    func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
-        
-        let visit = Visit(
-            coordinates: lastLocation!.coordinate,
-            arrivalDate: Date(),
-            departureDate: Date())
-        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
-        //print("enqueueing notification for visit \(fakeVisit)")
-        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
-        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
-        
-        Task {
-            do {
-                try await FirestoreDatabase.shared.uploadPrivateVisit(visit)
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-    }
+    //    func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
+    //
+    //        let drive = Visit(
+    //            coordinates: lastLocation!.coordinate,
+    //            arrivalDate: Date(),
+    //            departureDate: Date())
+    //        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
+    //        //print("enqueueing notification for visit \(fakeVisit)")
+    //        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
+    //        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
+    //
+    //        Task {
+    //            do {
+    //                try await FirestoreDatabase.shared.uploadPrivateDrive(visit)
+    //            } catch {
+    //                print(error.localizedDescription)
+    //            }
+    //        }
+    //    }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         self.check(status: status)
@@ -399,4 +433,67 @@ extension LocationManager: CLLocationManagerDelegate {
         self.didComplete(location: nil, error: error as NSError?)
     }
     
+    func motionActivityDidUpdate(with activity: CMMotionActivity?) {
+        guard let activity = activity else {
+            print("no activity")
+            return
+        }
+        
+        //RecentLocationQueue.shared.getLocation(within: 5)
+        if (activity.automotive == true || activity.cycling == true || activity.running == true) && isDriving == false {
+            //new drive
+            isDriving = true
+
+            if let recentLoc = RecentLocationQueue.shared.getLocation(within: 5) {
+                startDriveLocation = recentLoc.location
+                startDriveTime = recentLoc.date
+            }
+            else {
+                startDriveLocation = lastLocation
+                startDriveTime = Date()
+            }
+            
+            if startDriveLocation == nil {
+                getLocation { location, error in
+                    self.startDriveLocation = location
+                }
+            }
+            
+            NotificationCenter.default.post(name: .newDriveStarted, object: nil)
+            print("new drive started!")
+        }
+        else if (activity.automotive == false && activity.cycling == false && activity.running == false) && isDriving == true {
+            //end drive
+            isDriving = false
+            
+            guard let startLocation = startDriveLocation else {
+                print("start location was null")
+                return
+            }
+            guard let startTime = startDriveTime else {
+                print("start time was null")
+                return
+            }
+            guard let endLocation = locationManager?.location else {
+                print("end location was null")
+                return
+            }
+            let drive = Drive(initialCoordinates: startLocation.coordinate, finalCoordinates: endLocation.coordinate, initialDate: startTime, finalDate: Date())
+            startDriveTime = nil
+            startDriveLocation = nil
+            NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
+            uploadDrive(drive)
+        }
+        //print("motion did update: \(activity)")
+    }
+    
+    private func uploadDrive(_ drive: Drive) {
+        Task {
+            do {
+                try await FirestoreDatabase.shared.uploadPrivateDrive(drive)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
 }

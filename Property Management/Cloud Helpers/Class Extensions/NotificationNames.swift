@@ -23,6 +23,39 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
+    static var newDriveStarted: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    /// Notification when user's drive was detected
+    static var newDriveFinished: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var driveMarkedAsRegistered: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var driveMarkedAsDeleted: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var cloudDriveDetected: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var shouldShowTicketNumberAlert: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var userClockedIn: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var userClockedOut: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
     
     
     

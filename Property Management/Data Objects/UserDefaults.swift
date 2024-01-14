@@ -36,5 +36,9 @@ public extension UserDefaults {
         
         return try JSONDecoder().decode(objectType, from: result)
     }
+    
+    func isKeyPresent(key: String) -> Bool {
+        return UserDefaults.standard.object(forKey: key) != nil
+    }
 }
 

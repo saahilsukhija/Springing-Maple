@@ -1,222 +1,193 @@
 //
-//  Timer.swift
-//  Property Management
+//  Stopwatch.swift
+//  Stopwatch
 //
-//  Created by Saahil Sukhija on 1/13/24.
+//  Created by Kiran Kunigiri on 10/15/15.
+//  Copyright © 2015 Kiran Kunigiri. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
 
-// MARK: Timer
-class Timer: NSObject {
+// MARK: Stopwatch
+class Stopwatch: Codable {
     
-    // Timer
-    fileprivate var timer = Timer()
+    //Singleton Instance
+    static let shared: Stopwatch = {
+        let instance = Stopwatch()
+        // setup code
+        return instance
+    }()
     
-    // MARK: Time in a string
-    /**
-    String representation of the number of hours shown on the timer
-    */
-    var strHours = "00"
-    /**
-    String representation of the number of minutes shown on the timer
-    */
-    var strMinutes = "00"
-    /**
-    String representation of the number of seconds shown on the timer
-    */
-    var strSeconds = "00"
-    /**
-    String representation of the number of tenths of a second shown on the timer
-    */
-    var strTenthsOfSecond = "00"
-    /**
-    String representation text shown on the timer (the time)
-    */
-    var timeText = ""
+    private var startDate: Date!
+    private(set) var isRunning = false
     
-    // MARK: Time in values
-    /**
-    The number of hours that will be shown on a timer
-    */
-    var numHours = 0
-    /**
-    The number of minutes that will be shown on a timer
-    */
-    var numMinutes = 0
-    /**
-    The number of seconds that will be shown on a timer
-    */
-    var numSeconds = 0
-    /**
-    The number of tenths of a second that will be shown on a timer
-    */
-    var numTenthsOfSecond = 0
-    
-    // Private variables
-    fileprivate var startTime = TimeInterval()
-    fileprivate var pauseTime = TimeInterval()
-    fileprivate var wasPause = false
-    
-    
-    
-    /**
-    Updates the time and saves the values as strings
-    */
-    @objc fileprivate func updateTime() {
-        // Save the current time
-        let currentTime = Date.timeIntervalSinceReferenceDate
-        
-        // Find the difference between current time and start time to get the time elapsed
-        var elapsedTime: TimeInterval = currentTime - startTime
-        
-        // Calculate the hours of elapsed time
-        numHours = Int(elapsedTime / 3600.0)
-        elapsedTime -= (TimeInterval(numHours) * 3600)
-        
-        // Calculate the minutes of elapsed time
-        numMinutes = Int(elapsedTime / 60.0)
-        elapsedTime -= (TimeInterval(numMinutes) * 60)
-        
-        // Calculate the seconds of elapsed time
-        numSeconds = Int(elapsedTime)
-        elapsedTime -= TimeInterval(numSeconds)
-        
-        // Finds out the number of milliseconds to be displayed.
-        numTenthsOfSecond = Int(elapsedTime * 100)
-        
-        // Save the values into strings with the 00 format
-        strHours = String(format: "%02d", numHours)
-        strMinutes = String(format: "%02d", numMinutes)
-        strSeconds = String(format: "%02d", numSeconds)
-        strTenthsOfSecond = String(format: "%02d", numTenthsOfSecond)
-        timeText = "\(strHours):\(strMinutes):\(strSeconds):\(strTenthsOfSecond)"
-    }
-    
-    
-    // MARK: Public functions
-    fileprivate func resetTimer() {
-        startTime = Date.timeIntervalSinceReferenceDate
-        strHours = "00"
-        strMinutes = "00"
-        strSeconds = "00"
-        strTenthsOfSecond = "00"
-        timeText = "\(strHours):\(strMinutes):\(strSeconds):\(strTenthsOfSecond)"
+    private var breaks: [Break]!
+    private(set) var isOnBreak: Bool! = false
+    private var currentBreak: Break?
 
-    }
-    
-    /**
-    Starts the timer, or resumes it if it was paused
-    */
-    func start() {
-        if !timer.isValid {
-            timer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(Timer.updateTime), userInfo: nil, repeats: true)
-            
-            if wasPause {
-                startTime = Date.timeIntervalSinceReferenceDate - startTime
-            } else {
-                startTime = Date.timeIntervalSinceReferenceDate
+    init() {
+        if UserDefaults.standard.isKeyPresent(key: "stopwatch") {
+            do {
+                let stopwatch = try UserDefaults.standard.get(objectType: Stopwatch.self, forKey: "stopwatch")
+                startDate = stopwatch?.startDate
+                isRunning = stopwatch!.isRunning
+                isOnBreak = stopwatch?.isOnBreak
+                breaks = stopwatch?.breaks
+                currentBreak = stopwatch?.currentBreak
+                print("restored from defaults")
+            } catch {
+                startDate = nil
+                isOnBreak = false
+                isRunning = false
+                breaks = []
             }
+        } else {
+            startDate = nil
+            isOnBreak = false
+            isRunning = false
+            breaks = []
         }
     }
     
-    /**
-    Pause the timer so that it can be resumed later
-    */
-    func pause() {
-        wasPause = true
+    func start() {
+        if !isRunning {
+            startDate = Date()
+            isRunning = true
+            NotificationCenter.default.post(name: .userClockedIn, object: nil)
+        }
+    }
+    
+    //Returns (startDate, endDate)
+    func end() -> (Date, Date) {
+        isRunning = false
+        breaks = []
+        currentBreak = nil
+        isOnBreak = false
         
-        timer.invalidate()
-        pauseTime = Date.timeIntervalSinceReferenceDate
-        startTime = pauseTime - startTime
+        NotificationCenter.default.post(name: .userClockedOut, object: nil)
+        return (startDate, Date())
     }
     
-    /**
-    Stops the timer and erases the current time
-    */
-    func stop() {
-        wasPause = false
+    func startBreak() {
+        guard !isOnBreak && isRunning else {
+            return
+        }
         
-        timer.invalidate()
-        resetTimer()
+        currentBreak = Break()
+        isOnBreak = true
+        
+        NotificationCenter.default.post(name: .userClockedOut, object: nil)
+    }
+    
+    //Returns (startDate, endDate)
+    func endBreak() -> (Date, Date) {
+        guard isOnBreak && currentBreak != nil else {
+            return (Date(), Date())
+        }
+        currentBreak?.endBreak = Date()
+        isOnBreak = false
+        breaks.append(currentBreak!)
+        let start = currentBreak!.startBreak
+        currentBreak = nil
+        NotificationCenter.default.post(name: .userClockedIn, object: nil)
+        return (start!, Date())
+    }
+    
+    func shouldTrackLocation() -> Bool {
+        return !isOnBreak && isRunning
     }
     
     
-    // MARK: Value functions
-    
-    /**
-    Converts the time into hours only and returns it
-    */
-    func getTimeInHours() -> Int {
-        return numHours
+}
+
+extension Stopwatch {
+    //Date: Start date
+    func getTimeElapsed(_ date: Date) -> (hour: Int?, minute: Int?, second: Int?) {
+        guard isRunning else {
+            return (hour: nil, minute: nil, second: nil)
+        }
+        
+        let current = Date()
+        let hour = (current - date).hour
+        let minute = (current - date).minute
+        let second = (current - date).second
+        
+        return (hour: hour, minute: minute, second: second)
     }
     
-    /**
-    Converts the time into minutes only and returns it
-    */
-    func getTimeInMinutes() -> Int {
-        return numHours * 60 + numMinutes
+    func getTimeString() -> String {
+        guard isRunning else {
+            return "00:00:00"
+        }
+        let output = getTimeElapsed(startDate)
+        
+        let hour = output.hour
+        let minute = (output.minute ?? 0) % 60
+        let second = (output.second ?? 0) % 60
+        
+        var text = ""
+        if hour == nil {
+            text += "00"
+        } else if hour! < 10 {
+            text += "0\(hour!)"
+        } else {
+            text += "\(hour!)"
+        }
+        text += ":"
+        if minute < 10 {
+            text += "0\(minute)"
+        } else {
+            text += "\(minute)"
+        }
+        text += ":"
+        if second < 10 {
+            text += "0\(second)"
+        } else {
+            text += "\(second)"
+        }
+        return text
     }
     
-    /**
-    Converts the time into seconds only and returns it
-    */
-    func getTimeInSeconds() -> Int {
-        return numHours * 3600 + numMinutes * 60 + numSeconds
-    }
-    
-    /**
-    Converts the time into milliseconds only and returns it
-    */
-    func getTimeInMilliseconds() -> Int {
-        return numHours * 3600000 + numMinutes * 60000 + numSeconds * 1000 + numTenthsOfSecond * 100
+    func getCurrentBreakTimeString() -> String {
+        guard let currentBreak = currentBreak else {
+            return "00:00"
+        }
+        let output = getTimeElapsed(currentBreak.startBreak)
+        
+        let minute = (output.minute ?? 0)%60
+        let second = (output.second ?? 0)%60
+        
+        var text = ""
+        
+        if minute < 10 {
+            text += "0\(minute)"
+        } else {
+            text += "\(minute)"
+        }
+        text += ":"
+        if second < 10 {
+            text += "0\(second)"
+        } else {
+            text += "\(second)"
+        }
+        return text
     }
     
 }
 
-
-// MARK: LabelTimer
-
-/**
- * Subclass of Timer
- *
- * This class automatically updates any UILabel wih the timer time.
- * This makes it easier to use the timer. All you have to do is create a
- * LabelTimer and pass in your UILabel as the parameter. Then the LabelTimer
- * will automatically update your label as you call the start, stop, or reset functions.
-*/
-
-class LabelTimer: Timer {
+class Break: Codable {
     
-    /**
-    The label that will automatically be updated according to the timer
-    */
-    var label = UILabel()
-
-    /**
-    Creates a timer with a label that it will constantly update
-    */
-    init(label: UILabel) {
-        self.label = label
+    var startBreak: Date!
+    var endBreak: Date?
+    
+    init(startBreak: Date! = Date(), endBreak: Date? = nil) {
+        self.startBreak = startBreak
+        self.endBreak = endBreak
     }
     
-    override fileprivate func updateTime() {
-        super.updateTime()
-        
-        //concatenate minuets, seconds and milliseconds as assign it to the UILabel
-        label.text = "\(strHours):\(strMinutes):\(strSeconds):\(strTenthsOfSecond)"
+    func stopBreak() {
+        self.endBreak = Date()
     }
-    
-    override fileprivate func resetTimer() {
-        super.resetTimer()
-        label.text = "\(strHours):\(strMinutes):\(strSeconds):\(strTenthsOfSecond)"
-    }
-    
 }
-
-
-
-
-

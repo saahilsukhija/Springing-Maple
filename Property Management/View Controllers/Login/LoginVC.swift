@@ -10,6 +10,7 @@ import GoogleSignIn
 
 class LoginVC: UIViewController {
 
+    static let identifier = "LoginScreen"
     override func viewDidLoad() {
         super.viewDidLoad()
 

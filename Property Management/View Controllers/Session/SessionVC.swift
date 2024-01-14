@@ -8,14 +8,102 @@
 import UIKit
 
 class SessionVC: UIViewController {
-
+    
+    @IBOutlet weak var backgroundView: UIView!
+    @IBOutlet weak var clockInButton: UIButton!
+    @IBOutlet weak var breakButton: UIButton!
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var breakLabel: UILabel!
+    
+    var timer: Timer!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
+        backgroundView.dropShadow(radius: 2)
+        backgroundView.layer.cornerRadius = 10
+        breakButton.layer.cornerRadius = 10
+        clockInButton.layer.cornerRadius = 10
+        
+        updateButtons()
+        
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateLabels), userInfo: nil, repeats: true)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userClockedIn), name: .userClockedIn, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userClockedOut), name: .userClockedOut, object: nil)
     }
     
+    deinit {
+        timer.invalidate()
+    }
+    
+    func updateButtons() {
+        if Stopwatch.shared.isRunning {
+            clockInButton.backgroundColor = .mapRed
+            clockInButton.setTitle("Clock Out", for: .normal)
+            clockInButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        }
+        else {
+            clockInButton.backgroundColor = .accentColor
+            clockInButton.setTitle("Clock In", for: .normal)
+            clockInButton.setImage(UIImage(systemName: "car"), for: .normal)
+        }
+        
+        if Stopwatch.shared.isOnBreak {
+            breakButton.backgroundColor = .mapRed
+            breakButton.setTitle("End Break", for: .normal)
+            breakButton.setImage(UIImage(systemName: "pause"), for: .normal)
+        }
+        else {
+            breakButton.backgroundColor = .break
+            breakButton.setTitle("Start Break", for: .normal)
+            breakButton.setImage(UIImage(systemName: "play"), for: .normal)
+        }
+    }
+    
+    @objc func updateLabels() {
+        timeLabel.text = Stopwatch.shared.getTimeString()
+        breakLabel.text = Stopwatch.shared.getCurrentBreakTimeString()
+    }
+    
+    @IBAction func clockInButtonClicked(_ sender: Any) {
+        if Stopwatch.shared.isRunning {
+            let alert = UIAlertController(title: "Are you sure?", message: "Clocking out will end your session and stop tracking of visits and drives.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
+                let _ = Stopwatch.shared.end()
+                self.updateButtons()
+            }))
+            self.present(alert, animated: true, completion: nil)
 
+        } else {
+            Stopwatch.shared.start()
+        }
+        updateButtons()
+    }
+    
+    @IBAction func breakButtonClicked(_ sender: Any) {
+        if Stopwatch.shared.isOnBreak {
+            let _ = Stopwatch.shared.endBreak()
+        } else {
+            if Stopwatch.shared.isRunning {
+                Stopwatch.shared.startBreak()
+            } else {
+                Alert.showDefaultAlert(title: "Unable to start a break", message: "Check in before you start a break!", self)
+            }
+        }
+        updateButtons()
+    }
+    
+    
+    @objc func userClockedIn() {
+        LocationManager.shared.startTracking()
+    }
+    
+    @objc func userClockedOut() {
+        LocationManager.shared.stopTracking()
+    }
     /*
     // MARK: - Navigation
 
@@ -27,3 +115,5 @@ class SessionVC: UIViewController {
     */
 
 }
+
+
