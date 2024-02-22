@@ -60,8 +60,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         do {
             try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
+            try UserDefaults.standard.set(object: RecentLocationQueue.shared, forKey: "recentLocationQueue")
         } catch {
-            print("error")
+            print("error while storing stopwatch / recentLocationQueue in UserDefaults")
         }
     }
 

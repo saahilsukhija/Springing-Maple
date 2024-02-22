@@ -20,13 +20,27 @@ extension Date
         return dateString   // "4:44 PM on June 23, 2016\n"
     }
     
+    func toMonthDate() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM"
+
+        let month = dateFormatter.string(from: self)
+
+        dateFormatter.dateFormat = "dd"
+
+        let day = dateFormatter.string(from: self)
+
+        return "\(month)/\(day)"
+    }
+    
     func secondsSince(_ date: Date) -> Int {
-        let calendar = Calendar.current
-        let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: date)
-        let nowComponents = calendar.dateComponents([.hour, .minute, .second], from: self)
-        
-        let difference = calendar.dateComponents([.second], from: timeComponents, to: nowComponents).second!
-        return difference
+//        let calendar = Calendar.current
+//        let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: date)
+//        let nowComponents = calendar.dateComponents([.hour, .minute, .second], from: self)
+//        
+//        let difference = calendar.dateComponents([.second], from: timeComponents, to: nowComponents).second!
+//        return difference
+        return abs(Int(self.timeIntervalSince(date)))
     }
     
     static func -(recent: Date, previous: Date) -> (month: Int?, day: Int?, hour: Int?, minute: Int?, second: Int?) {

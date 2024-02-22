@@ -20,11 +20,12 @@ target 'Property Management' do
     #pod 'GoogleMaps'
     
   # Storage (Phone numbers, names, friends, etc.)
-    #pod 'Firebase/Storage'
+    pod 'Firebase/Storage'
     #pod 'FirebaseUI/Storage'
 
   # Bottom Sheet Map, Will remove once ios15 is global platform.
-    pod 'FloatingPanel', '2.5.4'
+   # pod 'FloatingPanel', '2.5.4'
+  pod 'FDTake'
 
   target 'Property ManagementTests' do
     inherit! :search_paths

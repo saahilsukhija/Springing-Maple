@@ -53,7 +53,7 @@ class GoogleSheetAssistant {
     }
     
     func appendRegisteredDriveToSpreadsheet(_ drive: RegisteredDrive) {
-        let dict = ["spreadsheetID": spreadsheetID, "apiKey": Constants.API_KEYS.google_sheet_api, "initialLocation" : drive.initialLocationGeocoded, "finalLocation" : drive.finalLocationGeocoded, "initialTime" : drive.initialDate.toHourMinuteTime(), "finalTime" : drive.finalDate.toHourMinuteTime(), "money" : "$\(drive.moneySpent ?? 0.00)", "ticketNumber" : drive.ticketNumber, "notes" : drive.notes]
+        let dict = ["spreadsheetID" : spreadsheetID, "apiKey" : Constants.API_KEYS.google_sheet_api, "date" : drive.initialDate.toMonthDate(), "initialLocation" : drive.initialLocationGeocoded, "finalLocation" : drive.finalLocationGeocoded, "initialTime" : drive.initialDate.toHourMinuteTime(), "finalTime" : drive.finalDate.toHourMinuteTime(), "money" : "$\(drive.moneySpent ?? 0.00)", "ticketNumber" : drive.ticketNumber, "notes" : drive.notes]
         
         functions.httpsCallable("append_drive_to_spreadsheet").call(dict) { result, error in
             if let error = error {

@@ -16,8 +16,8 @@ class Drive: Codable, Equatable {
     private let finalLong: Double
     private let myFinalDate: Date
     private let myInitialDate: Date
-    var initialPlace: String?
-    var finalPlace: String?
+    private var myInitialPlace: String?
+    private var myFinalPlace: String?
     
     var initialCoordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: initLat, longitude: initLong)
@@ -35,6 +35,14 @@ class Drive: Codable, Equatable {
         return myInitialDate
     }
     
+    var initialPlace: String? {
+        return myInitialPlace
+    }
+    
+    var finalPlace: String? {
+        return myFinalPlace
+    }
+    
     init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, initPlace: String? = nil, finPlace: String? = nil) {
         initLat = initialCoordinates.latitude
         initLong = initialCoordinates.longitude
@@ -43,8 +51,10 @@ class Drive: Codable, Equatable {
         finalLong = finalCoordinates.longitude
         myFinalDate = finalDate
         
-        initialPlace = initPlace
-        finalPlace = finPlace
+        myInitialPlace = initPlace
+        myFinalPlace = finPlace
+        
+        loadPlaces()
 
     }
     
@@ -56,10 +66,53 @@ class Drive: Codable, Equatable {
         finalLong = drive.finalLong
         myFinalDate = drive.myFinalDate
         
-        initialPlace = drive.initialPlace
-        finalPlace = drive.finalPlace
+        myInitialPlace = drive.initialPlace
+        myFinalPlace = drive.finalPlace
         
     }
+    
+    func loadPlaces() {
+        if self.initialPlace == nil || self.initialPlace == "" {
+            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: self.initialCoordinate.latitude, longitude: self.initialCoordinate.longitude)) { location, placemark, error in
+                print("finished reverse geocoding")
+                var text = ""
+                if let error = error {
+                    text = "(error)"
+                    print(error.localizedDescription)
+                } else {
+                    text = placemark?.name ?? "(error 2)"
+                }
+                
+                DispatchQueue.main.async {
+                    self.setInitPlace(text)
+                }
+            }
+        }
+        if self.finalPlace == nil || self.finalPlace == "" {
+            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: self.finalCoordinate.latitude, longitude: self.finalCoordinate.longitude)) { location, placemark, error in
+                var text = ""
+                if let error = error {
+                    text = "(error)"
+                    print(error.localizedDescription)
+                } else {
+                    text = placemark?.name ?? "(error 2)"
+                }
+                
+                DispatchQueue.main.async {
+                    self.setFinalPlace(text)
+                }
+            }
+        }
+    }
+    
+    func setInitPlace(_ place: String) {
+        myInitialPlace = place
+    }
+    
+    func setFinalPlace(_ place: String) {
+        myFinalPlace = place
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -72,8 +125,8 @@ class Drive: Codable, Equatable {
         try container.encode(finalLat, forKey: .finalLat)
         try container.encode(finalLong, forKey: .finalLong)
         try container.encode(myFinalDate, forKey: .myFinalDate)
-        try container.encode(initialPlace, forKey: .initialPlace)
-        try container.encode(finalPlace, forKey: .finalPlace)
+        try container.encode(myInitialPlace, forKey: .myInitialPlace)
+        try container.encode(myFinalPlace, forKey: .myFinalPlace)
     }
     
     static func == (lhs: Drive, rhs: Drive) -> Bool {
@@ -85,10 +138,12 @@ class Drive: Codable, Equatable {
         case initLong
         case finalLat
         case finalLong
-        case myFinalDate
+        
         case myInitialDate
-        case initialPlace
-        case finalPlace
+        case myFinalDate
+        
+        case myInitialPlace
+        case myFinalPlace
     }
     
 }

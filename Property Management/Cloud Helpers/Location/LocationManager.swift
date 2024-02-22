@@ -386,22 +386,6 @@ extension LocationManager: CLLocationManagerDelegate {
         
         lastLocation = locations.last
         RecentLocationQueue.shared.putLocation(RecentLocation(location: lastLocation, date: Date()))
-        //        let drive = Visit(
-        //            coordinates: lastLocation!.coordinate,
-        //            arrivalDate: Date(),
-        //            departureDate: Date())
-        //        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
-        //        //print("enqueueing notification for visit \(fakeVisit)")
-        //        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
-        //        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
-        //
-        //        Task {
-        //            do {
-        //                try await FirestoreDatabase.shared.uploadPrivateVisit(visit)
-        //            } catch {
-        //                print(error.localizedDescription)
-        //            }
-        //        }
     }
     
     //    func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
@@ -479,10 +463,17 @@ extension LocationManager: CLLocationManagerDelegate {
                 return
             }
             let drive = Drive(initialCoordinates: startLocation.coordinate, finalCoordinates: endLocation.coordinate, initialDate: startTime, finalDate: Date())
+            if abs(drive.finalDate.secondsSince(drive.initialDate)) < 120 {
+                return
+            }
             startDriveTime = nil
             startDriveLocation = nil
-            NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
-            uploadDrive(drive)
+
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
+                self.uploadDrive(drive)
+            }
         }
         //print("motion did update: \(activity)")
     }

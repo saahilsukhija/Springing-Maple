@@ -17,9 +17,11 @@ class FirestoreDatabase {
     }()
     
     private var db: Firestore!
+    private var disableUpdates: Bool!
     
     init() {
         db = Firestore.firestore()
+        disableUpdates = false
     }
     
     func uploadPrivateDrive(_ drive: Drive) async throws {
@@ -55,6 +57,7 @@ class FirestoreDatabase {
         }
         
         do {
+            disableUpdatesTemporarily()
             if try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").getDocument().exists == false {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").setData(["registered": [JSONEncoder().encode(registeredDrive)]])
                 print("DNE")
@@ -153,6 +156,12 @@ class FirestoreDatabase {
         }
         
         db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").addSnapshotListener { snapshot, error in
+            
+            if self.disableUpdates {
+                print("disabled!")
+                return
+            }
+            
             if let error = error {
                 print(error.localizedDescription)
             }
@@ -172,6 +181,14 @@ class FirestoreDatabase {
                     //throw FirestoreError("Error decoding")
                 }
             }
+        }
+    }
+    
+    func disableUpdatesTemporarily(/*for seconds: Int = 5*/) {
+        disableUpdates = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            self.disableUpdates = false
         }
     }
     

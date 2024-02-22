@@ -13,6 +13,7 @@
 		6D05E4A32B534F38001DF6D2 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D05E4A22B534F38001DF6D2 /* Stopwatch.swift */; };
 		6D1B7CBC2B46C81700A9EC96 /* API_KEYS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1B7CBB2B46C81700A9EC96 /* API_KEYS.swift */; };
 		6D1B7CBE2B47644400A9EC96 /* Drive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1B7CBD2B47644400A9EC96 /* Drive.swift */; };
+		6D6979772B85C66300E93E28 /* FirebaseStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6979762B85C66300E93E28 /* FirebaseStorage.swift */; };
 		6D6B26862B4FE43500809D6D /* RecentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26852B4FE43500809D6D /* RecentLocation.swift */; };
 		6D6B26882B4FE47100809D6D /* RecentLocationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */; };
 		6D8191C62AF1DD3F0001E211 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8191C52AF1DD3F0001E211 /* HideKeyboard.swift */; };
@@ -108,6 +109,7 @@
 		6D05E4A22B534F38001DF6D2 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
 		6D1B7CBB2B46C81700A9EC96 /* API_KEYS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API_KEYS.swift; sourceTree = "<group>"; };
 		6D1B7CBD2B47644400A9EC96 /* Drive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drive.swift; sourceTree = "<group>"; };
+		6D6979762B85C66300E93E28 /* FirebaseStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorage.swift; sourceTree = "<group>"; };
 		6D6B26852B4FE43500809D6D /* RecentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocation.swift; sourceTree = "<group>"; };
 		6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocationQueue.swift; sourceTree = "<group>"; };
 		6D8191C52AF1DD3F0001E211 /* HideKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
@@ -397,6 +399,7 @@
 			isa = PBXGroup;
 			children = (
 				6DBAF5242B40E829004D23EE /* FirestoreDatabase.swift */,
+				6D6979762B85C66300E93E28 /* FirebaseStorage.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -765,6 +768,7 @@
 				6DBAF5202B40DD6D004D23EE /* VisitQueue.swift in Sources */,
 				6D9E667C2AF1CD1B002E9664 /* SceneDelegate.swift in Sources */,
 				6DAC41C12B424F9C0092A26F /* Team.swift in Sources */,
+				6D6979772B85C66300E93E28 /* FirebaseStorage.swift in Sources */,
 				6DB5024E2B48FC1E007FE430 /* DriveMapVC.swift in Sources */,
 				6D05E4A32B534F38001DF6D2 /* Stopwatch.swift in Sources */,
 				6DAC41D62B4542AF0092A26F /* DesignableUITextField.swift in Sources */,
@@ -957,6 +961,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = H2GNMXBY87;
@@ -980,6 +985,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.saahilsukhija.Property-Management";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -992,6 +998,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = H2GNMXBY87;
@@ -1015,6 +1022,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.saahilsukhija.Property-Management";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -7,6 +7,7 @@
 
 import UIKit
 import MapKit
+import FDTake
 
 class DriveCell: UITableViewCell {
     
@@ -25,11 +26,15 @@ class DriveCell: UITableViewCell {
     @IBOutlet weak var moneyTextField: UITextField!
     @IBOutlet weak var notesTextField: UITextField!
     
+    @IBOutlet weak var cameraButton: UIButton!
 
     var drive: Drive!
     
+    var image: UIImage?
+    
     weak var parentVC: UIViewController!
     
+    var camera: FDTakeController!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -53,42 +58,13 @@ class DriveCell: UITableViewCell {
         self.dateLabel.text = "\(d.finalDate.get(.month))/\(d.finalDate.get(.day))"
         
         if d.initialPlace == nil {
-            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: drive.initialCoordinate.latitude, longitude: drive.initialCoordinate.longitude)) { location, placemark, error in
-                print("finished reverse geocoding")
-                var text = ""
-                if let error = error {
-                    text = "(error)"
-                    print(error.localizedDescription)
-                } else {
-                    text = placemark?.name ?? "(error 2)"
-                }
-                
-                DispatchQueue.main.async {
-                    self.initialPlaceLabel.text = text
-                    self.initialPlaceLabel.textColor = .black
-                    d.initialPlace = text
-                }
-            }
+            //TODO: ADD TO REVERSE GEOLOCATION QUEUE
         } else {
             self.initialPlaceLabel.text = d.initialPlace
             self.initialPlaceLabel.textColor = .black
         }
         if d.finalPlace == nil {
-            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: drive.finalCoordinate.latitude, longitude: drive.finalCoordinate.longitude)) { location, placemark, error in
-                var text = ""
-                if let error = error {
-                    text = "(error)"
-                    print(error.localizedDescription)
-                } else {
-                    text = placemark?.name ?? "(error 2)"
-                }
-                
-                DispatchQueue.main.async {
-                    self.finalPlaceLabel.text = text
-                    self.finalPlaceLabel.textColor = .black
-                    d.finalPlace = text
-                }
-            }
+            //TODO: ADD TO REVERSE GEOLOCATION QUEUE
         }
         else {
             self.finalPlaceLabel.text = d.finalPlace
@@ -101,6 +77,9 @@ class DriveCell: UITableViewCell {
                 self.milesDrivenLabel.textColor = .black
             }
         }
+        
+        camera = FDTakeController()
+        camera.allowsVideo = false
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -115,11 +94,15 @@ class DriveCell: UITableViewCell {
         let money = moneyTextField.text == "" ? 0.00 : Double(moneyTextField.text ?? "0")
         let notes = notesTextField.text ?? ""
         
-        let registeredDrive = RegisteredDrive(from: drive, moneySpent: money ?? 0.00, ticketNumber: ticketNumber, notes: notes)
+        let registeredDrive = RegisteredDrive(from: drive, moneySpent: money ?? 0.00, ticketNumber: ticketNumber, notes: notes, image: image ?? UIImage.checkmark)
         registeredDrive.setInitialGeocodedLocation(initialPlaceLabel.text ?? "")
         registeredDrive.setFinalGeocodedLocation(finalPlaceLabel.text ?? "")
         
-        NotificationCenter.default.post(name: .driveMarkedAsRegistered, object: nil, userInfo: ["drive" : self.drive!, "registered_drive" : registeredDrive])
+        if let image = image {
+            NotificationCenter.default.post(name: .driveMarkedAsRegistered, object: nil, userInfo: ["drive" : self.drive!, "registered_drive" : registeredDrive, "receipt_image" : image])
+        } else {
+            NotificationCenter.default.post(name: .driveMarkedAsRegistered, object: nil, userInfo: ["drive" : self.drive!, "registered_drive" : registeredDrive])
+        }
     }
     
     @IBAction func trashButtonClicked(_ sender: Any) {
@@ -131,6 +114,17 @@ class DriveCell: UITableViewCell {
 
         parentVC.present(vc, animated: true) {
             vc.setup(with: self.drive)
+        }
+    }
+    
+    @IBAction func cameraButtonClicked(_ sender: Any) {
+        camera.present()
+        
+        camera.didGetPhoto = {
+            (_ photo: UIImage, _ info: [AnyHashable : Any]) in
+            
+            self.cameraButton.setImage(UIImage(systemName: "photo.badge.checkmark"), for: .normal)
+            self.image = photo
         }
     }
     

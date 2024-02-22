@@ -9,6 +9,6 @@ import Foundation
 
 class Constants {
     
-   
+   static var NUMBER_DIGITS_IN_ID = 20
 
 }

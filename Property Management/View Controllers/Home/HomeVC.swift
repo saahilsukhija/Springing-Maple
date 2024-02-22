@@ -20,6 +20,7 @@ class HomeVC: UIViewController {
     
     var shouldDeleteFromList = true
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -48,6 +49,8 @@ class HomeVC: UIViewController {
                 }
             }
         }
+        
+
         
         
     }
@@ -163,25 +166,27 @@ class HomeVC: UIViewController {
             return
         }
         
+        let receipt = notification.userInfo?["receipt_image"] as? UIImage
+        
         if registeredDrive.ticketNumber == "" {
-            askToSubmitDrive(drive, registeredDrive)
+            askToSubmitDrive(drive, registeredDrive, receipt)
         } else {
-            submitDrive(drive, registeredDrive)
+            submitDrive(drive, registeredDrive, receipt)
         }
         
         
     }
     
-    func askToSubmitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive) {
+    func askToSubmitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive, _ receipt: UIImage?) {
         let alert = UIAlertController(title: "No Ticket Number Given!", message: "No ticket number was provided, are you sure you want to continue?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
-            self.submitDrive(drive, registeredDrive)
+            self.submitDrive(drive, registeredDrive, receipt)
         }))
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
         self.present(alert, animated: true)
     }
     
-    func submitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive) {
+    func submitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive, _ receipt: UIImage?) {
         
         Task {
             
@@ -200,6 +205,9 @@ class HomeVC: UIViewController {
             
             do {
                 try await FirestoreDatabase.shared.registerDrive(from: drives, drive: drive, to: registeredDrive)
+                if let receipt = receipt {
+                    try FirebaseStorage.shared.uploadDriveReciept(registeredDrive, image: receipt)
+                }
             } catch {
                 DispatchQueue.main.async {
                     self.showFailureToast(message: error.localizedDescription)

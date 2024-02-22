@@ -7,7 +7,7 @@
 
 import CoreLocation
 
-class RecentLocationQueue {
+class RecentLocationQueue: Codable {
     
     private(set) var locations: [RecentLocation]!
     
@@ -18,11 +18,21 @@ class RecentLocationQueue {
     }()
     
     init() {
-        locations = []
+        if UserDefaults.standard.isKeyPresent(key: "recentLocationQueue") {
+            do {
+                let queue = try UserDefaults.standard.get(objectType: RecentLocationQueue.self, forKey: "recentLocationQueue")
+                locations = queue?.locations
+                print("restored RecentLocationQueue from defaults")
+            } catch {
+                locations = []
+            }
+        } else {
+            locations = []
+        }
     }
     
     func putLocation(_ recentLocation: RecentLocation) {
-        if locations.count > 10 {
+        if locations.count > 150 {
             locations.removeFirst()
             locations.append(recentLocation)
             return
