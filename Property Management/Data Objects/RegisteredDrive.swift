@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreLocation
+import FirebaseStorage
 
 class RegisteredDrive: Drive {
     
@@ -19,9 +20,10 @@ class RegisteredDrive: Drive {
     public var image: UIImage?
     public var internalID: String?
     
-    var imagePath: String {
+    public var imagePath: String {
         return "receipts/\(internalID ?? "0")"
     }
+    //public var receiptURL: String?
     
     init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, moneySpent: Double, ticketNumber: String, notes: String, image: UIImage, internalID: String = "") {
         
@@ -134,10 +136,23 @@ class RegisteredDrive: Drive {
     func generateRandomID(numDigits: Int) -> String {
         
         var finalNumber = "";
-        for i in (0...numDigits) {
-            var randomNumber = arc4random_uniform(10)
+        for _ in (0...numDigits) {
+            let randomNumber = arc4random_uniform(10)
             finalNumber += String(Int(randomNumber))
         }
         return finalNumber
     }
+    
+    func getReceiptURL() async throws -> String  {
+        let reference = Storage.storage().reference(withPath: "receipts/\(internalID ?? "0")")
+        do {
+           let string = try await reference.downloadURL().absoluteString
+           return string
+        }
+        catch {
+            print("unable to get receipt URL")
+            return "N/A"
+        }
+    }
+    
 }

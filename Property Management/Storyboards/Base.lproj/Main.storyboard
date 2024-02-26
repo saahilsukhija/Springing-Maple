@@ -320,6 +320,7 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="cameraButton" destination="oCc-Q4-MHX" id="zMs-KV-5bP"/>
                                             <outlet property="containerView" destination="MrS-E0-cUR" id="WSE-tA-ZdJ"/>
                                             <outlet property="dateLabel" destination="flN-hk-iqh" id="n2T-Vc-MeP"/>
                                             <outlet property="finalPlaceLabel" destination="uG5-jU-Gs6" id="Lek-3u-cTh"/>

@@ -32,7 +32,7 @@ class DriveCell: UITableViewCell {
     
     var image: UIImage?
     
-    weak var parentVC: UIViewController!
+    weak var parentVC: HomeVC!
     
     var camera: FDTakeController!
     override func awakeFromNib() {
@@ -119,12 +119,16 @@ class DriveCell: UITableViewCell {
     
     @IBAction func cameraButtonClicked(_ sender: Any) {
         camera.present()
-        
+        parentVC.isPresentingCamera = true
         camera.didGetPhoto = {
             (_ photo: UIImage, _ info: [AnyHashable : Any]) in
             
-            self.cameraButton.setImage(UIImage(systemName: "photo.badge.checkmark"), for: .normal)
+            self.cameraButton.setImage(UIImage(systemName: "icloud.and.arrow.up"), for: .normal)
             self.image = photo
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                self.parentVC.isPresentingCamera = false
+            }
         }
     }
     

@@ -20,6 +20,7 @@ class HomeVC: UIViewController {
     
     var shouldDeleteFromList = true
     
+    var isPresentingCamera = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +58,8 @@ class HomeVC: UIViewController {
     
     
     override func viewDidAppear(_ animated: Bool) {
+        
+        guard !isPresentingCamera else { return }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             guard User.shared.isLoggedIn() else {
@@ -204,10 +207,19 @@ class HomeVC: UIViewController {
             tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
             
             do {
-                try await FirestoreDatabase.shared.registerDrive(from: drives, drive: drive, to: registeredDrive)
                 if let receipt = receipt {
-                    try FirebaseStorage.shared.uploadDriveReciept(registeredDrive, image: receipt)
+                    try FirebaseStorage.shared.uploadDriveReciept(registeredDrive, image: receipt) { completion in
+                        print("did upload reciept: \(completion)")
+                        Task {
+                            try await FirestoreDatabase.shared.registerDrive(from: self.drives, drive: drive, to: registeredDrive)
+                            GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive)
+                        }
+                    }
+                } else {
+                    try await FirestoreDatabase.shared.registerDrive(from: drives, drive: drive, to: registeredDrive)
+                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive)
                 }
+
             } catch {
                 DispatchQueue.main.async {
                     self.showFailureToast(message: error.localizedDescription)
@@ -217,7 +229,7 @@ class HomeVC: UIViewController {
 
         }
         
-        GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive)
+        
     }
     
     @objc func driveMarkedAsDeleted(_ notification: NSNotification) {

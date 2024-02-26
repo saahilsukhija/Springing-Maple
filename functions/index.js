@@ -40,7 +40,7 @@ exports.append_to_spreadsheet = onRequest(async (req, res) => {
 exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
   const spreadsheetID = req.body.data.spreadsheetID;
   const apiKey = req.body.data.apiKey;
-  const date = req.body.data.date
+  const date = req.body.data.date;
   const initialLocation = req.body.data.initialLocation;
   const finalLocation = req.body.data.finalLocation;
   const initialTime = req.body.data.initialTime;
@@ -48,7 +48,7 @@ exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
   const moneySpent = req.body.data.money;
   const ticketNumber = req.body.data.ticketNumber;
   const notes = req.body.data.notes;
-  const receiptLink = "N/A";
+  const receiptLink = req.body.data.receiptLink;
 
   const auth = await google.auth.getClient({
     scopes: [
