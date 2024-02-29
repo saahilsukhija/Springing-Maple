@@ -41,6 +41,8 @@ final class LocationManager: NSObject {
     private var startDriveLocation: CLLocation?
     private var startDriveTime: Date?
     
+    private var lastDriveCreated: Drive?
+    
     //Singleton Instance
     static let shared: LocationManager = {
         let instance = LocationManager()
@@ -443,7 +445,19 @@ extension LocationManager: CLLocationManagerDelegate {
                 }
             }
             
+            
             NotificationCenter.default.post(name: .newDriveStarted, object: nil)
+            
+            if let lastDriveCreated = lastDriveCreated {
+                let work = Work(initialCoordinates: lastDriveCreated.finalCoordinate, finalCoordinates: lastDriveCreated.finalCoordinate, initialDate: lastDriveCreated.finalDate, finalDate: startDriveTime ?? Date())
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    self.uploadWork(work)
+                }
+
+                print("new work detected!")
+            }
+            
             print("new drive started!")
         }
         else if (activity.automotive == false && activity.cycling == false && activity.running == false) && isDriving == true {
@@ -464,6 +478,7 @@ extension LocationManager: CLLocationManagerDelegate {
             }
             let drive = Drive(initialCoordinates: startLocation.coordinate, finalCoordinates: endLocation.coordinate, initialDate: startTime, finalDate: Date())
             if abs(drive.finalDate.secondsSince(drive.initialDate)) < 120 {
+                isDriving = true
                 return
             }
             startDriveTime = nil
@@ -472,6 +487,7 @@ extension LocationManager: CLLocationManagerDelegate {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
+                self.lastDriveCreated = drive
                 self.uploadDrive(drive)
             }
         }
@@ -482,6 +498,16 @@ extension LocationManager: CLLocationManagerDelegate {
         Task {
             do {
                 try await FirestoreDatabase.shared.uploadPrivateDrive(drive)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func uploadWork(_ work: Work) {
+        Task {
+            do {
+                try await FirestoreDatabase.shared.uploadPrivateWork(work)
             } catch {
                 print(error.localizedDescription)
             }

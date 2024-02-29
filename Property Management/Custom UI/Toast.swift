@@ -52,6 +52,14 @@ extension UIViewController {
         showAnimationToast(animationName: "TrashComplete", message: message, duration: 2, color: .systemRed, fontColor: .systemRed)
     }
     
+    func showConfirmWorkToast(message: String = "Marked work as done!") {
+        showAnimationToast(animationName: "SendComplete", message: message, duration: 2, color: .accent, fontColor: .accent)
+    }
+    
+    func showDeleteWorkToast(message: String = "Deleted work!") {
+        showAnimationToast(animationName: "TrashComplete", message: message, duration: 2, color: .systemRed, fontColor: .systemRed)
+    }
+    
     ///Shows a green toast
     func showSuccessToast(message: String) {
         showAnimationToast(animationName: "CheckMark", message: message, color: .systemGreen, fontColor: .systemGreen)

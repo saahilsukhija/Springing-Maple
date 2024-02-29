@@ -28,7 +28,7 @@ class FirebaseStorage {
         disableUpdates = false
     }
     
-    func uploadDriveReciept(_ drive: RegisteredDrive, image: UIImage, completion: @escaping((Bool) -> Void)) throws {
+    func uploadWorkReciept(_ work: RegisteredWork, image: UIImage, completion: @escaping((Bool) -> Void)) throws {
         let user = User.shared
         guard user.isLoggedIn() else {
             throw FirebaseError("User is not logged in")
@@ -36,13 +36,13 @@ class FirebaseStorage {
         guard let image = image.jpegData(compressionQuality: 0.7) else {
             throw FirebaseError("Error creating image data")
         }
-        db.child(drive.imagePath).putData(image, metadata: StorageMetadata(dictionary: ["id" : drive.internalID])) { metadata, error in
+        db.child(work.imagePath).putData(image, metadata: StorageMetadata(dictionary: ["id" : work.internalID])) { metadata, error in
                 if let error = error {
                     print(error.localizedDescription)
                     completion(false)
                 } else {
                     print("success uploading data \(metadata?.dictionaryRepresentation() ?? [:])")
-                    print("uploaded drive: \(drive)")
+                    print("uploaded work: \(work)")
                     completion(true)
                 }
             }

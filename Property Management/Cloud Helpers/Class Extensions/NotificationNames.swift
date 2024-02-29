@@ -18,17 +18,24 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
-    /// Notification when user's visit was detected
-    static var newVisitDetected: Notification.Name {
-        return .init(rawValue: #function)
-    }
-    
     static var newDriveStarted: Notification.Name {
         return .init(rawValue: #function)
     }
     
     /// Notification when user's drive was detected
     static var newDriveFinished: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var workMarkedAsRegistered: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var workMarkedAsDeleted: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var cloudWorkDetected: Notification.Name {
         return .init(rawValue: #function)
     }
     

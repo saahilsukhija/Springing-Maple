@@ -7,143 +7,89 @@
 
 import Foundation
 import CoreLocation
+import MapKit
 
-class Drive: Codable, Equatable {
-
-    private let initLat: Double
-    private let initLong: Double
-    private let finalLat: Double
-    private let finalLong: Double
-    private let myFinalDate: Date
-    private let myInitialDate: Date
-    private var myInitialPlace: String?
-    private var myFinalPlace: String?
+class Drive: Activity {
     
-    var initialCoordinate: CLLocationCoordinate2D {
-        return CLLocationCoordinate2D(latitude: initLat, longitude: initLong)
-    }
+    public var milesDriven: Double? = 0
     
-    var finalCoordinate: CLLocationCoordinate2D {
-        return CLLocationCoordinate2D(latitude: finalLat, longitude: finalLong)
-    }
-    
-    var finalDate: Date {
-        return myFinalDate
-    }
-    
-    var initialDate: Date {
-        return myInitialDate
-    }
-    
-    var initialPlace: String? {
-        return myInitialPlace
-    }
-    
-    var finalPlace: String? {
-        return myFinalPlace
-    }
-    
-    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, initPlace: String? = nil, finPlace: String? = nil) {
-        initLat = initialCoordinates.latitude
-        initLong = initialCoordinates.longitude
-        myInitialDate = initialDate
-        finalLat = finalCoordinates.latitude
-        finalLong = finalCoordinates.longitude
-        myFinalDate = finalDate
+    init(from activity: Activity, milesDriven: Double = 0) {
+        super.init(from: activity)
         
-        myInitialPlace = initPlace
-        myFinalPlace = finPlace
+        self.milesDriven = milesDriven
         
-        loadPlaces()
-
-    }
-    
-    init(from drive: Drive) {
-        initLat = drive.initLat
-        initLong = drive.initLong
-        myInitialDate = drive.myInitialDate
-        finalLat = drive.finalLat
-        finalLong = drive.finalLong
-        myFinalDate = drive.myFinalDate
-        
-        myInitialPlace = drive.initialPlace
-        myFinalPlace = drive.finalPlace
-        
-    }
-    
-    func loadPlaces() {
-        if self.initialPlace == nil || self.initialPlace == "" {
-            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: self.initialCoordinate.latitude, longitude: self.initialCoordinate.longitude)) { location, placemark, error in
-                print("finished reverse geocoding")
-                var text = ""
-                if let error = error {
-                    text = "(error)"
-                    print(error.localizedDescription)
-                } else {
-                    text = placemark?.name ?? "(error 2)"
-                }
-                
-                DispatchQueue.main.async {
-                    self.setInitPlace(text)
-                }
-            }
-        }
-        if self.finalPlace == nil || self.finalPlace == "" {
-            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: self.finalCoordinate.latitude, longitude: self.finalCoordinate.longitude)) { location, placemark, error in
-                var text = ""
-                if let error = error {
-                    text = "(error)"
-                    print(error.localizedDescription)
-                } else {
-                    text = placemark?.name ?? "(error 2)"
-                }
-                
-                DispatchQueue.main.async {
-                    self.setFinalPlace(text)
-                }
+        if milesDriven == 0 {
+            getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
+                self.milesDriven = miles
             }
         }
     }
     
-    func setInitPlace(_ place: String) {
-        myInitialPlace = place
+    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, initPlace: String? = nil, finPlace: String? = nil, milesDriven: Double = 0) {
+        super.init(initialCoordinates: initialCoordinates, finalCoordinates: finalCoordinates, initialDate: initialDate, finalDate: finalDate, initPlace: initPlace, finPlace: finPlace)
+        
+        self.milesDriven = milesDriven
+        
+        if milesDriven == 0 {
+            getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
+                self.milesDriven = miles
+            }
+        }
     }
     
-    func setFinalPlace(_ place: String) {
-        myFinalPlace = place
+    
+    required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+        
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        milesDriven = try values.decode(Double.self, forKey: .milesDriven)
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func encode(to encoder: Encoder) throws {
+    override func encode(to encoder: Encoder) throws {
+        
+        try super.encode(to: encoder)
+        
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(initLat, forKey: .initLat)
-        try container.encode(initLong, forKey: .initLong)
-        try container.encode(myInitialDate, forKey: .myInitialDate)
-        try container.encode(finalLat, forKey: .finalLat)
-        try container.encode(finalLong, forKey: .finalLong)
-        try container.encode(myFinalDate, forKey: .myFinalDate)
-        try container.encode(myInitialPlace, forKey: .myInitialPlace)
-        try container.encode(myFinalPlace, forKey: .myFinalPlace)
+        try container.encode(milesDriven, forKey: .milesDriven)
     }
     
-    static func == (lhs: Drive, rhs: Drive) -> Bool {
-        return lhs.initialDate.compare(rhs.initialDate) == .orderedSame && lhs.finalDate.compare(rhs.finalDate) == .orderedSame && lhs.initLat == rhs.initLat && lhs.initLong == rhs.initLong
+    func getMilesBetween(_ sourceP: CLLocationCoordinate2D, and destP: CLLocationCoordinate2D, completion: @escaping((Double) -> Void)) {
+        let source = MKPlacemark(coordinate: sourceP)
+        let destination = MKPlacemark(coordinate: destP)
+                
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: source)
+        request.destination = MKMapItem(placemark: destination)
+
+        // Specify the transportation type
+        request.transportType = MKDirectionsTransportType.automobile;
+
+        // If you want only the shortest route, set this to a false
+        request.requestsAlternateRoutes = false
+
+        let directions = MKDirections(request: request)
+
+         // Now we have the routes, we can calculate the distance using
+         directions.calculate { (response, error) in
+            if let response = response, let route = response.routes.first {
+                completion(route.distance/1609.34)
+            }
+             else {
+                 print(error!)
+             }
+         }
     }
     
-    private enum CodingKeys: String, CodingKey {
-        case initLat
-        case initLong
-        case finalLat
-        case finalLong
-        
-        case myInitialDate
-        case myFinalDate
-        
-        case myInitialPlace
-        case myFinalPlace
+    private enum CodingKeys: String, CodingKey
+    {
+        case initialLocationGeocoded
+        case finalLocationGeocoded
+        case milesDriven
     }
     
 }

@@ -41,14 +41,16 @@ exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
   const spreadsheetID = req.body.data.spreadsheetID;
   const apiKey = req.body.data.apiKey;
   const date = req.body.data.date;
-  const initialLocation = req.body.data.initialLocation;
+  // const initialLocation = req.body.data.initialLocation;
   const finalLocation = req.body.data.finalLocation;
+  const type = req.body.data.type;
   const initialTime = req.body.data.initialTime;
   const finalTime = req.body.data.finalTime;
   const moneySpent = req.body.data.money;
   const ticketNumber = req.body.data.ticketNumber;
   const notes = req.body.data.notes;
   const receiptLink = req.body.data.receiptLink;
+  const username = req.body.data.username;
 
   const auth = await google.auth.getClient({
     scopes: [
@@ -56,14 +58,14 @@ exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
       "https://www.googleapis.com/auth/devstorage.read_only",
     ],
   });
-  const range = "A1";
+  const range = "'" + username + "'!A1";
 
+  addNewSheet(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
-      [date, ticketNumber,
-        initialLocation, finalLocation,
-        initialTime, finalTime,
-        moneySpent, receiptLink,
-        notes]);
+      [date, initialTime,
+        finalTime, ticketNumber,
+        type, finalLocation,
+        moneySpent, receiptLink, notes]);
   // const values = request.query.values
 
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
@@ -72,6 +74,106 @@ exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
 
   res.send({result: "Added row onto " + spreadsheetID});
 });
+
+exports.create_new_sheet = onRequest(async (req, res) => {
+  const spreadsheetID = req.body.data.spreadsheetID;
+  const apiKey = req.body.data.apiKey;
+  const username = req.body.data.username;
+
+  const auth = await google.auth.getClient({
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+    ],
+  });
+
+  addNewSheet(auth, apiKey, spreadsheetID, username);
+
+  logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
+  logger.info("auth: " + auth.email, {structuredData: true});
+  // return {result: "Hello from " + spreadsheetID};
+
+  res.send({result: "Added sheet onto " + spreadsheetID});
+});
+
+exports.reset_header = onRequest(async (req, res) => {
+  const spreadsheetID = req.body.data.spreadsheetID;
+  const apiKey = req.body.data.apiKey;
+  const username = req.body.data.username;
+
+  const auth = await google.auth.getClient({
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+    ],
+  });
+
+  resetHeader(auth, apiKey, spreadsheetID, username);
+
+  logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
+  logger.info("auth: " + auth.email, {structuredData: true});
+  // return {result: "Hello from " + spreadsheetID};
+
+  res.send({result: "Reset header onto " + spreadsheetID});
+});
+
+
+/**
+ * Adds a new sheet
+ * @param {auth} auth TODO: OAUTH
+ * @param {String} apiKey API Key
+ * @param {String} spreadsheetID The second number.
+ * @param {String} name the name of sheet
+ */
+function addNewSheet(auth, apiKey, spreadsheetID, name) {
+  const sheets = google.sheets({version: "v4", auth});
+  sheets.spreadsheets.batchUpdate(
+      {
+        auth: auth,
+        spreadsheetId: spreadsheetID,
+        key: apiKey,
+        resource: {
+          requests: [
+            {
+              "addSheet": {
+                "properties": {
+                  "title": name,
+                },
+              },
+            },
+          ],
+        },
+      },
+  );
+}
+
+/**
+ * Resets the header to a sheet
+ * @param {auth} auth TODO: OAUTH
+ * @param {String} apiKey API Key
+ * @param {String} spreadsheetID The second number.
+ * @param {String} name the name of sheet
+ */
+function resetHeader(auth, apiKey, spreadsheetID, name) {
+  const sheets = google.sheets({version: "v4", auth});
+  sheets.spreadsheets.values.update({
+    spreadsheetId: spreadsheetID,
+    range: "'" + name + "'!A1",
+    auth: auth,
+    key: apiKey,
+    valueInputOption: "RAW",
+    resource: {values: [["Date", "Start", "Finish",
+      "Appfolio Ticket Number", "Type", "Location",
+      "Expense Amount", "Receipt Link", "Description",
+      "Duration"]]},
+  }, (err, result) => {
+    if (err) {
+      throw err;
+    } else {
+      console.log("Updated sheet: " + result.data.updates.updatedRange);
+    }
+  });
+}
 
 /**
  * Adds a row to the spreadsheet

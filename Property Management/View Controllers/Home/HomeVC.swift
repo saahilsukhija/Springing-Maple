@@ -15,8 +15,7 @@ class HomeVC: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     var locationManager: LocationManager!
-    var drives: [Drive] = []
-    
+    var activities: [Activity] = []
     
     var shouldDeleteFromList = true
     
@@ -31,12 +30,20 @@ class HomeVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(userDriveUpdated(_:)), name: .newDriveFinished, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(driveMarkedAsRegistered(_:)), name: .driveMarkedAsRegistered, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(driveMarkedAsDeleted(_:)), name: .driveMarkedAsDeleted, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(workMarkedAsRegistered(_:)), name: .workMarkedAsRegistered, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(workMarkedAsDeleted(_:)), name: .workMarkedAsDeleted, object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(cloudDriveDetected(_:)), name: .cloudDriveDetected, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(cloudWorkDetected(_:)), name: .cloudWorkDetected, object: nil)
+        
         tableView.delegate = self
         tableView.dataSource = self
         tableView.keyboardDismissMode = .onDrag
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             Task {
                 await self.showSignInToast()
@@ -67,36 +74,48 @@ class HomeVC: UIViewController {
                 self.modalPresentationStyle = .fullScreen
                 self.present(vc, animated: true)
                 try? FirestoreDatabase.shared.addNotificationForPrivateDrives()
+                try? FirestoreDatabase.shared.addNotificationForPrivateWorks()
                 return
             }
             
             try? FirestoreDatabase.shared.addNotificationForPrivateDrives()
+            try? FirestoreDatabase.shared.addNotificationForPrivateWorks()
+            
             
             let loadingScreen = self.createLoadingScreen(frame: self.view.frame)
             self.view.addSubview(loadingScreen)
             Task {
+//                let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.055925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home", finPlace: "Home Depot")
+//                let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home")
+//                
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+//                    Task {
+//                        try? await FirestoreDatabase.shared.uploadPrivateDrive(d1)
+//                        try? await FirestoreDatabase.shared.uploadPrivateDrive(d2)
+//                        try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home Depot"))
+//                    }
+//                }
+////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.055925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home", finPlace: "Home Depot"))
+////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home"))
+////                try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home Depot"))
                 do {
                     let drives = try await FirestoreDatabase.shared.getPrivateDrives()
-                    self.drives = drives
+                    let works = try await FirestoreDatabase.shared.getPrivateWorks()
+                    self.activities = drives
+                    self.activities.replaceWorks(with: works)
                     print("got drives: \(drives)")
-                    for drive in drives {
-                        print("initial: \(drive.initialCoordinate) at \(drive.initialDate) \n final: \(drive.finalCoordinate) at \(drive.finalDate)")
-                        print(drive.finalDate.secondsSince(drive.initialDate))
+                    print("got works: \(works)")
+                    for work in works {
+                        print("initial: \(work.initialCoordinate) at \(work.initialDate) \n final: \(work.finalCoordinate) at \(work.finalDate)")
+                        print(work.finalDate.secondsSince(work.initialDate))
                     }
                     DispatchQueue.main.async {
                         self.tableView.reloadData()
                         loadingScreen.removeFromSuperview()
                     }
                     
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-//                        Task {
-//                            try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2DMake(37.3150, -122.0562), finalCoordinates: CLLocationCoordinate2DMake(37.32, -122.001), initialDate: Date(), finalDate: Date()))
-//                            try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2DMake(37.3346, -122.009), finalCoordinates: CLLocationCoordinate2DMake(37.348, -122.03), initialDate: Date(), finalDate: Date()))
-//                            try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2DMake(37.35, -122.25), finalCoordinates: CLLocationCoordinate2DMake(37.243, -122.256), initialDate: Date(), finalDate: Date()))
-//                        }
-////                    }
                     
-                    
+                    GoogleSheetAssistant.shared.addUserSheet()
                     
                 } catch {
                     print(error.localizedDescription)
@@ -141,6 +160,7 @@ class HomeVC: UIViewController {
         print("location: \(location)")
     }
     
+    
     @objc func userDriveUpdated(_ notification: NSNotification)  {
         guard let drive = notification.userInfo?["drive"] as? Drive else {
             print("no drive recieved on drive notification")
@@ -154,11 +174,23 @@ class HomeVC: UIViewController {
             print("no drives recieved on cloud drive notification")
             return
         }
-        if arr.count > drives.count {
-            drives = arr
+        if arr.count > activities.getDrives().count {
+            activities.replaceDrives(with: arr)
             tableView.reloadData()
         }
     }
+    
+    @objc func cloudWorkDetected(_ notification: NSNotification) {
+        guard let arr = notification.userInfo?["works"] as? [Work] else {
+            print("no works recieved on cloud work notification")
+            return
+        }
+        if arr.count > activities.getWorks().count {
+            activities.replaceWorks(with: arr)
+            tableView.reloadData()
+        }
+    }
+    
     @objc func driveMarkedAsRegistered(_ notification: NSNotification) {
         guard let drive = notification.userInfo?["drive"] as? Drive else {
             print("no drive recieved on drive notification")
@@ -169,31 +201,50 @@ class HomeVC: UIViewController {
             return
         }
         
-        let receipt = notification.userInfo?["receipt_image"] as? UIImage
-        
         if registeredDrive.ticketNumber == "" {
-            askToSubmitDrive(drive, registeredDrive, receipt)
+            askToSubmitDrive(drive, registeredDrive)
         } else {
-            submitDrive(drive, registeredDrive, receipt)
+            submitDrive(drive, registeredDrive)
         }
         
         
     }
     
-    func askToSubmitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive, _ receipt: UIImage?) {
+    @objc func workMarkedAsRegistered(_ notification: NSNotification) {
+        guard let work = notification.userInfo?["work"] as? Work else {
+            print("no work recieved on work notification")
+            return
+        }
+        guard let registeredWork = notification.userInfo?["registered_work"] as? RegisteredWork else {
+            print("no registered work recieved on work notification")
+            return
+        }
+        
+        let receipt = notification.userInfo?["receipt_image"] as? UIImage
+        
+        if registeredWork.ticketNumber == "" {
+            askToSubmitWork(work, registeredWork, receipt)
+        } else {
+            submitWork(work, registeredWork, receipt)
+        }
+        
+        
+    }
+    
+    func askToSubmitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive) {
         let alert = UIAlertController(title: "No Ticket Number Given!", message: "No ticket number was provided, are you sure you want to continue?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
-            self.submitDrive(drive, registeredDrive, receipt)
+            self.submitDrive(drive, registeredDrive)
         }))
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
         self.present(alert, animated: true)
     }
     
-    func submitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive, _ receipt: UIImage?) {
-        
+    
+    func submitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive) {
         Task {
             
-            let index = drives.firstIndex { d in
+            let index = activities.firstIndex { d in
                 return d == drive
             }
             
@@ -203,21 +254,61 @@ class HomeVC: UIViewController {
             }
             
             self.showConfirmDriveToast()
-            drives.remove(at: index)
+            activities.remove(at: index)
+            tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+            
+            do {
+                try await FirestoreDatabase.shared.registerDrive(from: activities.getDrives(), drive: drive, to: registeredDrive)
+                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive)
+
+            } catch {
+                DispatchQueue.main.async {
+                    self.showFailureToast(message: error.localizedDescription)
+                }
+            }
+
+
+        }
+    }
+    
+    func askToSubmitWork(_ work: Work, _ registeredWork: RegisteredWork, _ receipt: UIImage?) {
+        let alert = UIAlertController(title: "No Ticket Number Given!", message: "No ticket number was provided, are you sure you want to continue?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
+            self.submitWork(work, registeredWork, receipt)
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    
+    func submitWork(_ work: Work, _ registeredWork: RegisteredWork, _ receipt: UIImage?) {
+        Task {
+            
+            let index = activities.firstIndex { d in
+                return d == work
+            }
+            
+            guard let index = index else {
+                print("no index")
+                return
+            }
+            
+            self.showConfirmWorkToast();
+            
+            activities.remove(at: index)
             tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
             
             do {
                 if let receipt = receipt {
-                    try FirebaseStorage.shared.uploadDriveReciept(registeredDrive, image: receipt) { completion in
+                    try FirebaseStorage.shared.uploadWorkReciept(registeredWork, image: receipt) { completion in
                         print("did upload reciept: \(completion)")
                         Task {
-                            try await FirestoreDatabase.shared.registerDrive(from: self.drives, drive: drive, to: registeredDrive)
-                            GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive)
+                            try await FirestoreDatabase.shared.registerWork(from: self.activities.getWorks(), work: work, to: registeredWork)
+                            GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(registeredWork)
                         }
                     }
                 } else {
-                    try await FirestoreDatabase.shared.registerDrive(from: drives, drive: drive, to: registeredDrive)
-                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive)
+                    try await FirestoreDatabase.shared.registerWork(from: activities.getWorks(), work: work, to: registeredWork)
+                    GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(registeredWork)
                 }
 
             } catch {
@@ -228,8 +319,6 @@ class HomeVC: UIViewController {
 
 
         }
-        
-        
     }
     
     @objc func driveMarkedAsDeleted(_ notification: NSNotification) {
@@ -240,7 +329,7 @@ class HomeVC: UIViewController {
         
         Task {
             
-            let index = drives.firstIndex { d in
+            let index = activities.firstIndex { d in
                 return d == drive
             }
             
@@ -250,11 +339,45 @@ class HomeVC: UIViewController {
             }
             
             self.showDeleteDriveToast()
-            drives.remove(at: index)
+            activities.remove(at: index)
             tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
             
             do {
-                try await FirestoreDatabase.shared.removePrivateDrive(drive, from: drives)
+                try await FirestoreDatabase.shared.removePrivateDrive(drive, from: activities.getDrives())
+            } catch {
+                DispatchQueue.main.async {
+                    self.showFailureToast(message: error.localizedDescription)
+                }
+            }
+            
+
+
+        }
+    }
+    
+    @objc func workMarkedAsDeleted(_ notification: NSNotification) {
+        guard let work = notification.userInfo?["work"] as? Work else {
+            print("no work recieved on work notification")
+            return
+        }
+        
+        Task {
+            
+            let index = activities.firstIndex { w in
+                return w == work
+            }
+            
+            guard let index = index else {
+                print("no index")
+                return
+            }
+            
+            self.showDeleteWorkToast()
+            activities.remove(at: index)
+            tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
+            
+            do {
+                try await FirestoreDatabase.shared.removePrivateWork(work, from: activities.getWorks())
             } catch {
                 DispatchQueue.main.async {
                     self.showFailureToast(message: error.localizedDescription)
@@ -270,19 +393,34 @@ class HomeVC: UIViewController {
 extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return drives.count
+        return activities.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifer) as! DriveCell
-        cell.setup(with: drives[indexPath.row])
-        cell.parentVC = self
         
-        //Separator Full Line
-        cell.preservesSuperviewLayoutMargins = false
-        cell.separatorInset = .zero
-        cell.layoutMargins = .zero
-        return cell
+        if activities[indexPath.row] is Work {
+            let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifer) as! WorkCell
+            cell.setup(with: activities[indexPath.row] as! Work)
+            cell.parentVC = self
+            
+            //Separator Full Line
+            cell.preservesSuperviewLayoutMargins = false
+            cell.separatorInset = .zero
+            cell.layoutMargins = .zero
+            return cell
+        }
+        else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifer) as! DriveCell
+            cell.setup(with: activities[indexPath.row] as! Drive)
+            cell.parentVC = self
+            
+            //Separator Full Line
+            cell.preservesSuperviewLayoutMargins = false
+            cell.separatorInset = .zero
+            cell.layoutMargins = .zero
+            return cell
+        }
+        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -293,18 +431,18 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 40))
         view.backgroundColor = .clear
         
-        let label = UILabel(frame: CGRect(x: view.frame.size.width/2 - 65, y: 0, width: 130, height: 40))
+        let label = UILabel(frame: CGRect(x: view.frame.size.width/2 - 80, y: 0, width: 160, height: 40))
         label.textAlignment = .center
-        label.text = "Swipe to log drive"
+        label.text = "Swipe to log activity"
         label.font = UIFont(name: "Montserrat-SemiBold", size: 13)
         label.textColor = .systemGray
         view.addSubview(label)
         
-        let lineViewLeft = UIView(frame: CGRect(x: 45, y: view.frame.size.height / 2, width: label.frame.minX - 55, height: 1))
+        let lineViewLeft = UIView(frame: CGRect(x: 45, y: view.frame.size.height / 2, width: label.frame.minX - 50, height: 1))
         lineViewLeft.backgroundColor = .systemGray
         view.addSubview(lineViewLeft)
         
-        let lineViewRight = UIView(frame: CGRect(x: label.frame.maxX + 10, y: view.frame.size.height / 2, width: lineViewLeft.frame.size.width, height: 1))
+        let lineViewRight = UIView(frame: CGRect(x: label.frame.maxX + 5, y: view.frame.size.height / 2, width: lineViewLeft.frame.size.width, height: 1))
         lineViewRight.backgroundColor = .systemGray
         view.addSubview(lineViewRight)
         
@@ -329,7 +467,11 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let completeAction = UIContextualAction(style: .normal, title: "Complete") { (action, view, completion) in
-            (tableView.cellForRow(at: indexPath) as! DriveCell).checkMarkClicked(self)
+            if let cell = tableView.cellForRow(at: indexPath) as? WorkCell {
+                cell.checkMarkClicked(self)
+            } else {
+                (tableView.cellForRow(at: indexPath) as! DriveCell).checkMarkClicked(self)
+            }
             completion(false)
         }
         completeAction.image = UIImage(systemName: "checkmark")
@@ -341,7 +483,11 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let completeAction = UIContextualAction(style: .normal, title: "Delete") { (action, view, completion) in
-            (tableView.cellForRow(at: indexPath) as! DriveCell).trashButtonClicked(self)
+            if let cell = tableView.cellForRow(at: indexPath) as? WorkCell {
+                cell.trashButtonClicked(self)
+            } else {
+                (tableView.cellForRow(at: indexPath) as! DriveCell).trashButtonClicked(self)
+            }
             completion(false)
         }
         completeAction.image = UIImage(systemName: "trash")

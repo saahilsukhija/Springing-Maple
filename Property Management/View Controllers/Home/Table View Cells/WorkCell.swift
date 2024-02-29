@@ -1,5 +1,5 @@
 //
-//  DriveCell.swift
+//  WorkCell.swift
 //  Property Management
 //
 //  Created by Saahil Sukhija on 1/3/24.
@@ -9,16 +9,14 @@ import UIKit
 import MapKit
 import FDTake
 
-class DriveCell: UITableViewCell {
+class WorkCell: UITableViewCell {
     
     static let identifer = "WorkCell"
     
     @IBOutlet weak var containerView: UIView!
     
-    @IBOutlet weak var initialPlaceLabel: UILabel!
-    @IBOutlet weak var initialTimeLabel: UILabel!
     @IBOutlet weak var finalPlaceLabel: UILabel!
-    @IBOutlet weak var finalTimeLabel: UILabel!
+    @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var milesDrivenLabel: UILabel!
     
@@ -42,41 +40,38 @@ class DriveCell: UITableViewCell {
         containerView.dropShadow(radius: 8)
     }
     
-    func setup(with w: work) {
+    func setup(with w: Work) {
         self.work = w
         
-        self.initialTimeLabel.text = drive.initialDate.toHourMinuteTime()
-        self.finalTimeLabel.text = drive.finalDate.toHourMinuteTime()
+        self.timeLabel.text = "\(work.initialDate.toHourMinuteTime()) - \(work.finalDate.toHourMinuteTime())"
         
-        self.initialPlaceLabel.textColor = .gray
-        self.initialPlaceLabel.text = "Loading"
         self.finalPlaceLabel.textColor = .gray
         self.finalPlaceLabel.text = "Loading"
         self.milesDrivenLabel.textColor = .gray
         self.milesDrivenLabel.text = "Loading"
         
-        self.dateLabel.text = "\(d.finalDate.get(.month))/\(d.finalDate.get(.day))"
+        self.dateLabel.text = "\(w.finalDate.get(.month))/\(w.finalDate.get(.day))"
         
-        if d.initialPlace == nil {
-            //TODO: ADD TO REVERSE GEOLOCATION QUEUE
-        } else {
-            self.initialPlaceLabel.text = d.initialPlace
-            self.initialPlaceLabel.textColor = .black
-        }
-        if d.finalPlace == nil {
+        if w.finalPlace == nil {
             //TODO: ADD TO REVERSE GEOLOCATION QUEUE
         }
         else {
-            self.finalPlaceLabel.text = d.finalPlace
+            self.finalPlaceLabel.text = w.finalPlace
             self.finalPlaceLabel.textColor = .black
         }
         
-        getMilesBetween(drive.initialCoordinate, and: drive.finalCoordinate) { miles in
-            DispatchQueue.main.async {
-                self.milesDrivenLabel.text = "\(String(format: "%.1f", miles)) mile drive"
-                self.milesDrivenLabel.textColor = .black
-            }
+//        getMilesBetween(work.initialCoordinate, and: drive.finalCoordinate) { miles in
+//            DispatchQueue.main.async {
+//                self.milesDrivenLabel.text = "\(String(format: "%.1f", miles)) mile drive"
+//                self.milesDrivenLabel.textColor = .black
+//            }
+//        }
+        if let place = w.finalPlace {
+            self.milesDrivenLabel.text = "Work at \(place)"
+        } else {
+            self.milesDrivenLabel.text = "Work"
         }
+        self.milesDrivenLabel.textColor = .black
         
         camera = FDTakeController()
         camera.allowsVideo = false
@@ -94,27 +89,25 @@ class DriveCell: UITableViewCell {
         let money = moneyTextField.text == "" ? 0.00 : Double(moneyTextField.text ?? "0")
         let notes = notesTextField.text ?? ""
         
-        let registeredDrive = RegisteredWork(from: drive, moneySpent: money ?? 0.00, ticketNumber: ticketNumber, notes: notes, image: image ?? UIImage.checkmark)
-        registeredDrive.setInitialGeocodedLocation(initialPlaceLabel.text ?? "")
-        registeredDrive.setFinalGeocodedLocation(finalPlaceLabel.text ?? "")
+        let registeredWork = RegisteredWork(from: work, moneySpent: money ?? 0.00, ticketNumber: ticketNumber, notes: notes, image: image ?? UIImage.checkmark)
         
         if let image = image {
-            NotificationCenter.default.post(name: .driveMarkedAsRegistered, object: nil, userInfo: ["drive" : self.drive!, "registered_drive" : registeredDrive, "receipt_image" : image])
+            NotificationCenter.default.post(name: .workMarkedAsRegistered, object: nil, userInfo: ["work" : self.work!, "registered_work" : registeredWork, "receipt_image" : image])
         } else {
-            NotificationCenter.default.post(name: .driveMarkedAsRegistered, object: nil, userInfo: ["drive" : self.drive!, "registered_drive" : registeredDrive])
+            NotificationCenter.default.post(name: .workMarkedAsRegistered, object: nil, userInfo: ["work" : self.work!, "registered_work" : registeredWork])
         }
     }
     
     @IBAction func trashButtonClicked(_ sender: Any) {
-        NotificationCenter.default.post(name: .driveMarkedAsDeleted, object: nil, userInfo: ["drive" : self.drive!])
+        NotificationCenter.default.post(name: .workMarkedAsDeleted, object: nil, userInfo: ["work" : self.work!])
     }
     
     @IBAction func mapButtonClicked(_ sender: Any) {
         let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: DriveMapVC.identifier) as! DriveMapVC
-
-        parentVC.present(vc, animated: true) {
-            vc.setup(with: self.drive)
-        }
+        
+//        parentVC.present(vc, animated: true) {
+//            vc.setup(with: self.work)
+//        }
     }
     
     @IBAction func cameraButtonClicked(_ sender: Any) {
@@ -132,35 +125,12 @@ class DriveCell: UITableViewCell {
         }
     }
     
-    func getMilesBetween(_ sourceP: CLLocationCoordinate2D, and destP: CLLocationCoordinate2D, completion: @escaping((Double) -> Void)) {
-        let source = MKPlacemark(coordinate: sourceP)
-        let destination = MKPlacemark(coordinate: destP)
-                
-        let request = MKDirections.Request()
-        request.source = MKMapItem(placemark: source)
-        request.destination = MKMapItem(placemark: destination)
-
-        // Specify the transportation type
-        request.transportType = MKDirectionsTransportType.automobile;
-
-        // If you want only the shortest route, set this to a false
-        request.requestsAlternateRoutes = true
-
-        let directions = MKDirections(request: request)
-
-         // Now we have the routes, we can calculate the distance using
-         directions.calculate { (response, error) in
-            if let response = response, let route = response.routes.first {
-                completion(route.distance/1609.34)
-            }
-         }
-    }
 }
 
-extension DriveCell: MKMapViewDelegate {
-    
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        let view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "\(drive.initialCoordinate.latitude) to \(drive.initialCoordinate.longitude)")
-        return view
-    }
-}
+//extension DriveCell: MKMapViewDelegate {
+//
+//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+//        let view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "\(drive.initialCoordinate.latitude) to \(drive.initialCoordinate.longitude)")
+//        return view
+//    }
+//}
