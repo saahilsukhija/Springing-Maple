@@ -41,7 +41,7 @@ final class LocationManager: NSObject {
     private var startDriveLocation: CLLocation?
     private var startDriveTime: Date?
     
-    private var lastDriveCreated: Drive?
+    private(set) var lastDriveCreated: Drive?
     
     //Singleton Instance
     static let shared: LocationManager = {
@@ -50,7 +50,19 @@ final class LocationManager: NSObject {
         return instance
     }()
     
-    //private override init() {}
+    override init() {
+//        if UserDefaults.standard.isKeyPresent(key: "lastDriveCreated") {
+//            do {
+//                let lastDrive = try UserDefaults.standard.get(objectType: Drive.self, forKey: "lastDriveCreated")
+//                lastDriveCreated = lastDrive
+//                print("restored lastDriveCreated from defaults")
+//            } catch {
+//                lastDriveCreated = nil
+//            }
+//        } else {
+//            lastDriveCreated = nil
+//        }
+    }
     
     //MARK:- Destroy the LocationManager
     deinit {
@@ -390,25 +402,6 @@ extension LocationManager: CLLocationManagerDelegate {
         RecentLocationQueue.shared.putLocation(RecentLocation(location: lastLocation, date: Date()))
     }
     
-    //    func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
-    //
-    //        let drive = Visit(
-    //            coordinates: lastLocation!.coordinate,
-    //            arrivalDate: Date(),
-    //            departureDate: Date())
-    //        //print("\(fakeVisit.coordinate): \(fakeVisit.arrivalDate)")
-    //        //print("enqueueing notification for visit \(fakeVisit)")
-    //        //NotificationQueue.default.enqueue(Notification(name: .newVisitDetected, userInfo: ["visit" : fakeVisit]), postingStyle: .asap)
-    //        NotificationCenter.default.post(name: .newVisitDetected, object: nil, userInfo: ["visit": visit])
-    //
-    //        Task {
-    //            do {
-    //                try await FirestoreDatabase.shared.uploadPrivateDrive(visit)
-    //            } catch {
-    //                print(error.localizedDescription)
-    //            }
-    //        }
-    //    }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         self.check(status: status)
@@ -429,7 +422,7 @@ extension LocationManager: CLLocationManagerDelegate {
         if (activity.automotive == true || activity.cycling == true || activity.running == true) && isDriving == false {
             //new drive
             isDriving = true
-
+            
             if let recentLoc = RecentLocationQueue.shared.getLocation(within: 5) {
                 startDriveLocation = recentLoc.location
                 startDriveTime = recentLoc.date
@@ -454,7 +447,7 @@ extension LocationManager: CLLocationManagerDelegate {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                     self.uploadWork(work)
                 }
-
+                
                 print("new work detected!")
             }
             
@@ -483,7 +476,7 @@ extension LocationManager: CLLocationManagerDelegate {
             }
             startDriveTime = nil
             startDriveLocation = nil
-
+            
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
@@ -491,9 +484,8 @@ extension LocationManager: CLLocationManagerDelegate {
                 self.uploadDrive(drive)
             }
         }
-        //print("motion did update: \(activity)")
     }
-    
+        //print("motion did update: \(activity)")
     private func uploadDrive(_ drive: Drive) {
         Task {
             do {
@@ -512,5 +504,9 @@ extension LocationManager: CLLocationManagerDelegate {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    func removeLastDrive() {
+        self.lastDriveCreated = nil
     }
 }

@@ -11,5 +11,5 @@ import FirebaseStorage
 import MapKit
 
 class RegisteredDrive: RegisteredActivity {
-
+    
 }

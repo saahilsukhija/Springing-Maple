@@ -61,6 +61,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         do {
             try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
             try UserDefaults.standard.set(object: RecentLocationQueue.shared, forKey: "recentLocationQueue")
+            if let lastDrive = LocationManager.shared.lastDriveCreated {
+                try UserDefaults.standard.set(object: lastDrive, forKey: "lastDriveCreated")
+            }
         } catch {
             print("error while storing stopwatch / recentLocationQueue in UserDefaults")
         }

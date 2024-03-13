@@ -31,6 +31,7 @@ class LoginVC: UIViewController {
             // let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
             self.showSignInToast()
             self.dismiss(animated: true, completion: nil)
+            self.navigationController?.popViewController(animated: true)
         }
     }
     

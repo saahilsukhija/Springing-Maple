@@ -72,7 +72,7 @@ class HomeVC: UIViewController {
             guard User.shared.isLoggedIn() else {
                 let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier) as! LoginVC
                 self.modalPresentationStyle = .fullScreen
-                self.present(vc, animated: true)
+                self.navigationController?.pushViewController(vc, animated: true)
                 try? FirestoreDatabase.shared.addNotificationForPrivateDrives()
                 try? FirestoreDatabase.shared.addNotificationForPrivateWorks()
                 return
@@ -92,13 +92,14 @@ class HomeVC: UIViewController {
 //                    Task {
 //                        try? await FirestoreDatabase.shared.uploadPrivateDrive(d1)
 //                        try? await FirestoreDatabase.shared.uploadPrivateDrive(d2)
-//                        try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home Depot"))
+//                        try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: .ongoingDate, initPlace: "Home Depot", finPlace: "Home Depot"))
 //                    }
 //                }
 ////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.055925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home", finPlace: "Home Depot"))
 ////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home"))
 ////                try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home Depot"))
                 do {
+                    GoogleSheetAssistant.shared.addUserSheet()
                     let drives = try await FirestoreDatabase.shared.getPrivateDrives()
                     let works = try await FirestoreDatabase.shared.getPrivateWorks()
                     self.activities = drives
@@ -115,7 +116,7 @@ class HomeVC: UIViewController {
                     }
                     
                     
-                    GoogleSheetAssistant.shared.addUserSheet()
+
                     
                 } catch {
                     print(error.localizedDescription)
@@ -132,7 +133,7 @@ class HomeVC: UIViewController {
     func showSignInToast() async {
         
         if(User.shared.isLoggedIn()) {
-            showAnimationToast(animationName: "LoginSuccess", message: "Welcome, \(GIDSignIn.sharedInstance.currentUser!.profile!.givenName!)")
+            //showAnimationToast(animationName: "LoginSuccess", message: "Welcome, \(GIDSignIn.sharedInstance.currentUser!.profile!.givenName!)")
             do {
                 try await FirestoreDatabase.shared.uploadUserDetails()
                 
@@ -147,9 +148,15 @@ class HomeVC: UIViewController {
     
     
     @IBAction func profileButtonClicked(_ sender: Any) {
-        let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: "LoginScreen") as! LoginVC
-        self.modalPresentationStyle = .fullScreen
-        self.present(vc, animated: true)
+        if !User.shared.isLoggedIn() {
+            let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: "LoginScreen") as! LoginVC
+            self.modalPresentationStyle = .fullScreen
+            navigationController?.pushViewController(vc, animated: true)
+        } else {
+            let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: ProfileVC.identifier) as! ProfileVC
+            self.modalPresentationStyle = .fullScreen
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     @objc func userLocationUpdated(_ notification: NSNotification) {
@@ -393,25 +400,42 @@ class HomeVC: UIViewController {
 extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return activities.count
+        return activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        if activities[indexPath.row] is Work {
-            let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifer) as! WorkCell
-            cell.setup(with: activities[indexPath.row] as! Work)
-            cell.parentVC = self
-            
-            //Separator Full Line
-            cell.preservesSuperviewLayoutMargins = false
-            cell.separatorInset = .zero
-            cell.layoutMargins = .zero
-            return cell
+        if indexPath.row < activities.count {
+            if activities[indexPath.row] is Work {
+                let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifer) as! WorkCell
+                cell.setup(with: activities[indexPath.row] as! Work)
+                cell.parentVC = self
+                
+                //Separator Full Line
+                cell.preservesSuperviewLayoutMargins = false
+                cell.separatorInset = .zero
+                cell.layoutMargins = .zero
+                return cell
+            }
+            else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifer) as! DriveCell
+                cell.setup(with: activities[indexPath.row] as! Drive)
+                cell.parentVC = self
+                
+                //Separator Full Line
+                cell.preservesSuperviewLayoutMargins = false
+                cell.separatorInset = .zero
+                cell.layoutMargins = .zero
+                return cell
+            }
         }
         else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifer) as! DriveCell
-            cell.setup(with: activities[indexPath.row] as! Drive)
+            print("pending work!!!")
+            //pending work
+            let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifer) as! WorkCell
+            let drive = LocationManager.shared.lastDriveCreated!
+            let work = Work(initialCoordinates: drive.initialCoordinate, finalCoordinates: drive.finalCoordinate, initialDate: drive.finalDate, finalDate: Date.ongoingDate, initPlace: drive.initialPlace, finPlace: drive.finalPlace)
+            cell.setup(with: work)
             cell.parentVC = self
             
             //Separator Full Line
@@ -420,6 +444,8 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
             cell.layoutMargins = .zero
             return cell
         }
+        
+        
         
     }
     

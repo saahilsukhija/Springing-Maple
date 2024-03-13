@@ -43,7 +43,14 @@ class WorkCell: UITableViewCell {
     func setup(with w: Work) {
         self.work = w
         
-        self.timeLabel.text = "\(work.initialDate.toHourMinuteTime()) - \(work.finalDate.toHourMinuteTime())"
+        var initTime = work.initialDate.toHourMinuteTime()
+        let finalTime = work.finalDate.toHourMinuteTime()
+        if initTime.hasSuffix(finalTime.suffix(2)) {
+            self.timeLabel.text = "\(initTime.prefix(initTime.count - 3)) - \(finalTime)"
+        }
+        else {
+            self.timeLabel.text = "\(initTime) - \(finalTime)"
+        }
         
         self.finalPlaceLabel.textColor = .gray
         self.finalPlaceLabel.text = "Loading"
@@ -56,7 +63,7 @@ class WorkCell: UITableViewCell {
             //TODO: ADD TO REVERSE GEOLOCATION QUEUE
         }
         else {
-            self.finalPlaceLabel.text = w.finalPlace
+            self.finalPlaceLabel.text = w.finalPlace?.removeNumbers()
             self.finalPlaceLabel.textColor = .black
         }
         
@@ -75,6 +82,16 @@ class WorkCell: UITableViewCell {
         
         camera = FDTakeController()
         camera.allowsVideo = false
+        
+        if work.finalDate == Date.ongoingDate {
+            if let place = w.finalPlace {
+                self.milesDrivenLabel.text = "Pending work at \(place)"
+            } else {
+                self.milesDrivenLabel.text = "Pending work"
+            }
+            
+            self.timeLabel.text = "\(initTime) - Now"
+        }
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -89,7 +106,13 @@ class WorkCell: UITableViewCell {
         let money = moneyTextField.text == "" ? 0.00 : Double(moneyTextField.text ?? "0")
         let notes = notesTextField.text ?? ""
         
+        if work.finalDate == .ongoingDate {
+            work.setFinalDate(Date())
+            LocationManager.shared.removeLastDrive()
+        }
+        
         let registeredWork = RegisteredWork(from: work, moneySpent: money ?? 0.00, ticketNumber: ticketNumber, notes: notes, image: image ?? UIImage.checkmark)
+        
         
         if let image = image {
             NotificationCenter.default.post(name: .workMarkedAsRegistered, object: nil, userInfo: ["work" : self.work!, "registered_work" : registeredWork, "receipt_image" : image])
@@ -105,9 +128,9 @@ class WorkCell: UITableViewCell {
     @IBAction func mapButtonClicked(_ sender: Any) {
         let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: DriveMapVC.identifier) as! DriveMapVC
         
-//        parentVC.present(vc, animated: true) {
-//            vc.setup(with: self.work)
-//        }
+        parentVC.present(vc, animated: true) {
+            vc.setup(with: self.work)
+        }
     }
     
     @IBAction func cameraButtonClicked(_ sender: Any) {

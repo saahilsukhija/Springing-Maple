@@ -37,6 +37,16 @@ class DriveMapVC: UIViewController {
         mapView.fitAll()
     }
     
+    func setup(with work: Work) {
+        let initialAnnotation = MKPointAnnotation()
+        initialAnnotation.coordinate = work.initialCoordinate
+        initialAnnotation.title = work.finalPlace ?? "Work"
+        mapView.addAnnotation(initialAnnotation)
+        
+        //mapView.setCenter(initialAnnotation.coordinate, animated: true)
+        mapView.setRegion(MKCoordinateRegion(center: initialAnnotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500), animated: true)
+    }
+    
     @IBAction func closeButtonClicked(_ sender: Any) {
         self.dismiss(animated: true)
     }
@@ -50,8 +60,10 @@ extension DriveMapVC: MKMapViewDelegate {
         let view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: title)
         if title == "Start" {
             view.markerTintColor = .mapGreen
-        } else {
+        } else if title == "End"{
             view.markerTintColor = .mapRed
+        } else {
+            view.markerTintColor = .black
         }
     
         return view

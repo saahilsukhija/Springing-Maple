@@ -44,6 +44,8 @@ class FirestoreDatabase {
         }
     }
     
+    
+    
     struct FirestoreError: LocalizedError {
         let description: String
         
@@ -56,6 +58,7 @@ class FirestoreDatabase {
         }
         
     }
+
 }
 
 
@@ -98,12 +101,14 @@ extension FirestoreDatabase {
             disableUpdatesTemporarily()
             if try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").getDocument().exists == false {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").setData(["registered": [JSONEncoder().encode(registeredWork)]])
+                
                 print("DNE")
             }
             else {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredWork)])])
                 print("exists")
             }
+            try await incrementDailyCounter()
             print("uploaded registered work: \(registeredWork)")
         } catch {
             throw FirestoreError("Error while uploading the registered work")
@@ -256,6 +261,7 @@ extension FirestoreDatabase {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredDrive)])])
                 print("exists")
             }
+            try await incrementDailyCounter()
             print("uploaded registered drive: \(registeredDrive)")
         } catch {
             throw FirestoreError("Error while uploading the registered drive")
@@ -358,6 +364,74 @@ extension FirestoreDatabase {
                     //throw FirestoreError("Error decoding")
                 }
             }
+        }
+    }
+}
+
+//MARK: DAILY
+extension FirestoreDatabase {
+    func incrementDailyCounter() async throws {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        guard let team = user.team else {
+            throw FirestoreError("User is not in a team")
+        }
+        
+        do {
+            let doc = db.collection("teams").document(team.id).collection(user.getUserEmail()).document("daily")
+            if try await doc.getDocument().exists == false {
+                try await doc.setData(["counter": 0])
+            }
+           
+            try await doc.updateData([
+              "counter": FieldValue.increment(Int64(1))
+            ])
+            print("increased counter")
+        } catch {
+            throw FirestoreError("Error while incrementing the counter")
+        }
+        
+    }
+    
+    func getDailyCounter() async throws -> Int {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        guard let team = user.team else {
+            throw FirestoreError("User is not in a team")
+        }
+        
+        do {
+            let doc = db.collection("teams").document(team.id).collection(user.getUserEmail()).document("daily")
+            if try await doc.getDocument().exists == false {
+                return 0
+            }
+           
+            return try await doc.getDocument().get("counter") as! Int
+        } catch {
+            throw FirestoreError("Error while getting the counter")
+        }
+    }
+    
+    func resetDailyCounter() async throws {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        guard let team = user.team else {
+            throw FirestoreError("User is not in a team")
+        }
+        
+        do {
+            let doc = db.collection("teams").document(team.id).collection(user.getUserEmail()).document("daily")
+                try await doc.setData(["counter": 0])
+            
+            print("reset counter")
+        } catch {
+            throw FirestoreError("Error while resetting the counter")
         }
     }
 }

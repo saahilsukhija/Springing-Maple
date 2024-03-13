@@ -56,7 +56,7 @@ class DriveCell: UITableViewCell {
             //TODO: ADD TO REVERSE GEOLOCATION QUEUE
         }
         else {
-            self.finalPlaceLabel.text = d.finalPlace
+            self.finalPlaceLabel.text = d.finalPlace?.removeNumbers()
             self.finalPlaceLabel.textColor = .black
         }
         
@@ -64,7 +64,7 @@ class DriveCell: UITableViewCell {
             //TODO: ADD TO REVERSE GEOLOCATION QUEUE
         }
         else {
-            self.initialPlaceLabel.text = d.initialPlace
+            self.initialPlaceLabel.text = d.initialPlace?.removeNumbers()
             self.initialPlaceLabel.textColor = .black
         }
         
@@ -75,6 +75,7 @@ class DriveCell: UITableViewCell {
                         if miles != 0 {
                             self.milesDrivenLabel.text = "\(String(format: "%.1f", miles)) mile drive"
                             self.milesDrivenLabel.textColor = .black
+                            self.drive.milesDriven = miles
                         }
                     }
                 }

@@ -17,9 +17,9 @@ class RegisteredActivity: Activity {
     
     //public var receiptURL: String?
     
-    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, ticketNumber: String, notes: String, internalID: String = "") {
+    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, initPlace: String? = nil, finPlace: String? = nil, ticketNumber: String, notes: String, internalID: String = "") {
         
-        super.init(initialCoordinates: initialCoordinates, finalCoordinates: finalCoordinates, initialDate: initialDate, finalDate: finalDate)
+        super.init(initialCoordinates: initialCoordinates, finalCoordinates: finalCoordinates, initialDate: initialDate, finalDate: finalDate, initPlace: initPlace, finPlace: finPlace)
         
         self.ticketNumber = ticketNumber
         self.notes = notes

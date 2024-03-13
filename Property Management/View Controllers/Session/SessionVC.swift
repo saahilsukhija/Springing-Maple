@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import GoogleSignIn
 
 class SessionVC: UIViewController {
     
@@ -32,10 +33,43 @@ class SessionVC: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(userClockedIn), name: .userClockedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userClockedOut), name: .userClockedOut, object: nil)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            Task {
+                await self.showSignInToast()
+            }
+        }
     }
     
     deinit {
         timer.invalidate()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            if !User.shared.isLoggedIn()  {
+                let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier) as! LoginVC
+                self.modalPresentationStyle = .fullScreen
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+        }
+    }
+    
+    func showSignInToast() async {
+        
+        if(User.shared.isLoggedIn()) {
+            showAnimationToast(animationName: "LoginSuccess", message: "Welcome, \(GIDSignIn.sharedInstance.currentUser!.profile!.givenName!)")
+            do {
+                try await FirestoreDatabase.shared.uploadUserDetails()
+                
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        else {
+            print("not signed in")
+        }
     }
     
     func updateButtons() {
@@ -74,6 +108,13 @@ class SessionVC: UIViewController {
             alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
                 let _ = Stopwatch.shared.end()
                 self.updateButtons()
+                GoogleSheetAssistant.shared.appendSummaryToSpreadsheet(date: Date())
+                
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        Task {
+                            try? await FirestoreDatabase.shared.resetDailyCounter()
+                        }
+                    }
             }))
             self.present(alert, animated: true, completion: nil)
 
@@ -85,7 +126,8 @@ class SessionVC: UIViewController {
     
     @IBAction func breakButtonClicked(_ sender: Any) {
         if Stopwatch.shared.isOnBreak {
-            let _ = Stopwatch.shared.endBreak()
+            let (startDate, endDate) = Stopwatch.shared.endBreak()
+            GoogleSheetAssistant.shared.appendBreakToSpreadsheet(start: startDate, end: endDate)
         } else {
             if Stopwatch.shared.isRunning {
                 Stopwatch.shared.startBreak()

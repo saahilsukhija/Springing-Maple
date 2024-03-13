@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -10,6 +11,12 @@
     <customFonts key="customFonts">
         <array key="Montserrat-Medium.ttf">
             <string>Montserrat-Medium</string>
+        </array>
+        <array key="Montserrat-MediumItalic.ttf">
+            <string>Montserrat-MediumItalic</string>
+        </array>
+        <array key="Montserrat-SemiBold.ttf">
+            <string>Montserrat-SemiBold</string>
         </array>
     </customFonts>
     <scenes>
@@ -22,8 +29,8 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h1Y-2s-682" customClass="RoundedButton" customModule="Property_Management" customModuleProvider="target">
-                                <rect key="frame" x="20" y="738" width="353" height="60"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <rect key="frame" x="20" y="129" width="353" height="60"/>
+                                <color key="backgroundColor" name="Background Gray"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="x2m-Aq-ean"/>
                                 </constraints>
@@ -33,17 +40,40 @@
                                 <state key="normal" title="Sign In With Google" image="google.png">
                                     <color key="titleColor" systemColor="systemGrayColor"/>
                                 </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
+                                        <integer key="value" value="2"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="layer.borderColor">
+                                        <color key="value" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="signInWithGoogleTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="qDj-io-Tnc"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sign In" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NVX-TZ-0kg">
+                                <rect key="frame" x="20" y="69" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="Wg5-Bx-9gE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="25"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="h1Y-2s-682" secondAttribute="trailing" constant="20" id="7pi-aP-rWS"/>
                             <constraint firstItem="h1Y-2s-682" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="9FI-xr-9Cn"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="h1Y-2s-682" secondAttribute="bottom" constant="20" id="gnt-Fb-p2h"/>
+                            <constraint firstItem="NVX-TZ-0kg" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="10" id="bcL-lk-Jet"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="NVX-TZ-0kg" secondAttribute="trailing" constant="20" id="ctQ-IP-dkO"/>
+                            <constraint firstItem="NVX-TZ-0kg" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="pCj-Ud-s0j"/>
+                            <constraint firstItem="h1Y-2s-682" firstAttribute="top" secondItem="NVX-TZ-0kg" secondAttribute="bottom" constant="10" id="uDI-d4-z0a"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -51,9 +81,95 @@
             </objects>
             <point key="canvasLocation" x="35.877862595419849" y="3.5211267605633805"/>
         </scene>
+        <!--ProfileVC-->
+        <scene sceneID="Xbs-D5-zRn">
+            <objects>
+                <viewController storyboardIdentifier="ProfileScreen" id="Zrg-D3-Gt2" customClass="ProfileVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="jTh-jq-lGb">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Full Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lcg-DI-vDV">
+                                <rect key="frame" x="20" y="79" width="166.66666666666666" height="24.666666666666671"/>
+                                <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Y5-Aw-kC1">
+                                <rect key="frame" x="20" y="113.66666666666669" width="353" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="DYX-UX-iYa"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Montserrat-Medium" family="Montserrat" pointSize="16"/>
+                                <color key="textColor" systemColor="systemGrayColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Team" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FMr-PX-LKV">
+                                <rect key="frame" x="321" y="79" width="52" height="24.666666666666671"/>
+                                <fontDescription key="fontDescription" name="Montserrat-MediumItalic" family="Montserrat" pointSize="18"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6BM-mQ-1nM">
+                                <rect key="frame" x="20" y="163.66666666666666" width="353" height="50"/>
+                                <color key="backgroundColor" name="BackgroundGray2"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="TrS-nj-8JZ"/>
+                                </constraints>
+                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <attributedString key="attributedTitle">
+                                        <fragment content="Log Out">
+                                            <attributes>
+                                                <font key="NSFont" size="18" name="MontserratRoman-SemiBold"/>
+                                                <font key="NSOriginalFont" size="12" name="Helvetica"/>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="logOutButtonClicked:" destination="Zrg-D3-Gt2" eventType="touchUpInside" id="dQ1-OJ-iwY"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="wKG-hz-aFO"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="lcg-DI-vDV" firstAttribute="leading" secondItem="wKG-hz-aFO" secondAttribute="leading" constant="20" id="7ji-1f-LUv"/>
+                            <constraint firstItem="8Y5-Aw-kC1" firstAttribute="leading" secondItem="wKG-hz-aFO" secondAttribute="leading" constant="20" id="E34-yC-L5f"/>
+                            <constraint firstItem="wKG-hz-aFO" firstAttribute="trailing" secondItem="8Y5-Aw-kC1" secondAttribute="trailing" constant="20" id="FOp-kC-Eeq"/>
+                            <constraint firstItem="wKG-hz-aFO" firstAttribute="trailing" secondItem="6BM-mQ-1nM" secondAttribute="trailing" constant="20" id="I14-iX-Pao"/>
+                            <constraint firstItem="wKG-hz-aFO" firstAttribute="trailing" secondItem="FMr-PX-LKV" secondAttribute="trailing" constant="20" id="gbV-7H-hcs"/>
+                            <constraint firstItem="FMr-PX-LKV" firstAttribute="bottom" secondItem="lcg-DI-vDV" secondAttribute="bottom" id="jMz-mx-R69"/>
+                            <constraint firstItem="6BM-mQ-1nM" firstAttribute="leading" secondItem="wKG-hz-aFO" secondAttribute="leading" constant="20" id="kHp-nD-UcO"/>
+                            <constraint firstItem="8Y5-Aw-kC1" firstAttribute="top" secondItem="lcg-DI-vDV" secondAttribute="bottom" constant="10" id="oZp-ka-KwH"/>
+                            <constraint firstItem="FMr-PX-LKV" firstAttribute="top" secondItem="lcg-DI-vDV" secondAttribute="top" id="qQe-nB-rWz"/>
+                            <constraint firstItem="lcg-DI-vDV" firstAttribute="top" secondItem="wKG-hz-aFO" secondAttribute="top" constant="20" id="rRR-Wf-esQ"/>
+                            <constraint firstItem="wKG-hz-aFO" firstAttribute="trailing" secondItem="lcg-DI-vDV" secondAttribute="trailing" multiplier="2" constant="20" id="t1B-gU-0cS"/>
+                            <constraint firstItem="6BM-mQ-1nM" firstAttribute="top" secondItem="8Y5-Aw-kC1" secondAttribute="bottom" constant="20" id="xcj-xf-aIG"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="emailLabel" destination="8Y5-Aw-kC1" id="8qU-MQ-xUn"/>
+                        <outlet property="logOutButton" destination="6BM-mQ-1nM" id="vp9-z2-Umg"/>
+                        <outlet property="nameLabel" destination="lcg-DI-vDV" id="xQO-Yz-vgg"/>
+                        <outlet property="teamLabel" destination="FMr-PX-LKV" id="dmh-bZ-67q"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dLn-CB-DSN" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="48" y="653"/>
+        </scene>
     </scenes>
     <resources>
         <image name="google.png" width="18" height="18"/>
+        <namedColor name="Background Gray">
+            <color red="0.9882352941176471" green="0.98039215686274506" blue="0.98431372549019602" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="BackgroundGray2">
+            <color red="0.96862745098039216" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

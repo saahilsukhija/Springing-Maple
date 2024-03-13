@@ -53,41 +53,46 @@ class GoogleSheetAssistant {
     }
     
     func appendRegisteredDriveToSpreadsheet(_ drive: RegisteredDrive) {
-        Task {
-            let dict = ["spreadsheetID" : spreadsheetID,
-                        "username" : User.shared.getUserName(),
-                        "apiKey" : Constants.API_KEYS.google_sheet_api,
-                        "date" : drive.initialDate.toMonthDate(),
-                        "initialLocation" : drive.initialPlace ?? "(none)",
-                        "finalLocation" : drive.finalPlace ?? "none",
-                        "initialTime" : drive.initialDate.toHourMinuteTime(),
-                        "finalTime" : drive.finalDate.toHourMinuteTime(),
-                        "money" : "0.00",
-                        "type" : "Drive",
-                        "ticketNumber" : drive.ticketNumber,
-                        "receiptLink" : "",
-                        "notes" : drive.notes]
-            print(User.shared.getUserName())
-            functions.httpsCallable("append_drive_to_spreadsheet").call(dict) { result, error in
-                if let error = error {
-                    print("error: \(error)")
+
+        Drive.getMilesBetween(drive.initialCoordinate, and: drive.finalCoordinate) { [self] miles in
+            Task {
+                let dict = ["spreadsheetID" : spreadsheetID,
+                            "username" : User.shared.getUserName(),
+                            "apiKey" : Constants.API_KEYS.google_sheet_api,
+                            "date" : drive.initialDate.toMonthYearDate(),
+                            "initialLocation" : drive.initialPlace ?? "(none)",
+                            "finalLocation" : drive.finalPlace ?? "none",
+                            "initialTime" : drive.initialDate.toHourMinuteTime(),
+                            "finalTime" : drive.finalDate.toHourMinuteTime(),
+                            "money" : "0.00",
+                            "type" : "Drive",
+                            "ticketNumber" : drive.ticketNumber ?? "",
+                            "receiptLink" : "",
+                            "notes" : drive.notes ?? "",
+                            "duration": drive.finalDate.durationSince(drive.initialDate),
+                            "milesDriven": miles]
+                functions.httpsCallable("append_drive_to_spreadsheet").call(dict) { result, error in
+                    if let error = error {
+                        print("error: \(error)")
+                    }
+                    guard let val = result?.data as? String else {
+                        return
+                    }
+                    print(val)
                 }
-                guard let val = result?.data as? String else {
-                    return
-                }
-                print(val)
             }
         }
         
     }
     
     func appendRegisteredWorkToSpreadsheet(_ work: RegisteredWork) {
+
         Task {
             let link = try? await work.getReceiptURL()
             let dict = ["spreadsheetID" : spreadsheetID,
                         "username" : User.shared.getUserName(),
                         "apiKey" : Constants.API_KEYS.google_sheet_api,
-                        "date" : work.initialDate.toMonthDate(),
+                        "date" : work.initialDate.toMonthYearDate(),
                         "initialLocation" : work.initialPlace ?? "(none)",
                         "finalLocation" : work.finalPlace ?? "(none)",
                         "initialTime" : work.initialDate.toHourMinuteTime(),
@@ -96,7 +101,9 @@ class GoogleSheetAssistant {
                         "type" : "Work",
                         "ticketNumber" : work.ticketNumber,
                         "receiptLink" : link ?? "",
-                        "notes" : work.notes]
+                        "notes" : work.notes,
+                        "duration": work.finalDate.durationSince(work.initialDate),
+                        "milesDriven": ""]
             
             functions.httpsCallable("append_drive_to_spreadsheet").call(dict) { result, error in
                 if let error = error {
@@ -135,6 +142,47 @@ class GoogleSheetAssistant {
                     }
                     print(val)
                 }
+            }
+        }
+    }
+    
+    func appendBreakToSpreadsheet(start: Date, end: Date) {
+        let dict = ["spreadsheetID" : spreadsheetID,
+                    "username" : User.shared.getUserName(),
+                    "apiKey" : Constants.API_KEYS.google_sheet_api,
+                    "date" : start.toMonthYearDate(),
+                    "initialTime" : start.toHourMinuteTime(),
+                    "finalTime" : end.toHourMinuteTime()
+                    ]
+        functions.httpsCallable("append_break_to_spreadsheet").call(dict) { result, error in
+            if let error = error {
+                print("error: \(error)")
+            }
+            guard let val = result?.data as? String else {
+                return
+            }
+            print(val)
+        }
+    }
+    
+    func appendSummaryToSpreadsheet(date: Date) {
+        
+        Task {
+            let count = try await FirestoreDatabase.shared.getDailyCounter()
+            let dict = ["spreadsheetID" : spreadsheetID,
+                        "username" : User.shared.getUserName(),
+                        "apiKey" : Constants.API_KEYS.google_sheet_api,
+                        "date" : date.toMonthYearDate(),
+                        "activities" : "\(count)"
+            ]
+            functions.httpsCallable("append_dailysummary_to_spreadsheet").call(dict) { result, error in
+                if let error = error {
+                    print("error: \(error)")
+                }
+                guard let val = result?.data as? String else {
+                    return
+                }
+                print(val)
             }
         }
     }

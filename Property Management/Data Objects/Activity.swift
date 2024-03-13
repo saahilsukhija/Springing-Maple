@@ -14,7 +14,7 @@ class Activity: Codable, Equatable {
     private let initLong: Double
     private let finalLat: Double
     private let finalLong: Double
-    private let myFinalDate: Date
+    private var myFinalDate: Date
     private let myInitialDate: Date
     private var myInitialPlace: String?
     private var myFinalPlace: String?
@@ -113,6 +113,10 @@ class Activity: Codable, Equatable {
     
     func setFinalPlace(_ place: String) {
         myFinalPlace = place
+    }
+    
+    func setFinalDate(_ date: Date) {
+        myFinalDate = date
     }
     
     required init?(coder aDecoder: NSCoder) {

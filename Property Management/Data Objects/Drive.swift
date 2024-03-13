@@ -19,7 +19,7 @@ class Drive: Activity {
         self.milesDriven = milesDriven
         
         if milesDriven == 0 {
-            getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
+            Drive.getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
                 self.milesDriven = miles
             }
         }
@@ -31,7 +31,7 @@ class Drive: Activity {
         self.milesDriven = milesDriven
         
         if milesDriven == 0 {
-            getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
+            Drive.getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
                 self.milesDriven = miles
             }
         }
@@ -58,7 +58,7 @@ class Drive: Activity {
         try container.encode(milesDriven, forKey: .milesDriven)
     }
     
-    func getMilesBetween(_ sourceP: CLLocationCoordinate2D, and destP: CLLocationCoordinate2D, completion: @escaping((Double) -> Void)) {
+    static func getMilesBetween(_ sourceP: CLLocationCoordinate2D, and destP: CLLocationCoordinate2D, completion: @escaping((Double) -> Void)) {
         let source = MKPlacemark(coordinate: sourceP)
         let destination = MKPlacemark(coordinate: destP)
                 

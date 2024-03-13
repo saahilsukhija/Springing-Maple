@@ -20,9 +20,9 @@ class RegisteredWork: RegisteredActivity {
     }
     //public var receiptURL: String?
     
-    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, moneySpent: Double, ticketNumber: String, notes: String, image: UIImage, internalID: String = "") {
+    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, initPlace: String? = nil, finPlace: String? = nil, moneySpent: Double, ticketNumber: String, notes: String, image: UIImage?, internalID: String = "") {
         
-        super.init(initialCoordinates: initialCoordinates, finalCoordinates: finalCoordinates, initialDate: initialDate, finalDate: finalDate, ticketNumber: ticketNumber, notes: notes, internalID: internalID)
+        super.init(initialCoordinates: initialCoordinates, finalCoordinates: finalCoordinates, initialDate: initialDate, finalDate: finalDate, initPlace: initPlace, finPlace: finPlace, ticketNumber: ticketNumber, notes: notes, internalID: internalID)
         
         self.moneySpent = moneySpent
         self.image = image
