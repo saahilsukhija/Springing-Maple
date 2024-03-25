@@ -583,7 +583,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
+        if activities.count == 0 {
+            return nil
+        }
         let completeAction = UIContextualAction(style: .normal, title: "Complete") { (action, view, completion) in
             if let cell = tableView.cellForRow(at: indexPath) as? WorkCell {
                 cell.checkMarkClicked(self)
@@ -600,6 +602,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
+        if activities.count == 0 {
+            return nil
+        }
         let completeAction = UIContextualAction(style: .normal, title: "Delete") { (action, view, completion) in
             if let cell = tableView.cellForRow(at: indexPath) as? WorkCell {
                 cell.trashButtonClicked(self)
