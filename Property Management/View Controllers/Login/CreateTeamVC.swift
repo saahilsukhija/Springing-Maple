@@ -8,22 +8,66 @@
 import UIKit
 
 class CreateTeamVC: UIViewController {
-
+    
+    static let identifier = "CreateTeamScreen"
+    
+    @IBOutlet weak var teamNameField: UITextField!
+    
+    var nextButton: UIBarButtonItem!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        nextButton = UIBarButtonItem(title: "Next", image: nil, target: self, action: #selector(nextButtonClicked))
+        nextButton.tintColor = .systemGray
+        self.navigationItem.rightBarButtonItem = nextButton
+        
+        teamNameField.addTarget(self, action: #selector(editingChanged), for: .editingChanged)
+        
+        self.hideKeyboardWhenTappedAround()
+        
+        teamNameField.becomeFirstResponder()
+        teamNameField.delegate = self
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    
+    @objc func nextButtonClicked() {
+        
+        guard nextButton.tintColor != UIColor.systemGray else {
+            return
+        }
+        
+        guard let name = teamNameField.text else {
+            return
+        }
+        
+        let vc = storyboard?.instantiateViewController(withIdentifier: CreateSpreadsheetVC.identifier) as! CreateSpreadsheetVC
+        vc.teamName = name
+        self.navigationController?.pushViewController(vc, animated: true)
+        
     }
-    */
+    
+    
+    
+    
+    
+}
+
+extension CreateTeamVC: UITextFieldDelegate {
+    
+    @objc func editingChanged() {
+        
+        if teamNameField.text?.count ?? 0 > 0 {
+            nextButton.tintColor = .accentColor
+        } else {
+            nextButton.tintColor = .systemGray
+        }
+        
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        nextButtonClicked()
+        return true
+    }
 
 }

@@ -7,8 +7,76 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest} = require("firebase-functions/v2/https");
+const fs = require("fs").promises;
+const path = require("path");
+const process = require("process");
+// const {authenticate} = require("@google-cloud/local-auth");
 const {google} = require("googleapis");
+const {onRequest} = require("firebase-functions/v2/https");
+
+// If modifying these scopes, delete token.json.
+const SCOPES = ["https://www.googleapis.com/auth/spreadsheets",
+  "https://www.googleapis.com/auth/spreadsheets.readonly",
+  "https://www.googleapis.com/auth/drive"];
+// The file token.json stores the user's access and refresh tokens, and is
+// created automatically when the authorization flow completes for the first
+// time.
+const TOKEN_PATH = path.join(process.cwd(), "token.json");
+const CREDENTIALS_PATH = path.join(process.cwd(),
+    "keys.json");
+
+/**
+ * Reads previously authorized credentials from the save file.
+ *
+ * @return {Promise<OAuth2Client|null>}
+ */
+async function loadSavedCredentialsIfExist() {
+  try {
+    const content = await fs.readFile(TOKEN_PATH);
+    const credentials = JSON.parse(content);
+    return google.auth.fromJSON(credentials);
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Serializes credentials to a file compatible with GoogleAuth.fromJSON.
+ *
+ * @param {OAuth2Client} client
+ * @return {Promise<void>}
+ */
+async function saveCredentials(client) {
+  const content = await fs.readFile(CREDENTIALS_PATH);
+  const keys = JSON.parse(content);
+  const key = keys.installed || keys.web;
+  const payload = JSON.stringify({
+    type: "authorized_user",
+    client_id: key.client_id,
+    client_secret: key.client_secret,
+    refresh_token: client.credentials.refresh_token,
+  });
+  await fs.writeFile(TOKEN_PATH, payload);
+}
+
+/**
+ * Load or request or authorization to call APIs.
+ *
+ */
+async function authorize() {
+  let client = await loadSavedCredentialsIfExist();
+  if (client) {
+    return client;
+  }
+  client = new google.auth.GoogleAuth({
+    keyFile: path.join(__dirname, "keys.json"),
+    scopes: SCOPES,
+  });
+  if (client.credentials) {
+    await saveCredentials(client);
+  }
+  return client;
+}
 
 const logger = require("firebase-functions/logger");
 
@@ -238,8 +306,81 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
   logger.info("auth: " + auth.email, {structuredData: true});
   // return {result: "Hello from " + spreadsheetID};
+});
 
-  res.send({result: "Added summary onto " + spreadsheetID});
+exports.create_spreadsheet = onRequest(async (req, res) => {
+  console.log("Creating spreadsheet...");
+  const title = req.body.data.spreadsheetName;
+  const email = req.body.data.email;
+  const teamName = req.body.data.teamName;
+  const teamID = req.body.data.teamID;
+  const apiKey = req.body.data.apiKey;
+
+  const auth = await authorize();
+  const sheets = google.sheets({version: "v4", auth});
+
+  const tableInfo = [["Team Name", "Team ID"], [teamName, teamID]];
+
+  sheets.spreadsheets.create({
+    "resource": {
+      "properties": {
+        "title": title,
+      },
+      "sheets": [{properties: {title: "Team Info"}}],
+    },
+  }, (err, result) => {
+    if (err) {
+      res.send({result: "Error"});
+      throw err;
+    } else {
+      const spreadsheetID = result.data.spreadsheetId;
+      console.log("New sheet created with ID: " + spreadsheetID);
+
+
+      sheets.spreadsheets.values.append({
+        spreadsheetId: spreadsheetID,
+        range: "'Team Info'!A1",
+        auth: auth,
+        key: apiKey,
+        valueInputOption: "USER_ENTERED",
+        resource: {values: tableInfo},
+      }, (err, result) => {
+        if (err) {
+          res.send({result: "Error"});
+          throw err;
+        } else {
+          console.log("Updated sheet: " + result.data.updates.updatedRange);
+        }
+      });
+
+      const permissions = {"type": "user", "role": "writer",
+        "emailAddress": email};
+      const resource = {
+        "value": "default",
+        "type": "anyone",
+        "role": "writer",
+      };
+      const drive = google.drive({version: "v3", auth});
+      drive.permissions.create({
+        resource: permissions,
+        fileId: spreadsheetID,
+        fields: "id",
+        sendNotificationEmail: true,
+        supportsAllDrives: true,
+      }, (err, resp) => {
+        if (err) return console.log(err);
+        console.log("Shared new spreadsheet with " + email);
+
+        drive.permissions.create({
+          resource: resource,
+          fileId: spreadsheetID,
+          fields: "id",
+          supportsAllDrives: true,
+        });
+        res.send({result: spreadsheetID});
+      });
+    }
+  });
 });
 
 /**

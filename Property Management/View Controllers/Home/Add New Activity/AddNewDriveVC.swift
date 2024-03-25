@@ -25,7 +25,7 @@ class AddNewDriveVC: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        navigationController!.title = "Create Drive"
+        //navigationController!.title = "Create Drive"
         
         createButton = UIBarButtonItem(title: "Create", style: .done, target: self, action: #selector(createButtonClicked))
         createButton.tintColor = .systemGray

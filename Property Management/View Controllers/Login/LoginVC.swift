@@ -11,10 +11,16 @@ import GoogleSignIn
 class LoginVC: UIViewController {
 
     static let identifier = "LoginScreen"
+    
+    @IBOutlet weak var googleSignInButton: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
+        googleSignInButton.layer.borderWidth = 1.5
+        googleSignInButton.layer.borderColor = UIColor.darkAccent.cgColor
+        
     }
     
     @IBAction func signInWithGoogleTapped(_ sender: Any) {
@@ -30,8 +36,28 @@ class LoginVC: UIViewController {
             print("ID: " + idToken)
             // let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
             self.showSignInToast()
-            self.dismiss(animated: true, completion: nil)
-            self.navigationController?.popViewController(animated: true)
+            
+            Task {
+                do {
+                    let team = try await FirestoreDatabase.shared.getUserTeam()
+                    DispatchQueue.main.async {
+                        if team == nil {
+                        
+                            let vc = self.storyboard!.instantiateViewController(withIdentifier: NewTeamVC.identifier)
+                            vc.modalPresentationStyle = .fullScreen
+                            self.present(vc, animated: true)
+                            return
+                        }
+                        else {
+                            User.shared.team = team
+                            self.dismiss(animated: true, completion: nil)
+                            self.navigationController?.popViewController(animated: true)
+                        }
+                    }
+                }
+            }
+
+
         }
     }
     

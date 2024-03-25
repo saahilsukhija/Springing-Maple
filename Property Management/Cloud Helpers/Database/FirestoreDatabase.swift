@@ -30,12 +30,30 @@ class FirestoreDatabase {
             throw FirestoreError("User not logged in")
         }
         do {
-            try await db.collection("users").document(user.getUserEmail()).setData(["email" : user.getUserEmail(), "name" : user.getUserName(), "team" : user.team?.id ?? "10000"])
+            if let team = user.team?.id, user.team?.id != "0" {
+                try await db.collection("users").document(user.getUserEmail()).setData(["email" : user.getUserEmail(), "name" : user.getUserName(), "team" : team])
+            } else {
+                try await db.collection("users").document(user.getUserEmail()).setData(["email" : user.getUserEmail(), "name" : user.getUserName()])
+            }
         } catch {
             throw FirestoreError("An unknown error occured")
         }
     }
     
+    func deleteUser() async throws {
+        
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User not logged in")
+        }
+        do {
+            try await db.collection("users").document(user.getUserEmail()).delete()
+        } catch {
+            throw FirestoreError("An unknown error occured")
+        }
+        
+    }
+
     func disableUpdatesTemporarily(/*for seconds: Int = 5*/) {
         disableUpdates = true
         
@@ -108,7 +126,7 @@ extension FirestoreDatabase {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredWork)])])
                 print("exists")
             }
-            try await incrementDailyCounter()
+            try await incrementDailyCounter(.work)
             print("uploaded registered work: \(registeredWork)")
         } catch {
             throw FirestoreError("Error while uploading the registered work")
@@ -261,7 +279,7 @@ extension FirestoreDatabase {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredDrive)])])
                 print("exists")
             }
-            try await incrementDailyCounter()
+            try await incrementDailyCounter(.drive)
             print("uploaded registered drive: \(registeredDrive)")
         } catch {
             throw FirestoreError("Error while uploading the registered drive")
@@ -370,7 +388,7 @@ extension FirestoreDatabase {
 
 //MARK: DAILY
 extension FirestoreDatabase {
-    func incrementDailyCounter() async throws {
+    func incrementDailyCounter(_ type: CounterType) async throws {
         let user = User.shared
         guard user.isLoggedIn() else {
             throw FirestoreError("User is not logged in")
@@ -382,9 +400,19 @@ extension FirestoreDatabase {
         do {
             let doc = db.collection("teams").document(team.id).collection(user.getUserEmail()).document("daily")
             if try await doc.getDocument().exists == false {
-                try await doc.setData(["counter": 0])
+                try await doc.setData(["counter": 0, "drive": 0, "work": 0])
             }
            
+            if type == .drive {
+                try await doc.updateData([
+                  "drive": FieldValue.increment(Int64(1))
+                ])
+            }
+            if type == .work {
+                try await doc.updateData([
+                  "work": FieldValue.increment(Int64(1))
+                ])
+            }
             try await doc.updateData([
               "counter": FieldValue.increment(Int64(1))
             ])
@@ -395,7 +423,7 @@ extension FirestoreDatabase {
         
     }
     
-    func getDailyCounter() async throws -> Int {
+    func getDailyCounter(_ type: CounterType) async throws -> Int {
         let user = User.shared
         guard user.isLoggedIn() else {
             throw FirestoreError("User is not logged in")
@@ -410,13 +438,14 @@ extension FirestoreDatabase {
                 return 0
             }
            
-            return try await doc.getDocument().get("counter") as! Int
+            
+            return try await doc.getDocument().get(type.rawValue) as? Int ?? 0
         } catch {
             throw FirestoreError("Error while getting the counter")
         }
     }
     
-    func resetDailyCounter() async throws {
+    func resetDailyCounters() async throws {
         let user = User.shared
         guard user.isLoggedIn() else {
             throw FirestoreError("User is not logged in")
@@ -427,11 +456,162 @@ extension FirestoreDatabase {
         
         do {
             let doc = db.collection("teams").document(team.id).collection(user.getUserEmail()).document("daily")
-                try await doc.setData(["counter": 0])
+            try await doc.setData(["counter": 0, "drive": 0, "work": 0])
             
             print("reset counter")
         } catch {
             throw FirestoreError("Error while resetting the counter")
+        }
+    }
+    
+    enum CounterType: String {
+        
+        case drive = "drive"
+        case work = "work"
+        case general = "counter"
+    }
+}
+
+//MARK: TEAM
+extension FirestoreDatabase {
+    
+    
+    func getUserTeam() async throws -> Team? {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User not logged in")
+        }
+        do {
+            let team = try await db.collection("users").document(user.getUserEmail()).getDocument().get("team") as? String
+            if let team = team {
+                let t = try await getTeam(from: team)
+                try? UserDefaults.standard.set(object: t, forKey: "user_team")
+                return t
+            } else {
+                return nil
+            }
+        } catch {
+            throw FirestoreError("An unknown error occured")
+        }
+    }
+    
+    func getTeam(from id: String) async throws -> Team {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User not logged in")
+        }
+        do {
+            let doc = try await db.collection("teams").document(id).getDocument()
+            guard let name = doc.get("name") as? String else {
+                throw FirestoreError("No name for team")
+            }
+            guard let spreadsheetid = doc.get("spreadsheetID") as? String else {
+                throw FirestoreError("No spreadsheetID for team")
+            }
+            let t = Team(id, name: name, spreadsheetID: spreadsheetid)
+            try? UserDefaults.standard.set(object: t, forKey: "user_team")
+            return t
+        } catch {
+            throw FirestoreError("An unknown error occured")
+        }
+    }
+    
+    
+    func teamDoesExist(_ team: String) async throws -> Bool {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        do {
+            let doc = try await db.collection("teams").document(team).getDocument()
+            if doc.exists {
+                return true
+            } else {
+                return false
+            }
+            
+        } catch {
+            print("hmm")
+            return false
+        }
+        
+    }
+    
+    func uploadTeamDetails(_ team: Team) async throws {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        guard let name = team.name else {
+            throw FirestoreError("No team name given")
+        }
+        let spreadsheetID = team.spreadsheetID ?? ""
+        
+        do {
+            let doc = db.collection("teams").document(team.id)
+            try await doc.setData(["name" : name, "spreadsheetID" : spreadsheetID])
+        } catch {
+            throw FirestoreError("Error uploading team details")
+        }
+        
+    }
+    
+    func leaveCurrentTeam() async throws {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        guard let team = user.team else {
+            throw FirestoreError("No team given")
+        }
+        
+        
+        do {
+            let doc = db.collection("users").document(user.getUserEmail())
+            try await doc.updateData([
+                "team": FieldValue.delete(),
+            ])
+            User.shared.team = nil
+            UserDefaults.standard.removeObject(forKey: "user_team")
+        } catch {
+            throw FirestoreError("Error removing team details")
+        }
+    }
+    
+    func getEmails(in team: Team) async throws -> [String] {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        
+        do {
+            let doc = try await db.collection("teams").document(team.id).getDocument()
+            //print(doc.data())
+            return ["Unable to retrieve"]; #warning("Does not work.")
+        } catch {
+            throw FirestoreError("Error removing team details")
+        }
+    }
+}
+
+extension FirestoreDatabase {
+    
+    func getName(from email: String) async throws -> String {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        
+        
+        do {
+            let doc = try await db.collection("users").document(email).getDocument()
+            let name = doc.get("name")
+            guard let name = name as? String else {
+                throw FirestoreError("Unexpected error")
+            }
+            return name
+        } catch {
+            throw FirestoreError("Error removing team details")
         }
     }
 }

@@ -73,12 +73,12 @@ class Activity: Codable, Equatable {
     }
     
     func loadPlaces() {
-        if self.initialPlace == nil || self.initialPlace == "" {
+        if self.initialPlace == nil || self.initialPlace == "" || self.initialPlace == "(error)" {
             LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: self.initialCoordinate.latitude, longitude: self.initialCoordinate.longitude)) { location, placemark, error in
                 print("finished reverse geocoding")
                 var text = ""
                 if let error = error {
-                    text = "(error)"
+                    text = ""
                     print(error.localizedDescription)
                 } else {
                     text = placemark?.name ?? "(error 2)"
@@ -90,11 +90,11 @@ class Activity: Codable, Equatable {
             }
         }
         
-        if self.finalPlace == nil || self.finalPlace == "" {
+        if self.finalPlace == nil || self.finalPlace == "" || self.finalPlace == "(error)" {
             LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: self.finalCoordinate.latitude, longitude: self.finalCoordinate.longitude)) { location, placemark, error in
                 var text = ""
                 if let error = error {
-                    text = "(error)"
+                    text = ""
                     print(error.localizedDescription)
                 } else {
                     text = placemark?.name ?? "(error 2)"

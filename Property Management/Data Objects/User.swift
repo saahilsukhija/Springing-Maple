@@ -20,7 +20,11 @@ class User {
     var team: Team?
     
     init() {
-        team = Team("10000")
+        do {
+            team = try UserDefaults.standard.get(objectType: Team.self, forKey: "user_team")
+        } catch {
+            print("no team available.")
+        }
     }
     
     func isLoggedIn() -> Bool {
@@ -35,6 +39,10 @@ class User {
     func getUserEmail() -> String {
         guard isLoggedIn() else { return "" }
         return GIDSignIn.sharedInstance.currentUser!.profile!.email
+    }
+    
+    func teamHasSpreadsheet() -> Bool {
+        return self.team?.hasSpreadsheet() ?? false
     }
     
 }

@@ -175,6 +175,56 @@ extension Stopwatch {
         return text
     }
     
+    func getCurrentTimes() -> (String, String, String) {
+        guard isRunning else {
+            return ("00", "00", "00")
+        }
+        let output = getTimeElapsed(startDate)
+        
+        let hour = output.hour ?? 0
+        let minute = (output.minute ?? 0) % 60
+        let second = (output.second ?? 0) % 60
+        
+        var hourStr = ""
+        var minStr = ""
+        var secStr = ""
+        
+        if hour < 10 {
+            hourStr += "0\(hour)"
+        } else {
+            hourStr += "\(hour)"
+        }
+        
+        if minute < 10 {
+            minStr += "0\(minute)"
+        } else {
+            minStr += "\(minute)"
+        }
+
+        if second < 10 {
+            secStr += "0\(second)"
+        } else {
+            secStr += "\(second)"
+        }
+        return (hourStr, minStr, secStr)
+        
+        
+    }
+    
+    func getCurrentBreakTimes() -> (Int, Int) {
+        guard let currentBreak = currentBreak else {
+            return (0, 0)
+        }
+        let output = getTimeElapsed(currentBreak.startBreak)
+        
+        let minute = (output.minute ?? 0)%60
+        let second = (output.second ?? 0)%60
+        
+        return (minute, second)
+        
+        
+    }
+    
 }
 
 class Break: Codable {

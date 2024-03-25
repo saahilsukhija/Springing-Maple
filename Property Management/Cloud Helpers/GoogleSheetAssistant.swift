@@ -12,11 +12,12 @@ import FirebaseFunctions
 class GoogleSheetAssistant {
     
     static var shared = GoogleSheetAssistant()
-    var spreadsheetID: String
+    var spreadsheetID: String? {
+        return User.shared.team?.spreadsheetID
+    }
     var functions: Functions!
     
     init() {
-        spreadsheetID = "1daenlobEFeHHejUucuiLmwH4mPpna2LNLxZ_8u6xKPc"
         functions = Functions.functions()
         loadSpreadsheet()
     }
@@ -26,6 +27,10 @@ class GoogleSheetAssistant {
     }
     
     func appendToSpreadsheet(_ values: [String : Any]) {
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
         var dict: Dictionary<String, Any> = ["spreadsheetID": spreadsheetID, "apiKey": Constants.API_KEYS.google_sheet_api]
         dict += values
         functions.httpsCallable("append_to_spreadsheet").call(dict) { result, error in
@@ -40,7 +45,10 @@ class GoogleSheetAssistant {
     }
     
     func appendToSpreadsheet(_ val: String) {
-        
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
         functions.httpsCallable("append_to_spreadsheet").call(["spreadsheetID": spreadsheetID, "apiKey": Constants.API_KEYS.google_sheet_api, "value": val == "" ? "(none)" : val]) { result, error in
             if let error = error {
                 print("error: \(error)")
@@ -54,6 +62,11 @@ class GoogleSheetAssistant {
     
     func appendRegisteredDriveToSpreadsheet(_ drive: RegisteredDrive) {
 
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
         Drive.getMilesBetween(drive.initialCoordinate, and: drive.finalCoordinate) { [self] miles in
             Task {
                 let dict = ["spreadsheetID" : spreadsheetID,
@@ -87,6 +100,11 @@ class GoogleSheetAssistant {
     
     func appendRegisteredWorkToSpreadsheet(_ work: RegisteredWork) {
 
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
         Task {
             let link = try? await work.getReceiptURL()
             let dict = ["spreadsheetID" : spreadsheetID,
@@ -119,6 +137,12 @@ class GoogleSheetAssistant {
     }
     
     func addUserSheet() {
+        
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
         let dict = ["spreadsheetID" : spreadsheetID,
                     "username" : User.shared.getUserName(),
                     "apiKey" : Constants.API_KEYS.google_sheet_api,
@@ -147,6 +171,12 @@ class GoogleSheetAssistant {
     }
     
     func appendBreakToSpreadsheet(start: Date, end: Date) {
+        
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
         let dict = ["spreadsheetID" : spreadsheetID,
                     "username" : User.shared.getUserName(),
                     "apiKey" : Constants.API_KEYS.google_sheet_api,
@@ -167,8 +197,13 @@ class GoogleSheetAssistant {
     
     func appendSummaryToSpreadsheet(date: Date) {
         
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
         Task {
-            let count = try await FirestoreDatabase.shared.getDailyCounter()
+            let count = try await FirestoreDatabase.shared.getDailyCounter(.general)
             let dict = ["spreadsheetID" : spreadsheetID,
                         "username" : User.shared.getUserName(),
                         "apiKey" : Constants.API_KEYS.google_sheet_api,
@@ -189,6 +224,22 @@ class GoogleSheetAssistant {
     
     func appendToSpreadsheet(_ val: Int) {
         appendToSpreadsheet(String(val))
+    }
+    
+    
+    func createNewSpreadsheet(from team: Team, spreadsheetName: String, completion: @escaping((String) -> Void)) {
+
+        let dict = ["teamID": team.id, "spreadsheetName": spreadsheetName, "teamName" : team.name, "email" : User.shared.getUserEmail(), "apiKey" : Constants.API_KEYS.google_sheet_api]
+        functions.httpsCallable("create_spreadsheet").call(dict) { result, error in
+            if let error = error {
+                print("error: \(error)")
+            }
+            guard let val = result?.data as? String else {
+                completion("")
+                return
+            }
+            completion(val)
+        }
     }
     
 }

@@ -10,11 +10,21 @@ import GoogleSignIn
 
 class SessionVC: UIViewController {
     
-    @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var clockInButton: UIButton!
     @IBOutlet weak var breakButton: UIButton!
-    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var hourLabel: UILabel!
+    @IBOutlet weak var minuteLabel: UILabel!
+    @IBOutlet weak var secondLabel: UILabel!
     @IBOutlet weak var breakLabel: UILabel!
+    @IBOutlet weak var clockInLabel: UILabel!
+    @IBOutlet weak var startBreakLabel: UILabel!
+    
+    @IBOutlet var bottomViews: [UIView]!
+    
+    @IBOutlet weak var driveCounterLabel: UILabel!
+    @IBOutlet weak var workCounterLabel: UILabel!
+    @IBOutlet weak var driveCaptionLabel: UILabel!
+    @IBOutlet weak var workCaptionLabel: UILabel!
     
     var timer: Timer!
     
@@ -22,8 +32,6 @@ class SessionVC: UIViewController {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        backgroundView.dropShadow(radius: 2)
-        backgroundView.layer.cornerRadius = 10
         breakButton.layer.cornerRadius = 10
         clockInButton.layer.cornerRadius = 10
         
@@ -39,6 +47,13 @@ class SessionVC: UIViewController {
                 await self.showSignInToast()
             }
         }
+        
+        for view in bottomViews {
+            view.layer.cornerRadius = view.frame.size.height / 2 - 5
+            view.layer.borderWidth = 1
+            view.layer.borderColor = UIColor.systemGray5.cgColor
+            view.dropShadow()
+        }
     }
     
     deinit {
@@ -50,8 +65,48 @@ class SessionVC: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             if !User.shared.isLoggedIn()  {
                 let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier) as! LoginVC
-                self.modalPresentationStyle = .fullScreen
-                self.navigationController?.pushViewController(vc, animated: true)
+                vc.modalPresentationStyle = .fullScreen
+                self.present(vc, animated: true)
+            }
+            else {
+                Task {
+                    do {
+                        let team = try await FirestoreDatabase.shared.getUserTeam()
+                        DispatchQueue.main.async {
+                            if team == nil {
+                                
+                                let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: NewTeamVC.identifier)
+                                vc.modalPresentationStyle = .fullScreen
+                                self.present(vc, animated: true)
+                                return
+                            }
+                            else {
+                                User.shared.team = team
+                                self.dismiss(animated: true, completion: nil)
+                                self.navigationController?.popViewController(animated: true)
+                            }
+                        }
+                    }
+                    
+                    do {
+                        let d = try await FirestoreDatabase.shared.getDailyCounter(.drive)
+                        let w = try await FirestoreDatabase.shared.getDailyCounter(.work)
+                        
+                        DispatchQueue.main.async {
+                            self.driveCounterLabel.text = "\(d)"
+                            self.workCounterLabel.text = "\(w)"
+                            
+                            self.driveCaptionLabel.text = (d != 1 ? "drives" : "drive")
+                            self.workCaptionLabel.text = (w != 1 ? "visits" : "visit")
+                        }
+                    } catch {
+                        self.driveCounterLabel.text = "0"
+                        self.workCounterLabel.text = "0"
+                        
+                        self.driveCaptionLabel.text = "drives"
+                        self.workCaptionLabel.text = "visits"
+                    }
+                }
             }
         }
     }
@@ -74,31 +129,35 @@ class SessionVC: UIViewController {
     
     func updateButtons() {
         if Stopwatch.shared.isRunning {
-            clockInButton.backgroundColor = .mapRed
-            clockInButton.setTitle("Clock Out", for: .normal)
+            clockInLabel.text = "Clock Out"
             clockInButton.setImage(UIImage(systemName: "xmark"), for: .normal)
         }
         else {
-            clockInButton.backgroundColor = .accentColor
-            clockInButton.setTitle("Clock In", for: .normal)
-            clockInButton.setImage(UIImage(systemName: "car"), for: .normal)
+            clockInLabel.text = "Clock In"
+            clockInButton.setImage(UIImage(systemName: "handbag"), for: .normal)
         }
         
         if Stopwatch.shared.isOnBreak {
-            breakButton.backgroundColor = .mapRed
-            breakButton.setTitle("End Break", for: .normal)
-            breakButton.setImage(UIImage(systemName: "pause"), for: .normal)
+            startBreakLabel.text = "End Break"
+            breakButton.setImage(UIImage(systemName: "play"), for: .normal)
         }
         else {
-            breakButton.backgroundColor = .break
-            breakButton.setTitle("Start Break", for: .normal)
-            breakButton.setImage(UIImage(systemName: "play"), for: .normal)
+            startBreakLabel.text = "Start Break"
+            breakButton.setImage(UIImage(systemName: "pause"), for: .normal)
         }
     }
     
     @objc func updateLabels() {
-        timeLabel.text = Stopwatch.shared.getTimeString()
-        breakLabel.text = Stopwatch.shared.getCurrentBreakTimeString()
+        let times = Stopwatch.shared.getCurrentTimes()
+        hourLabel.text = times.0
+        minuteLabel.text = times.1
+        secondLabel.text = times.2
+        let t = Stopwatch.shared.getCurrentBreakTimes()
+        if Stopwatch.shared.isOnBreak {
+            breakLabel.text = "\(t.0 + 1)"
+        } else {
+            breakLabel.text = "\(t.0)"
+        }
     }
     
     @IBAction func clockInButtonClicked(_ sender: Any) {
@@ -110,18 +169,28 @@ class SessionVC: UIViewController {
                 self.updateButtons()
                 GoogleSheetAssistant.shared.appendSummaryToSpreadsheet(date: Date())
                 
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        Task {
-                            try? await FirestoreDatabase.shared.resetDailyCounter()
-                        }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    Task {
+                        try? await FirestoreDatabase.shared.resetDailyCounters()
                     }
+                    self.driveCounterLabel.text = "0"
+                    self.workCounterLabel.text = "0"
+                    
+                    self.driveCaptionLabel.text = "drives"
+                    self.workCaptionLabel.text = "visits"
+                }
             }))
             self.present(alert, animated: true, completion: nil)
-
+            
         } else {
             Stopwatch.shared.start()
         }
         updateButtons()
+        do {
+            try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
+        } catch {
+            print("error while storing stopwatch in UserDefaults")
+        }
     }
     
     @IBAction func breakButtonClicked(_ sender: Any) {
@@ -147,15 +216,15 @@ class SessionVC: UIViewController {
         LocationManager.shared.stopTracking()
     }
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }
 
 

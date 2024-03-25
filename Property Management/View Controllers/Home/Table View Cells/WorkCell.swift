@@ -11,7 +11,7 @@ import FDTake
 
 class WorkCell: UITableViewCell {
     
-    static let identifer = "WorkCell"
+    static let identifier = "WorkCell"
     
     @IBOutlet weak var containerView: UIView!
     
@@ -43,7 +43,7 @@ class WorkCell: UITableViewCell {
     func setup(with w: Work) {
         self.work = w
         
-        var initTime = work.initialDate.toHourMinuteTime()
+        let initTime = work.initialDate.toHourMinuteTime()
         let finalTime = work.finalDate.toHourMinuteTime()
         if initTime.hasSuffix(finalTime.suffix(2)) {
             self.timeLabel.text = "\(initTime.prefix(initTime.count - 3)) - \(finalTime)"
@@ -85,12 +85,16 @@ class WorkCell: UITableViewCell {
         
         if work.finalDate == Date.ongoingDate {
             if let place = w.finalPlace {
-                self.milesDrivenLabel.text = "Pending work at \(place)"
+                self.milesDrivenLabel.text = "Ongoing work at \(place)"
             } else {
-                self.milesDrivenLabel.text = "Pending work"
+                self.milesDrivenLabel.text = "Ongoing work"
             }
             
             self.timeLabel.text = "\(initTime) - Now"
+        }
+        
+        if work.finalDate == .ongoingDate {
+            self.dateLabel.text = ""
         }
     }
     

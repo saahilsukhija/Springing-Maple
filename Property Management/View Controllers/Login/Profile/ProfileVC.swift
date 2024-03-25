@@ -7,6 +7,7 @@
 
 import UIKit
 import GoogleSignIn
+import FirebaseAuth
 
 class ProfileVC: UIViewController {
     
@@ -22,6 +23,7 @@ class ProfileVC: UIViewController {
     @IBOutlet weak var spreadsheetLabel: UILabel!
     
     @IBOutlet weak var spreadsheetView: UIView!
+    @IBOutlet weak var memberView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +46,9 @@ class ProfileVC: UIViewController {
         
         spreadsheetView.isUserInteractionEnabled = true
         spreadsheetView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(spreadsheetClicked(_:))))
+        
+        memberView.isUserInteractionEnabled = true
+        memberView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(memberClicked(_:))))
         
     }
     
@@ -80,11 +85,27 @@ class ProfileVC: UIViewController {
     }
     
     @IBAction func deleteAccountButtonClicked(_ sender: Any) {
-        
-    }
-    
-    @IBAction func membersButtonClicked(_ sender: Any) {
-        
+        let alert = UIAlertController(title: "Are you sure?", message: "You will be able to create an account later", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
+            Task {
+                do {
+                    try await FirestoreDatabase.shared.deleteUser()
+                    UserDefaults.standard.removeObject(forKey: "user_team")
+                    try await Auth.auth().currentUser?.delete()
+                    GIDSignIn.sharedInstance.signOut()
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: true)
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.showFailureToast(message: "Error deleting account, please try again")
+                    }
+                }
+            }
+        }))
+        self.present(alert, animated: true)
     }
     
     @objc func spreadsheetClicked(_ sender: Any) {
@@ -106,6 +127,16 @@ class ProfileVC: UIViewController {
             let ur = URL(string : "googlesheets://\(url)")!
             UIApplication.shared.open(URL(string: "\(ur)")!)
         }
+    }
+    
+    @objc func memberClicked(_ sender: Any) {
+        guard User.shared.team != nil else {
+            self.showFailureToast(message: "Some error occured")
+            return
+        }
+        
+        let vc = storyboard!.instantiateViewController(withIdentifier: MemberVC.identifier)
+        self.navigationController?.present(vc, animated: true)
     }
     
     

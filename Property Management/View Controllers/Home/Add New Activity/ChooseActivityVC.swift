@@ -9,6 +9,7 @@ import UIKit
 
 class ChooseActivityVC: UIViewController {
     
+    static let identifier = "ChooseActivityScreen"
     @IBOutlet weak var driveView: UIView!
     @IBOutlet weak var workView: UIView!
     
@@ -18,11 +19,11 @@ class ChooseActivityVC: UIViewController {
         // Do any additional setup after loading the view.
         driveView.layer.cornerRadius = 10
         driveView.layer.borderWidth = 1
-        driveView.layer.borderColor = UIColor.systemGray4.cgColor
+        driveView.layer.borderColor = UIColor.darkAccent.cgColor
         
         workView.layer.cornerRadius = 10
         workView.layer.borderWidth = 1
-        workView.layer.borderColor = UIColor.systemGray4.cgColor
+        workView.layer.borderColor = UIColor.darkAccent.cgColor
         
         driveView.isUserInteractionEnabled = true
         workView.isUserInteractionEnabled = true

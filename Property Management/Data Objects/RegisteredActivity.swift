@@ -70,7 +70,7 @@ class RegisteredActivity: Activity {
     
     func generateID(override: Bool = false) {
         if override || self.internalID == "" {
-            self.internalID = generateRandomID(numDigits: Constants.NUMBER_DIGITS_IN_ID)
+            self.internalID = generateRandomID(numDigits: Constants.NUMBER_DIGITS_IN_RECEIPT_ID)
         }
         
     }
@@ -85,7 +85,7 @@ class RegisteredActivity: Activity {
     func generateRandomID(numDigits: Int) -> String {
         
         var finalNumber = "";
-        for _ in (0...numDigits) {
+        for _ in (0..<numDigits) {
             let randomNumber = arc4random_uniform(10)
             finalNumber += String(Int(randomNumber))
         }

@@ -68,14 +68,32 @@ class HomeVC: UIViewController {
         
         guard !isPresentingCamera else { return }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
             guard User.shared.isLoggedIn() else {
                 let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier) as! LoginVC
-                self.modalPresentationStyle = .fullScreen
-                self.navigationController?.pushViewController(vc, animated: true)
+                vc.modalPresentationStyle = .fullScreen
+                self.present(vc, animated: true)
                 try? FirestoreDatabase.shared.addNotificationForPrivateDrives()
                 try? FirestoreDatabase.shared.addNotificationForPrivateWorks()
                 return
+            }
+            
+            Task {
+                do {
+                    let team = try await FirestoreDatabase.shared.getUserTeam()
+                    DispatchQueue.main.async {
+                        if team == nil {
+                        
+                            let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: NewTeamVC.identifier)
+                            vc.modalPresentationStyle = .fullScreen
+                            self.present(vc, animated: true)
+                            return
+                        }
+                        else {
+                            User.shared.team = team
+                        }
+                    }
+                }
             }
             
             try? FirestoreDatabase.shared.addNotificationForPrivateDrives()
@@ -104,6 +122,46 @@ class HomeVC: UIViewController {
                     let works = try await FirestoreDatabase.shared.getPrivateWorks()
                     self.activities = drives
                     self.activities.replaceWorks(with: works)
+                    
+                    for (i, a) in self.activities.enumerated() {
+                        if a.initialPlace == nil || a.initialPlace == "" || a.initialPlace == "(error)" {
+                            
+                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.initialCoordinate.latitude, longitude: a.initialCoordinate.longitude)) { location, placemark, error in
+                                var text = ""
+                                if let error = error {
+                                    text = ""
+                                    print(error.localizedDescription)
+                                } else {
+                                    text = placemark?.name ?? "(error 2)"
+                                }
+                                
+                                DispatchQueue.main.async {
+                                    self.activities[i].setInitPlace(text)
+                                    self.tableView.reloadData()
+                                }
+                            }
+                            
+                        }
+                        if a.finalPlace == nil || a.finalPlace == "" || a.finalPlace == "(error)" {
+                            
+                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.finalCoordinate.latitude, longitude: a.finalCoordinate.longitude)) { location, placemark, error in
+                                var text = ""
+                                if let error = error {
+                                    text = ""
+                                    print(error.localizedDescription)
+                                } else {
+                                    text = placemark?.name ?? "(error 2)"
+                                }
+                                
+                                DispatchQueue.main.async {
+                                    self.activities[i].setFinalPlace(text)
+                                    self.tableView.reloadData()
+                                    
+                                }
+                            }
+                            
+                        }
+                    }
                     print("got drives: \(drives)")
                     print("got works: \(works)")
                     for work in works {
@@ -157,6 +215,11 @@ class HomeVC: UIViewController {
             self.modalPresentationStyle = .fullScreen
             navigationController?.pushViewController(vc, animated: true)
         }
+    }
+    
+    func presentAddActivityVC() {
+        let vc = storyboard?.instantiateViewController(withIdentifier: ChooseActivityVC.identifier) as! ChooseActivityVC
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func userLocationUpdated(_ notification: NSNotification) {
@@ -262,7 +325,11 @@ class HomeVC: UIViewController {
             
             self.showConfirmDriveToast()
             activities.remove(at: index)
-            tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+            if activities.count != 0 {
+                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+            } else {
+                tableView.reloadData()
+            }
             
             do {
                 try await FirestoreDatabase.shared.registerDrive(from: activities.getDrives(), drive: drive, to: registeredDrive)
@@ -302,7 +369,11 @@ class HomeVC: UIViewController {
             self.showConfirmWorkToast();
             
             activities.remove(at: index)
-            tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+            if activities.count != 0 {
+                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+            } else {
+                tableView.reloadData()
+            }
             
             do {
                 if let receipt = receipt {
@@ -347,7 +418,13 @@ class HomeVC: UIViewController {
             
             self.showDeleteDriveToast()
             activities.remove(at: index)
-            tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
+            
+            if activities.count != 0 {
+                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
+            }
+            else {
+                tableView.reloadData()
+            }
             
             do {
                 try await FirestoreDatabase.shared.removePrivateDrive(drive, from: activities.getDrives())
@@ -381,7 +458,12 @@ class HomeVC: UIViewController {
             
             self.showDeleteWorkToast()
             activities.remove(at: index)
-            tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
+            
+            if activities.count != 0 {
+                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
+            } else {
+                tableView.reloadData()
+            }
             
             do {
                 try await FirestoreDatabase.shared.removePrivateWork(work, from: activities.getWorks())
@@ -400,14 +482,22 @@ class HomeVC: UIViewController {
 extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1) == 0 {
+            return 1
+        }
         return activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+        if activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1) == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: NoActivityCell.identifier) as! NoActivityCell
+            cell.setup(vc: self)
+            
+            return cell
+        }
         if indexPath.row < activities.count {
             if activities[indexPath.row] is Work {
-                let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifer) as! WorkCell
+                let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifier) as! WorkCell
                 cell.setup(with: activities[indexPath.row] as! Work)
                 cell.parentVC = self
                 
@@ -418,7 +508,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
                 return cell
             }
             else {
-                let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifer) as! DriveCell
+                let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifier) as! DriveCell
                 cell.setup(with: activities[indexPath.row] as! Drive)
                 cell.parentVC = self
                 
@@ -432,7 +522,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
         else {
             print("pending work!!!")
             //pending work
-            let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifer) as! WorkCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifier) as! WorkCell
             let drive = LocationManager.shared.lastDriveCreated!
             let work = Work(initialCoordinates: drive.initialCoordinate, finalCoordinates: drive.finalCoordinate, initialDate: drive.finalDate, finalDate: Date.ongoingDate, initPlace: drive.initialPlace, finPlace: drive.finalPlace)
             cell.setup(with: work)
@@ -462,10 +552,12 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
         label.text = "Swipe to log activity"
         label.font = UIFont(name: "Montserrat-SemiBold", size: 13)
         label.textColor = .systemGray
+        label.backgroundColor = .clear
         view.addSubview(label)
         
         let lineViewLeft = UIView(frame: CGRect(x: 45, y: view.frame.size.height / 2, width: label.frame.minX - 50, height: 1))
         lineViewLeft.backgroundColor = .systemGray
+
         view.addSubview(lineViewLeft)
         
         let lineViewRight = UIView(frame: CGRect(x: label.frame.maxX + 5, y: view.frame.size.height / 2, width: lineViewLeft.frame.size.width, height: 1))

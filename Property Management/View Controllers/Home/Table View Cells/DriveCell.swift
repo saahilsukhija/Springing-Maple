@@ -10,7 +10,7 @@ import MapKit
 
 class DriveCell: UITableViewCell {
     
-    static let identifer = "DriveCell"
+    static let identifier = "DriveCell"
     
     @IBOutlet weak var containerView: UIView!
     
@@ -84,7 +84,6 @@ class DriveCell: UITableViewCell {
             self.milesDrivenLabel.text = "\(String(format: "%.1f", drive.milesDriven!)) mile drive"
             self.milesDrivenLabel.textColor = .black
         }
-        
         
     }
     
