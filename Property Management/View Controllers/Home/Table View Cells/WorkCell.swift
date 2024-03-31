@@ -14,6 +14,7 @@ class WorkCell: UITableViewCell {
     static let identifier = "WorkCell"
     
     @IBOutlet weak var containerView: UIView!
+    @IBOutlet weak var topBarView: UIView!
     
     @IBOutlet weak var finalPlaceLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
@@ -37,7 +38,10 @@ class WorkCell: UITableViewCell {
         super.awakeFromNib()
         // Initialization code
         containerView.layer.cornerRadius = 20
-        containerView.dropShadow(radius: 8)
+        topBarView.clipsToBounds = true
+        topBarView.layer.cornerRadius = 20
+        topBarView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner] // Top right corner, Top left corner respectively
+        containerView.dropShadow(radius: 5)
     }
     
     func setup(with w: Work) {

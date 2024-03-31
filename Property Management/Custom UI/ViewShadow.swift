@@ -10,6 +10,7 @@ import UIKit
 extension UIView {
 
     func dropShadow(radius: CGFloat = 3) {
+        layer.masksToBounds = false
         layer.shadowColor = UIColor.systemGray.cgColor
         layer.shadowOpacity = 0.7
         layer.shadowRadius = radius/2
