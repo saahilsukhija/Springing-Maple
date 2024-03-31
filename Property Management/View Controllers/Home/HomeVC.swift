@@ -21,6 +21,8 @@ class HomeVC: UIViewController {
     
     var isPresentingCamera = false
     
+    var isLoading = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -101,7 +103,14 @@ class HomeVC: UIViewController {
             
             
             let loadingScreen = self.createLoadingScreen(frame: self.view.frame)
-            self.view.addSubview(loadingScreen)
+
+            self.isLoading = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if self.isLoading {
+                    self.view.addSubview(loadingScreen)
+                }
+            }
             Task {
 //                let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.055925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home", finPlace: "Home Depot")
 //                let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home")
@@ -169,6 +178,7 @@ class HomeVC: UIViewController {
                         print(work.finalDate.secondsSince(work.initialDate))
                     }
                     DispatchQueue.main.async {
+                        self.isLoading = false
                         self.tableView.reloadData()
                         loadingScreen.removeFromSuperview()
                     }
@@ -177,10 +187,8 @@ class HomeVC: UIViewController {
 
                     
                 } catch {
+                    self.isLoading = false
                     print(error.localizedDescription)
-                }
-                DispatchQueue.main.async {
-                    loadingScreen.removeFromSuperview()
                 }
 
             }
@@ -361,16 +369,24 @@ class HomeVC: UIViewController {
                 return d == work
             }
             
-            guard let index = index else {
+            let isOngoing = (work.finalDate == .ongoingDate)
+            if (index == nil) && isOngoing {
                 print("no index")
                 return
             }
             
             self.showConfirmWorkToast();
             
-            activities.remove(at: index)
+            if let index = index {
+                activities.remove(at: index)
+            }
             if activities.count != 0 {
-                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+                if let index = index {
+                    tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+                } else {
+                    tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .right)
+                    LocationManager.shared.removeLastDrive()
+                }
             } else {
                 tableView.reloadData()
             }
@@ -451,16 +467,24 @@ class HomeVC: UIViewController {
                 return w == work
             }
             
-            guard let index = index else {
+            let isOngoing = work.finalDate == .ongoingDate
+            guard index != nil else {
                 print("no index")
                 return
             }
             
             self.showDeleteWorkToast()
-            activities.remove(at: index)
+            if let index = index {
+                activities.remove(at: index)
+            }
             
-            if activities.count != 0 {
-                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
+            if activities.count != 0 && !isOngoing {
+                if let index = index {
+                    tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
+                } else {
+                    tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .left)
+                    LocationManager.shared.removeLastDrive()
+                }
             } else {
                 tableView.reloadData()
             }

@@ -9,21 +9,52 @@ import UIKit
 
 class SettingsVC: UIViewController {
 
+    static let identifier = "SettingsScreen"
+    
+    @IBOutlet weak var tableView: UITableView!
+    
+    let settings = ["Notifications"]
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
+    
 
-    /*
-    // MARK: - Navigation
+}
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return settings.count
     }
-    */
-
+    
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: SettingCell.identifier) as! SettingCell
+        cell.setup(title: settings[indexPath.row], status: User.shared.settings.notificationsEnabled ? "Enabled" : "Disabled")
+        
+        //Separator Full Line
+        cell.preservesSuperviewLayoutMargins = false
+        cell.separatorInset = .zero
+        cell.layoutMargins = .zero
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        if indexPath.row == 0 {
+            let vc = storyboard?.instantiateViewController(withIdentifier: NotificationsVC.identifier) as! NotificationsVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    
+    
 }

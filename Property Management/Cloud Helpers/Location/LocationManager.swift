@@ -51,23 +51,18 @@ final class LocationManager: NSObject {
     }()
     
     override init() {
-//        if UserDefaults.standard.isKeyPresent(key: "lastDriveCreated") {
-//            do {
-//                let lastDrive = try UserDefaults.standard.get(objectType: Drive.self, forKey: "lastDriveCreated")
-//                lastDriveCreated = lastDrive
-//                print("restored lastDriveCreated from defaults")
-//            } catch {
-//                lastDriveCreated = nil
-//            }
-//        } else {
-//            lastDriveCreated = nil
-//        }
+        if UserDefaults.standard.isKeyPresent(key: "lastDriveCreated") && lastDriveCreated == nil {
+            do {
+                let lastDrive = try UserDefaults.standard.get(objectType: Drive.self, forKey: "lastDriveCreated")
+                lastDriveCreated = lastDrive
+                print("restored lastDriveCreated from defaults")
+            } catch {}
+        }
     }
     
     //MARK:- Destroy the LocationManager
     deinit {
-        destroyLocationManager()
-        destroyActivityManager()
+
     }
     
     //MARK:- Private Methods
@@ -88,6 +83,7 @@ final class LocationManager: NSObject {
         locationManager?.pausesLocationUpdatesAutomatically = false
         locationManager?.allowsBackgroundLocationUpdates = true
         locationManager?.activityType = .automotiveNavigation
+        locationManager?.showsBackgroundLocationIndicator = true
         
         if #available(iOS 14.0, *) {
             self.check(status: locationManager?.authorizationStatus)
@@ -446,8 +442,10 @@ extension LocationManager: CLLocationManagerDelegate {
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                     self.uploadWork(work)
+                    NotificationManager.shared.sendWorkLoggedNotification(work: work)
                 }
                 
+                removeLastDrive()
                 print("new work detected!")
             }
             
@@ -480,8 +478,14 @@ extension LocationManager: CLLocationManagerDelegate {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
-                self.lastDriveCreated = drive
+                self.lastDriveCreated = drive 
+                do {
+                    try UserDefaults.standard.set(object: drive, forKey: "lastDriveCreated")
+                } catch {
+                    
+                }
                 self.uploadDrive(drive)
+                NotificationManager.shared.sendDriveLoggedNotification(drive: drive)
             }
         }
     }
@@ -508,5 +512,6 @@ extension LocationManager: CLLocationManagerDelegate {
     
     func removeLastDrive() {
         self.lastDriveCreated = nil
+        UserDefaults.standard.removeObject(forKey: "lastDriveCreated")
     }
 }

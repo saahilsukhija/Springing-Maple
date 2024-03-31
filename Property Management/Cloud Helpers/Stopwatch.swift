@@ -217,7 +217,7 @@ extension Stopwatch {
         }
         let output = getTimeElapsed(currentBreak.startBreak)
         
-        let minute = (output.minute ?? 0)%60
+        let minute = (output.minute ?? 0)
         let second = (output.second ?? 0)%60
         
         return (minute, second)

@@ -15,7 +15,8 @@ class SessionVC: UIViewController {
     @IBOutlet weak var hourLabel: UILabel!
     @IBOutlet weak var minuteLabel: UILabel!
     @IBOutlet weak var secondLabel: UILabel!
-    @IBOutlet weak var breakLabel: UILabel!
+    @IBOutlet weak var breakMinLabel: UILabel!
+    @IBOutlet weak var breakSecLabel: UILabel!
     @IBOutlet weak var clockInLabel: UILabel!
     @IBOutlet weak var startBreakLabel: UILabel!
     
@@ -27,6 +28,8 @@ class SessionVC: UIViewController {
     @IBOutlet weak var workCaptionLabel: UILabel!
     
     var timer: Timer!
+    
+    var openingSettings: Bool! = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,6 +65,9 @@ class SessionVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        openingSettings = false
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             if !User.shared.isLoggedIn()  {
                 let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier) as! LoginVC
@@ -83,7 +89,9 @@ class SessionVC: UIViewController {
                             else {
                                 User.shared.team = team
                                 self.dismiss(animated: true, completion: nil)
-                                self.navigationController?.popViewController(animated: true)
+                                if !self.openingSettings {
+                                    self.navigationController?.popViewController(animated: true)
+                                }
                             }
                         }
                     }
@@ -131,19 +139,31 @@ class SessionVC: UIViewController {
         if Stopwatch.shared.isRunning {
             clockInLabel.text = "Clock Out"
             clockInButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+            
+            clockInLabel.textColor = .systemRed
+            clockInButton.tintColor = .systemRed
         }
         else {
             clockInLabel.text = "Clock In"
             clockInButton.setImage(UIImage(systemName: "handbag"), for: .normal)
+            
+            clockInLabel.textColor = .accentColor
+            clockInButton.tintColor = .accentColor
         }
         
         if Stopwatch.shared.isOnBreak {
             startBreakLabel.text = "End Break"
             breakButton.setImage(UIImage(systemName: "play"), for: .normal)
+            
+            startBreakLabel.textColor = .systemRed
+            breakButton.tintColor = .systemRed
         }
         else {
             startBreakLabel.text = "Start Break"
             breakButton.setImage(UIImage(systemName: "pause"), for: .normal)
+            
+            startBreakLabel.textColor = UIColor.break
+            breakButton.tintColor = UIColor.break
         }
     }
     
@@ -153,11 +173,8 @@ class SessionVC: UIViewController {
         minuteLabel.text = times.1
         secondLabel.text = times.2
         let t = Stopwatch.shared.getCurrentBreakTimes()
-        if Stopwatch.shared.isOnBreak {
-            breakLabel.text = "\(t.0 + 1)"
-        } else {
-            breakLabel.text = "\(t.0)"
-        }
+        breakMinLabel.text = "\(t.0)"
+        breakSecLabel.text = "\(t.1)"
     }
     
     @IBAction func clockInButtonClicked(_ sender: Any) {
@@ -214,6 +231,12 @@ class SessionVC: UIViewController {
     
     @objc func userClockedOut() {
         LocationManager.shared.stopTracking()
+    }
+    
+    @IBAction func settingsButtonClicked(_ sender: Any) {
+        openingSettings = true
+        let vc = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: SettingsVC.identifier) as! SettingsVC
+        navigationController?.pushViewController(vc, animated: true)
     }
     /*
      // MARK: - Navigation

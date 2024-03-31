@@ -67,6 +67,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let team = User.shared.team {
                 try UserDefaults.standard.set(object: team, forKey: "user_team")
             }
+            if let settings = User.shared.settings {
+                try UserDefaults.standard.set(object: settings, forKey: "user_settings")
+            }
         } catch {
             print("error while storing stopwatch / recentLocationQueue in UserDefaults")
         }

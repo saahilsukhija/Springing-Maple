@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Route.gpx">
-   </FileRef>
-   <FileRef
       location = "group:Property Management.xcodeproj">
    </FileRef>
    <FileRef

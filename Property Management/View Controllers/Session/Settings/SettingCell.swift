@@ -9,6 +9,11 @@ import UIKit
 
 class SettingCell: UITableViewCell {
 
+    static let identifier = "SettingCell"
+    
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var statusLabel: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -18,6 +23,12 @@ class SettingCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    
+    func setup(title: String, status: String) {
+        titleLabel.text = title
+        statusLabel.text = status
+        statusLabel.textColor = .systemGray
     }
 
 }

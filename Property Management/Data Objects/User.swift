@@ -18,6 +18,7 @@ class User {
     }()
     
     var team: Team?
+    var settings: UserSettings!
     
     init() {
         do {
@@ -25,6 +26,7 @@ class User {
         } catch {
             print("no team available.")
         }
+        settings = UserSettings()
     }
     
     func isLoggedIn() -> Bool {
@@ -43,6 +45,10 @@ class User {
     
     func teamHasSpreadsheet() -> Bool {
         return self.team?.hasSpreadsheet() ?? false
+    }
+    
+    func enableNotifications(_ shouldEnable: Bool = true) {
+        self.settings.enableNotification(shouldEnable)
     }
     
 }
