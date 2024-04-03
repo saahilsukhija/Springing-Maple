@@ -9,6 +9,10 @@ import UIKit
 
 class LoggedActivitiesVC: UIViewController {
 
+    static let identifier = "LoggedActivitiesScreen"
+    
+    @IBOutlet weak var tableView: UITableView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

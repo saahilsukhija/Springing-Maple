@@ -21,13 +21,13 @@
         <!--LoginVC-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
-                <viewController storyboardIdentifier="LoginScreen" id="Y6W-OH-hqX" customClass="LoginVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Y6W-OH-hqX" customClass="LoginVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h1Y-2s-682" customClass="RoundedButton" customModule="Property_Management" customModuleProvider="target">
-                                <rect key="frame" x="20" y="451" width="353" height="60"/>
+                                <rect key="frame" x="20" y="520" width="353" height="60"/>
                                 <color key="backgroundColor" name="Background Gray"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="x2m-Aq-ean"/>
@@ -55,42 +55,53 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="34P-gu-mtz">
-                                <rect key="frame" x="79.333333333333329" y="300.33333333333331" width="234.33333333333337" height="80.666666666666686"/>
+                                <rect key="frame" x="95.000000000000014" y="382" width="203.33333333333337" height="88"/>
                                 <color key="tintColor" name="DarkAccentColor"/>
                                 <attributedString key="attributedText">
-                                    <fragment content="Abbott Management">
+                                    <fragment content="Springing  Maple LLC">
                                         <attributes>
                                             <color key="NSColor" red="0.02352941222" green="0.062745101750000004" blue="0.41568624970000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                            <font key="NSFont" size="33" name="MontserratRoman-ExtraBold"/>
-                                            <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="truncatingTail" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                            <font key="NSFont" size="36" name="MontserratRoman-ExtraBold"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="truncatingTail" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                         </attributes>
                                     </fragment>
                                 </attributedString>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SpringingMapleLogo" translatesAutoresizingMaskIntoConstraints="NO" id="VHv-LI-uiw">
+                                <rect key="frame" x="105.00000000000001" y="198.66666666666663" width="183.33333333333337" height="183.33333333333337"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="VHv-LI-uiw" secondAttribute="height" multiplier="1:1" id="wLC-U8-kNN"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="Background Gray"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="h1Y-2s-682" secondAttribute="trailing" constant="20" id="7pi-aP-rWS"/>
                             <constraint firstItem="h1Y-2s-682" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="9FI-xr-9Cn"/>
-                            <constraint firstItem="h1Y-2s-682" firstAttribute="top" secondItem="34P-gu-mtz" secondAttribute="bottom" constant="70" id="MZe-YX-oL1"/>
-                            <constraint firstItem="34P-gu-mtz" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" multiplier="0.8" id="iTq-cj-8S9"/>
+                            <constraint firstItem="34P-gu-mtz" firstAttribute="trailing" secondItem="VHv-LI-uiw" secondAttribute="trailing" constant="10" id="BoP-qF-0th"/>
+                            <constraint firstItem="VHv-LI-uiw" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="D7P-aG-jbe"/>
+                            <constraint firstItem="h1Y-2s-682" firstAttribute="top" secondItem="34P-gu-mtz" secondAttribute="bottom" constant="50" id="MZe-YX-oL1"/>
+                            <constraint firstItem="34P-gu-mtz" firstAttribute="leading" secondItem="VHv-LI-uiw" secondAttribute="leading" constant="-10" id="Udq-2P-so2"/>
+                            <constraint firstItem="34P-gu-mtz" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" id="iTq-cj-8S9"/>
                             <constraint firstItem="34P-gu-mtz" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="vyj-cF-gPu"/>
+                            <constraint firstItem="34P-gu-mtz" firstAttribute="top" secondItem="VHv-LI-uiw" secondAttribute="bottom" id="zSR-rx-afv"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="Ubd-Dd-M2b"/>
                     <connections>
                         <outlet property="googleSignInButton" destination="h1Y-2s-682" id="xWQ-Gb-mSC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="35.877862595419849" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="962.59541984732823" y="3.5211267605633805"/>
         </scene>
         <!--Join Team-->
         <scene sceneID="zve-jg-qRG">
             <objects>
-                <viewController id="v3N-lG-XGS" customClass="NewTeamVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="NewTeamScreen_NONAV" id="v3N-lG-XGS" customClass="NewTeamVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="75g-uz-tCi">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -200,7 +211,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CiJ-p0-GRT" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1973.2824427480916" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="2900" y="3.5211267605633805"/>
         </scene>
         <!--Create Team-->
         <scene sceneID="3I3-3N-13o">
@@ -233,7 +244,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xLW-FB-mAf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2943" y="4"/>
+            <point key="canvasLocation" x="3869.4656488549617" y="3.5211267605633805"/>
         </scene>
         <!--Create Spreadsheet-->
         <scene sceneID="e4v-PL-sN9">
@@ -280,7 +291,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JqK-3s-88P" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3741" y="4"/>
+            <point key="canvasLocation" x="4666.4122137404574" y="3.5211267605633805"/>
         </scene>
         <!--ProfileVC-->
         <scene sceneID="Xbs-D5-zRn">
@@ -604,7 +615,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5JG-cp-7Ht" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1046.5648854961833" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="1973.2824427480916" y="3.5211267605633805"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="8GQ-Bb-ism">
@@ -624,9 +635,28 @@
             </objects>
             <point key="canvasLocation" x="1047" y="652"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Rhm-a8-5Jn">
+            <objects>
+                <navigationController storyboardIdentifier="LoginScreen" automaticallyAdjustsScrollViewInsets="NO" id="ovR-ep-8yb" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="6H3-gO-kfb">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="Y6W-OH-hqX" kind="relationship" relationship="rootViewController" id="7pK-dr-ZXB"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="leS-Mb-OvF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="35.877862595419849" y="3.5211267605633805"/>
+        </scene>
     </scenes>
     <resources>
         <image name="Sheets" width="126.33333587646484" height="170.66667175292969"/>
+        <image name="SpringingMapleLogo" width="175.66667175292969" height="158"/>
         <image name="chevron.forward" catalog="system" width="97" height="128"/>
         <image name="google.png" width="18" height="18"/>
         <image name="person.3.fill" catalog="system" width="128" height="66"/>

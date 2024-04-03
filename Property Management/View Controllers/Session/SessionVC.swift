@@ -70,7 +70,7 @@ class SessionVC: UIViewController {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             if !User.shared.isLoggedIn()  {
-                let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier) as! LoginVC
+                let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier)
                 vc.modalPresentationStyle = .fullScreen
                 self.present(vc, animated: true)
             }
@@ -185,7 +185,7 @@ class SessionVC: UIViewController {
                 let _ = Stopwatch.shared.end()
                 self.updateButtons()
                 GoogleSheetAssistant.shared.appendSummaryToSpreadsheet(date: Date())
-                
+                LocationManager.shared.endPendingWork()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     Task {
                         try? await FirestoreDatabase.shared.resetDailyCounters()
@@ -202,7 +202,9 @@ class SessionVC: UIViewController {
         } else {
             Stopwatch.shared.start()
         }
+        
         updateButtons()
+        
         do {
             try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
         } catch {

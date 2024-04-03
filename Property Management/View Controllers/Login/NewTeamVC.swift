@@ -10,6 +10,7 @@ import UIKit
 class NewTeamVC: UIViewController {
 
     static let identifier = "NewTeamScreen"
+    static let identifierWithoutNavController = "NewTeamScreen_NONAV"
     @IBOutlet weak var goButton: UIButton!
     @IBOutlet weak var teamField: UITextField!
     @IBOutlet weak var createTeamButton: UIButton!
@@ -59,6 +60,9 @@ class NewTeamVC: UIViewController {
                     DispatchQueue.main.async {
                         loadingScreen.removeFromSuperview()
                         self.showSuccessToast(message: "Successfully joined team!")
+                        self.dismiss(animated: true)
+                        self.navigationController?.popToRootViewController(animated: true)
+                        self.navigationController?.dismiss(animated: true)
                         self.dismiss(animated: true)
                     }
                 } else {

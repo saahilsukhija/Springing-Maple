@@ -51,4 +51,13 @@ class User {
         self.settings.enableNotification(shouldEnable)
     }
     
+    func reset() {
+        do {
+            team = try UserDefaults.standard.get(objectType: Team.self, forKey: "user_team")
+        } catch {
+            team = nil
+        }
+        settings = UserSettings()
+    }
+    
 }

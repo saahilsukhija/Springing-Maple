@@ -91,7 +91,8 @@ class ProfileVC: UIViewController {
             Task {
                 do {
                     try await FirestoreDatabase.shared.deleteUser()
-                    UserDefaults.standard.removeObject(forKey: "user_team")
+                    UserDefaults.standard.removeAll()
+                    User.shared.reset()
                     try await Auth.auth().currentUser?.delete()
                     GIDSignIn.sharedInstance.signOut()
                     DispatchQueue.main.async {

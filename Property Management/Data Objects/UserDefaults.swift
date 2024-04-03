@@ -40,5 +40,16 @@ public extension UserDefaults {
     func isKeyPresent(key: String) -> Bool {
         return UserDefaults.standard.object(forKey: key) != nil
     }
+    
+    func removeAll(except keys: [String] = ["user_settings"]) {
+        let defaults = UserDefaults.standard
+        let dictionary = defaults.dictionaryRepresentation()
+        dictionary.keys.forEach { key in
+            if !keys.contains(key) {
+                defaults.removeObject(forKey: key)
+                print("deleted \(key)")
+            }
+        }
+    }
 }
 

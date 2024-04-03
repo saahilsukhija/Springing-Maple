@@ -21,6 +21,14 @@ class LoginVC: UIViewController {
         googleSignInButton.layer.borderWidth = 1.5
         googleSignInButton.layer.borderColor = UIColor.darkAccent.cgColor
         
+        NotificationCenter.default.addObserver(self, selector: #selector(signInGoogleCompleted), name: .signInGoogleCompleted, object: nil)
+        
+    }
+    
+    @objc func signInGoogleCompleted() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.dismiss(animated: true)
+        }
     }
     
     @IBAction func signInWithGoogleTapped(_ sender: Any) {
@@ -43,9 +51,9 @@ class LoginVC: UIViewController {
                     DispatchQueue.main.async {
                         if team == nil {
                         
-                            let vc = self.storyboard!.instantiateViewController(withIdentifier: NewTeamVC.identifier)
+                            let vc = self.storyboard!.instantiateViewController(withIdentifier: NewTeamVC.identifierWithoutNavController)
                             vc.modalPresentationStyle = .fullScreen
-                            self.present(vc, animated: true)
+                            self.navigationController?.pushViewController(vc, animated: true)
                             return
                         }
                         else {

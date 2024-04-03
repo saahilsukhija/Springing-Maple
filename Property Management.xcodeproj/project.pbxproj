@@ -21,6 +21,7 @@
 		6D626C752BB7B92500031DE1 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D626C742BB7B92500031DE1 /* UserSettings.swift */; };
 		6D626C772BB7B9E500031DE1 /* NotificationsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D626C762BB7B9E500031DE1 /* NotificationsVC.swift */; };
 		6D626C7A2BB7BD6B00031DE1 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D626C792BB7BD6B00031DE1 /* Settings.storyboard */; };
+		6D66685A2BBA20B9007A7D90 /* LoggedActivitiesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6668592BBA20B9007A7D90 /* LoggedActivitiesVC.swift */; };
 		6D6979772B85C66300E93E28 /* FirebaseStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6979762B85C66300E93E28 /* FirebaseStorage.swift */; };
 		6D6B26862B4FE43500809D6D /* RecentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26852B4FE43500809D6D /* RecentLocation.swift */; };
 		6D6B26882B4FE47100809D6D /* RecentLocationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */; };
@@ -141,6 +142,7 @@
 		6D626C762BB7B9E500031DE1 /* NotificationsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsVC.swift; sourceTree = "<group>"; };
 		6D626C792BB7BD6B00031DE1 /* Settings.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Settings.storyboard; sourceTree = "<group>"; };
 		6D626C7B2BB8E79400031DE1 /* Property Management.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Property Management.entitlements"; sourceTree = "<group>"; };
+		6D6668592BBA20B9007A7D90 /* LoggedActivitiesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedActivitiesVC.swift; sourceTree = "<group>"; };
 		6D6979762B85C66300E93E28 /* FirebaseStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorage.swift; sourceTree = "<group>"; };
 		6D6B26852B4FE43500809D6D /* RecentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocation.swift; sourceTree = "<group>"; };
 		6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocationQueue.swift; sourceTree = "<group>"; };
@@ -415,6 +417,7 @@
 				6D9E667D2AF1CD1B002E9664 /* HomeVC.swift */,
 				6DB5024D2B48FC1E007FE430 /* DriveMapVC.swift */,
 				6DB84C702B9D657100B21222 /* Add New Activity */,
+				6D6668592BBA20B9007A7D90 /* LoggedActivitiesVC.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -861,6 +864,7 @@
 				6D1B7CBE2B47644400A9EC96 /* Drive.swift in Sources */,
 				6D8191C92AF1EFF50001E211 /* GoogleSheetAssistant.swift in Sources */,
 				6DAC41D52B4542AF0092A26F /* ExtraColors.swift in Sources */,
+				6D66685A2BBA20B9007A7D90 /* LoggedActivitiesVC.swift in Sources */,
 				6D9E667A2AF1CD1B002E9664 /* AppDelegate.swift in Sources */,
 				6DC9DFFA2B8C3B330091A376 /* Work.swift in Sources */,
 				6DC9DFFE2B8C3D430091A376 /* RegisteredWork.swift in Sources */,
@@ -1087,6 +1091,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Property Management/Master Items/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Springing Maple";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = Location;
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Property Management needs your location to accurately store the address of your purchase";
 				INFOPLIST_KEY_NSLocationUsageDescription = Location;
@@ -1125,6 +1130,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Property Management/Master Items/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Springing Maple";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = Location;
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Property Management needs your location to accurately store the address of your purchase";
 				INFOPLIST_KEY_NSLocationUsageDescription = Location;

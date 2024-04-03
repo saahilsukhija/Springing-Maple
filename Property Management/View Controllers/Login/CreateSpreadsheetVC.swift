@@ -135,6 +135,7 @@ class CreateSpreadsheetVC: UIViewController {
                 
                 self.navigationController?.popToRootViewController(animated: true)
                 self.navigationController?.dismiss(animated: true)
+                self.dismiss(animated: true)
             }
         }
     }

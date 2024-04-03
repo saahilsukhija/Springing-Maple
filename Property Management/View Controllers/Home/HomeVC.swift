@@ -23,6 +23,8 @@ class HomeVC: UIViewController {
     
     var isLoading = false
     
+    var loadingScreen: UIView?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -65,14 +67,19 @@ class HomeVC: UIViewController {
         
     }
     
-    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        self.isLoading = false
+        loadingScreen?.removeFromSuperview()
+    }
     override func viewDidAppear(_ animated: Bool) {
         
         guard !isPresentingCamera else { return }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
             guard User.shared.isLoggedIn() else {
-                let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier) as! LoginVC
+                let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: LoginVC.identifier)
                 vc.modalPresentationStyle = .fullScreen
                 self.present(vc, animated: true)
                 try? FirestoreDatabase.shared.addNotificationForPrivateDrives()
@@ -102,13 +109,13 @@ class HomeVC: UIViewController {
             try? FirestoreDatabase.shared.addNotificationForPrivateWorks()
             
             
-            let loadingScreen = self.createLoadingScreen(frame: self.view.frame)
+            self.loadingScreen = self.createLoadingScreen(frame: self.view.frame)
 
             self.isLoading = true
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 if self.isLoading {
-                    self.view.addSubview(loadingScreen)
+                    self.view.addSubview(self.loadingScreen!)
                 }
             }
             Task {
@@ -180,7 +187,7 @@ class HomeVC: UIViewController {
                     DispatchQueue.main.async {
                         self.isLoading = false
                         self.tableView.reloadData()
-                        loadingScreen.removeFromSuperview()
+                        self.loadingScreen?.removeFromSuperview()
                     }
                     
                     
@@ -188,6 +195,7 @@ class HomeVC: UIViewController {
                     
                 } catch {
                     self.isLoading = false
+                    self.loadingScreen?.removeFromSuperview()
                     print(error.localizedDescription)
                 }
 
@@ -370,25 +378,30 @@ class HomeVC: UIViewController {
             }
             
             let isOngoing = (work.finalDate == .ongoingDate)
-            if (index == nil) && isOngoing {
-                print("no index")
-                return
-            }
             
-            self.showConfirmWorkToast();
-            
-            if let index = index {
-                activities.remove(at: index)
-            }
-            if activities.count != 0 {
-                if let index = index {
-                    tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
-                } else {
-                    tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .right)
-                    LocationManager.shared.removeLastDrive()
+            if isOngoing {
+                LocationManager.shared.removeLastDrive()
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
                 }
-            } else {
-                tableView.reloadData()
+                self.showConfirmWorkToast();
+            }
+            else {
+                self.showConfirmWorkToast();
+                
+                if let index = index {
+                    activities.remove(at: index)
+                }
+                if activities.count != 0 {
+                    if let index = index {
+                        tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
+                    } else {
+                        tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .right)
+                        LocationManager.shared.removeLastDrive()
+                    }
+                } else {
+                    tableView.reloadData()
+                }
             }
             
             do {
@@ -467,7 +480,16 @@ class HomeVC: UIViewController {
                 return w == work
             }
             
-            let isOngoing = work.finalDate == .ongoingDate
+            let isOngoing = (work.finalDate == .ongoingDate)
+            
+            if isOngoing {
+                LocationManager.shared.removeLastDrive()
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+                return
+            }
+            
             guard index != nil else {
                 print("no index")
                 return
@@ -548,7 +570,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
             //pending work
             let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifier) as! WorkCell
             let drive = LocationManager.shared.lastDriveCreated!
-            let work = Work(initialCoordinates: drive.initialCoordinate, finalCoordinates: drive.finalCoordinate, initialDate: drive.finalDate, finalDate: Date.ongoingDate, initPlace: drive.initialPlace, finPlace: drive.finalPlace)
+            let work = Work(initialCoordinates: drive.initialCoordinate, finalCoordinates: drive.finalCoordinate, initialDate: drive.finalDate, finalDate: Date.ongoingDate, initPlace: drive.finalPlace, finPlace: drive.finalPlace)
             cell.setup(with: work)
             cell.parentVC = self
             

@@ -514,4 +514,18 @@ extension LocationManager: CLLocationManagerDelegate {
         self.lastDriveCreated = nil
         UserDefaults.standard.removeObject(forKey: "lastDriveCreated")
     }
+    
+    func endPendingWork() {
+        if let lastDriveCreated = lastDriveCreated {
+            let work = Work(initialCoordinates: lastDriveCreated.finalCoordinate, finalCoordinates: lastDriveCreated.finalCoordinate, initialDate: lastDriveCreated.finalDate, finalDate: startDriveTime ?? Date())
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                self.uploadWork(work)
+                NotificationManager.shared.sendWorkLoggedNotification(work: work)
+            }
+            
+            removeLastDrive()
+            print("new work detected!")
+        }
+    }
 }

@@ -21,8 +21,13 @@ class UserSettings: Codable {
             print(s?.notificationsEnabled)
             self.clockInTime = s?.clockInTime
             self.clockOutTime = s?.clockOutTime
-            self.notificationsEnabled = s?.notificationsEnabled
+            if let notificationsEnabled = s?.notificationsEnabled {
+                self.notificationsEnabled = notificationsEnabled
+            } else {
+                self.notificationsEnabled = false
+            }
         } catch {
+            self.notificationsEnabled = false
             print("no user settings available.")
         }
     }
