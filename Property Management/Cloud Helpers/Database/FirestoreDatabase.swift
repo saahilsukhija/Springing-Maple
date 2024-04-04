@@ -48,6 +48,23 @@ class FirestoreDatabase {
         }
         do {
             try await db.collection("users").document(user.getUserEmail()).delete()
+            
+            guard let team = user.team else {
+                return
+            }
+            let collection = db.collection("teams").document(team.id).collection(user.getUserEmail())
+            
+            if try await collection.document("daily").getDocument().exists {
+                try await collection.document("daily").delete()
+            }
+            if try await collection.document("drives").getDocument().exists {
+                try await collection.document("drives").delete()
+            }
+            if try await collection.document("works").getDocument().exists {
+                try await collection.document("works").delete()
+            }
+            
+            
         } catch {
             throw FirestoreError("An unknown error occured")
         }
@@ -154,7 +171,7 @@ extension FirestoreDatabase {
                 throw FirestoreError("Error decoding")
             }
         } catch {
-            throw FirestoreError("Error getting data")
+            throw FirestoreError("Error getting works")
         }
     }
     
@@ -307,7 +324,7 @@ extension FirestoreDatabase {
                 throw FirestoreError("Error decoding")
             }
         } catch {
-            throw FirestoreError("Error getting data")
+            throw FirestoreError("Error getting drives")
         }
     }
     

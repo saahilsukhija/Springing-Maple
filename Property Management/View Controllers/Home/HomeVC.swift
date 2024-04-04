@@ -134,8 +134,14 @@ class HomeVC: UIViewController {
 ////                try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home Depot"))
                 do {
                     GoogleSheetAssistant.shared.addUserSheet()
-                    let drives = try await FirestoreDatabase.shared.getPrivateDrives()
-                    let works = try await FirestoreDatabase.shared.getPrivateWorks()
+                    var drives: [Drive] = []
+                    var works: [Work] = []
+                    do {
+                        drives = try await FirestoreDatabase.shared.getPrivateDrives()
+                    } catch {}
+                    do {
+                        works = try await FirestoreDatabase.shared.getPrivateWorks()
+                    } catch {}
                     self.activities = drives
                     self.activities.replaceWorks(with: works)
                     
@@ -195,6 +201,7 @@ class HomeVC: UIViewController {
                     
                 } catch {
                     self.isLoading = false
+                    self.activities = []
                     self.loadingScreen?.removeFromSuperview()
                     print(error.localizedDescription)
                 }

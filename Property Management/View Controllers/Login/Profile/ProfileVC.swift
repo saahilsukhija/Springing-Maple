@@ -50,6 +50,8 @@ class ProfileVC: UIViewController {
         memberView.isUserInteractionEnabled = true
         memberView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(memberClicked(_:))))
         
+        spreadsheetView.dropShadow()
+        memberView.dropShadow()
     }
     
     @IBAction func logOutButtonClicked(_ sender: Any) {

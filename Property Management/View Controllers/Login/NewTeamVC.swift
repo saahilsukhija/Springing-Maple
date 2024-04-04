@@ -19,13 +19,12 @@ class NewTeamVC: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        
+        navigationController?.navigationBar.prefersLargeTitles = true
         goButton.tintColor = .systemGray
         teamField.addTarget(self, action: #selector(textFieldEdited), for: .editingChanged)
         
         createTeamButton.layer.cornerRadius = 10
-        createTeamButton.layer.borderWidth = 1
-        createTeamButton.layer.borderColor = UIColor.darkAccent.cgColor
+        createTeamButton.dropShadow(radius: 3)
         createTeamButton.tintColor = .darkAccent
         self.hideKeyboardWhenTappedAround()
     }

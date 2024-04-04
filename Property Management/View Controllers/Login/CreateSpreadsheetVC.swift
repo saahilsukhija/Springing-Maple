@@ -56,7 +56,7 @@ class CreateSpreadsheetVC: UIViewController {
             return
         }
         
-        self.resignFirstResponder()
+        spreadsheetNameField.resignFirstResponder()
         let loadingScreen = createLoadingScreen(frame: view.frame)
         view.addSubview(loadingScreen)
         

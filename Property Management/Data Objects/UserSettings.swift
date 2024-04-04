@@ -18,7 +18,6 @@ class UserSettings: Codable {
     init() {
         do {
             let s = try UserDefaults.standard.get(objectType: UserSettings.self, forKey: "user_settings")
-            print(s?.notificationsEnabled)
             self.clockInTime = s?.clockInTime
             self.clockOutTime = s?.clockOutTime
             if let notificationsEnabled = s?.notificationsEnabled {

@@ -17,13 +17,13 @@ class ChooseActivityVC: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        driveView.layer.cornerRadius = 10
-        driveView.layer.borderWidth = 1
-        driveView.layer.borderColor = UIColor.darkAccent.cgColor
+        driveView.layer.cornerRadius = 20
+        driveView.layer.borderWidth = 0
+        driveView.dropShadow(radius: 3)
         
-        workView.layer.cornerRadius = 10
-        workView.layer.borderWidth = 1
-        workView.layer.borderColor = UIColor.darkAccent.cgColor
+        workView.layer.cornerRadius = 20
+        workView.layer.borderWidth = 0
+        workView.dropShadow(radius: 3)
         
         driveView.isUserInteractionEnabled = true
         workView.isUserInteractionEnabled = true

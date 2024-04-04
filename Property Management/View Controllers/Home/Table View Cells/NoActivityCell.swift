@@ -13,11 +13,20 @@ class NoActivityCell: UITableViewCell {
     
     @IBOutlet weak var informationLabel: UILabel!
     
+    @IBOutlet weak var topBarView: UIView!
+    @IBOutlet weak var containerView: UIView!
+    
     var parentVC: HomeVC!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        
+        containerView.layer.cornerRadius = 20
+        topBarView.clipsToBounds = true
+        topBarView.layer.cornerRadius = 20
+        topBarView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner] // Top right corner, Top left corner respectively
+        containerView.dropShadow(radius: 5)
     }
     
     func setup(vc: HomeVC) {

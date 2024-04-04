@@ -18,9 +18,7 @@ class LoginVC: UIViewController {
 
         // Do any additional setup after loading the view.
         
-        googleSignInButton.layer.borderWidth = 1.5
-        googleSignInButton.layer.borderColor = UIColor.darkAccent.cgColor
-        
+        googleSignInButton.dropShadow(radius: 3)
         NotificationCenter.default.addObserver(self, selector: #selector(signInGoogleCompleted), name: .signInGoogleCompleted, object: nil)
         
     }

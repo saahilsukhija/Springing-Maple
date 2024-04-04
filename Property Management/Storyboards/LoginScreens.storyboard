@@ -55,12 +55,12 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="34P-gu-mtz">
-                                <rect key="frame" x="95.000000000000014" y="382" width="203.33333333333337" height="88"/>
+                                <rect key="frame" x="97.333333333333329" y="382" width="198.66666666666669" height="88"/>
                                 <color key="tintColor" name="DarkAccentColor"/>
                                 <attributedString key="attributedText">
-                                    <fragment content="Springing  Maple LLC">
+                                    <fragment content="Springing  Maple">
                                         <attributes>
-                                            <color key="NSColor" red="0.02352941222" green="0.062745101750000004" blue="0.41568624970000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                            <color key="NSColor" red="0.01176470611" green="0.054901964960000001" blue="0.4196078479" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                             <font key="NSFont" size="36" name="MontserratRoman-ExtraBold"/>
                                             <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="truncatingTail" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                         </attributes>
@@ -69,7 +69,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SpringingMapleLogo" translatesAutoresizingMaskIntoConstraints="NO" id="VHv-LI-uiw">
-                                <rect key="frame" x="105.00000000000001" y="198.66666666666663" width="183.33333333333337" height="183.33333333333337"/>
+                                <rect key="frame" x="107.33333333333333" y="203.33333333333337" width="178.66666666666669" height="178.66666666666663"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="VHv-LI-uiw" secondAttribute="height" multiplier="1:1" id="wLC-U8-kNN"/>
                                 </constraints>
@@ -255,7 +255,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Spreadsheet Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="4MB-ie-oAm">
-                                <rect key="frame" x="20" y="74" width="353" height="45"/>
+                                <rect key="frame" x="20" y="106" width="353" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="nbp-Gz-CW3"/>
                                 </constraints>
@@ -263,7 +263,7 @@
                                 <textInputTraits key="textInputTraits" returnKeyType="done"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="og4-xF-Xb7">
-                                <rect key="frame" x="160" y="124" width="213" height="28"/>
+                                <rect key="frame" x="160" y="156" width="213" height="28"/>
                                 <color key="tintColor" name="DarkAccentColor"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Continue without spreadsheet">
@@ -274,15 +274,30 @@
                                     <action selector="noSpreadsheetButtonClicked:" destination="gvc-qh-aRe" eventType="touchUpInside" id="wws-gl-ogH"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tmf-rs-gL9">
+                                <rect key="frame" x="20" y="74" width="353" height="22"/>
+                                <attributedString key="attributedText">
+                                    <fragment content="Spreadsheet Name">
+                                        <attributes>
+                                            <font key="NSFont" size="18" name="MontserratRoman-SemiBold"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="HX3-9N-gh2"/>
                         <color key="backgroundColor" name="Background Gray"/>
                         <constraints>
                             <constraint firstItem="HX3-9N-gh2" firstAttribute="trailing" secondItem="og4-xF-Xb7" secondAttribute="trailing" constant="20" id="0ku-ob-17v"/>
+                            <constraint firstItem="Tmf-rs-gL9" firstAttribute="top" secondItem="HX3-9N-gh2" secondAttribute="top" constant="15" id="6Kc-7k-4Xe"/>
+                            <constraint firstItem="Tmf-rs-gL9" firstAttribute="leading" secondItem="HX3-9N-gh2" secondAttribute="leading" constant="20" id="9O7-xY-ijX"/>
+                            <constraint firstItem="HX3-9N-gh2" firstAttribute="trailing" secondItem="Tmf-rs-gL9" secondAttribute="trailing" constant="20" id="9gW-4N-cqZ"/>
                             <constraint firstItem="4MB-ie-oAm" firstAttribute="leading" secondItem="HX3-9N-gh2" secondAttribute="leading" constant="20" id="ecw-Ld-rJV"/>
                             <constraint firstItem="HX3-9N-gh2" firstAttribute="trailing" secondItem="4MB-ie-oAm" secondAttribute="trailing" constant="20" id="kIO-bV-qis"/>
-                            <constraint firstItem="4MB-ie-oAm" firstAttribute="top" secondItem="HX3-9N-gh2" secondAttribute="top" constant="15" id="muQ-6z-Egf"/>
                             <constraint firstItem="og4-xF-Xb7" firstAttribute="top" secondItem="4MB-ie-oAm" secondAttribute="bottom" constant="5" id="xfV-8o-uYk"/>
+                            <constraint firstItem="4MB-ie-oAm" firstAttribute="top" secondItem="Tmf-rs-gL9" secondAttribute="bottom" constant="10" id="zGa-b6-iEk"/>
                         </constraints>
                     </view>
                     <connections>
