@@ -73,8 +73,8 @@ class NotificationManager: ObservableObject {
     func sendDriveLoggedNotification(drive: Drive) {
         let content = UNMutableNotificationContent()
         content.title = "New Drive Logged"
-        if let place = drive.finalPlace {
-            content.body = "A new drive has been logged at \(place)."
+        if let initPlace = drive.initialPlace, let place = drive.finalPlace {
+            content.body = "A new drive has been logged from \(initPlace) to \(place)."
         } else {
             content.body = "A new drive has been logged."
         }
