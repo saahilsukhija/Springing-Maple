@@ -15,6 +15,9 @@ class UserSettings: Codable {
     var clockInTime: DateComponents?
     var clockOutTime: DateComponents?
     
+    private(set) var driveNotificationsEnabled: Bool! = true
+    private(set) var workNotificationsEnabled: Bool! = true
+    
     init() {
         do {
             let s = try UserDefaults.standard.get(objectType: UserSettings.self, forKey: "user_settings")
@@ -25,8 +28,23 @@ class UserSettings: Codable {
             } else {
                 self.notificationsEnabled = false
             }
+            
+            if let driveNotificationsEnabled = s?.driveNotificationsEnabled {
+                self.driveNotificationsEnabled = driveNotificationsEnabled
+            } else {
+                self.driveNotificationsEnabled = true
+            }
+            
+            if let workNotificationsEnabled = s?.workNotificationsEnabled {
+                self.workNotificationsEnabled = workNotificationsEnabled
+            } else {
+                self.workNotificationsEnabled = true
+            }
+            
         } catch {
             self.notificationsEnabled = false
+            self.driveNotificationsEnabled = false
+            self.workNotificationsEnabled = false
             print("no user settings available.")
         }
     }
@@ -36,6 +54,8 @@ class UserSettings: Codable {
         if !shouldEnable {
             removeNotificationTimes(type: .clockIn)
             removeNotificationTimes(type: .clockOut)
+            driveNotificationsEnabled = false
+            workNotificationsEnabled = false
         }
         do {
             try UserDefaults.standard.set(object: self, forKey: "user_settings")
@@ -76,8 +96,24 @@ class UserSettings: Codable {
             try UserDefaults.standard.set(object: self, forKey: "user_settings")
         } catch {}
         
-        
     }
+    
+    func enableDriveNotifications(_ enabled: Bool = true) {
+        self.driveNotificationsEnabled = enabled
+        
+        do {
+            try UserDefaults.standard.set(object: self, forKey: "user_settings")
+        } catch {}
+    }
+    
+    func enableWorkNotifications(_ enabled: Bool = true) {
+        self.workNotificationsEnabled = enabled
+        
+        do {
+            try UserDefaults.standard.set(object: self, forKey: "user_settings")
+        } catch {}
+    }
+    
     enum ClockInNotificationSettings: String {
         
         case clockIn = "clock in"

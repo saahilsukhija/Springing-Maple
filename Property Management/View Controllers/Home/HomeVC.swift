@@ -199,11 +199,6 @@ class HomeVC: UIViewController {
                     
 
                     
-                } catch {
-                    self.isLoading = false
-                    self.activities = []
-                    self.loadingScreen?.removeFromSuperview()
-                    print(error.localizedDescription)
                 }
 
             }
@@ -494,6 +489,7 @@ class HomeVC: UIViewController {
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                 }
+                self.showDeleteWorkToast();
                 return
             }
             

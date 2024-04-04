@@ -32,7 +32,7 @@ class ProfileVC: UIViewController {
         nameLabel.text = User.shared.getUserName()
         emailLabel.text = User.shared.getUserEmail()
         teamNameLabel.text = User.shared.team?.name
-        teamIDLabel.text = "ID: \(User.shared.team?.id ?? "")"
+        teamIDLabel.text = "TEAM ID: \(User.shared.team?.id ?? "")"
         
         logOutButton.layer.cornerRadius = 10
         

@@ -30,7 +30,7 @@ final class LocationManager: NSObject {
     private var locationManager:CLLocationManager?
     private var activityManager: CMMotionActivityManager?
     
-    private var locationAccuracy = kCLLocationAccuracyBest
+    private var locationAccuracy = kCLLocationAccuracyHundredMeters
     
     private var lastLocation:CLLocation?
     private var lastActivity: CMMotionActivity?
@@ -80,6 +80,7 @@ final class LocationManager: NSObject {
         locationManager = CLLocationManager()
         locationManager?.delegate = self
         locationManager?.desiredAccuracy = locationAccuracy
+        //locationManager?.distanceFilter = 200
         locationManager?.pausesLocationUpdatesAutomatically = false
         locationManager?.allowsBackgroundLocationUpdates = true
         locationManager?.activityType = .automotiveNavigation
@@ -313,7 +314,7 @@ final class LocationManager: NSObject {
             
         case .authorizedWhenInUse,.authorizedAlways:
             // self.locationManager?.startUpdatingLocation()
-            self.locationManager?.startMonitoringVisits()
+            //self.locationManager?.startMonitoringVisits()
             self.locationManager?.startMonitoringSignificantLocationChanges()
             print("started tracking location")
         case .denied:

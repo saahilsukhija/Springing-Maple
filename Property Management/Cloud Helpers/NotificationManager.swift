@@ -71,6 +71,11 @@ class NotificationManager: ObservableObject {
     }
     
     func sendDriveLoggedNotification(drive: Drive) {
+        
+        guard User.shared.settings.driveNotificationsEnabled else {
+            return
+        }
+        
         let content = UNMutableNotificationContent()
         content.title = "New Drive Logged"
         if let initPlace = drive.initialPlace, let place = drive.finalPlace {
@@ -96,6 +101,10 @@ class NotificationManager: ObservableObject {
     }
     
     func sendWorkLoggedNotification(work: Work) {
+        
+        guard User.shared.settings.workNotificationsEnabled else {
+            return
+        }
         let content = UNMutableNotificationContent()
         content.title = "New Work Logged"
         if let place = work.finalPlace {

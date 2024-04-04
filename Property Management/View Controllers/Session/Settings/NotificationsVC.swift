@@ -11,16 +11,22 @@ class NotificationsVC: UIViewController {
     
     static let identifier = "NotificationsScreen"
     @IBOutlet weak var enabledSwitch: UISwitch!
-    @IBOutlet weak var clockInOutTimesView: UIView!
+    @IBOutlet weak var enableNotificationsView: UIView!
     
+    @IBOutlet weak var allSettingsView: UIView!
+    
+    
+    @IBOutlet weak var clockInOutTimesView: UIView!
     @IBOutlet weak var clockInTimePicker: UIDatePicker!
     @IBOutlet weak var clockOutTimePicker: UIDatePicker!
-    
     @IBOutlet weak var removeClockInButton: UIButton!
     @IBOutlet weak var removeClockOutButton: UIButton!
-    
     @IBOutlet weak var clockInCover: UIView!
     @IBOutlet weak var clockOutCover: UIView!
+    
+    @IBOutlet weak var activitiesNotificationsView: UIView!
+    @IBOutlet weak var driveNotificationsEnabledSwitch: UISwitch!
+    @IBOutlet weak var workNotificationsEnabledSwitch: UISwitch!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +46,15 @@ class NotificationsVC: UIViewController {
         clockInTimePicker.addTarget(self, action: #selector(timePickerClicked(_:)), for: .valueChanged)
         clockOutTimePicker.addTarget(self, action: #selector(timePickerClicked(_:)), for: .valueChanged)
         
+        enableNotificationsView.layer.cornerRadius = 10
+        enableNotificationsView.dropShadow(radius: 1)
+        
+        clockInOutTimesView.layer.cornerRadius = 10
+        clockInOutTimesView.dropShadow(radius: 1)
+        
+        activitiesNotificationsView.layer.cornerRadius = 10
+        activitiesNotificationsView.dropShadow(radius: 1)
+
         updateAllViews()
         
         
@@ -74,7 +89,7 @@ class NotificationsVC: UIViewController {
         updateAllViews()
         
     }
-    @IBAction func switchButtonClicked() {
+    @IBAction func notificationSwitchButtonClicked() {
         
         enabledSwitch.isOn = !enabledSwitch.isOn
         if enabledSwitch.isOn {
@@ -101,6 +116,43 @@ class NotificationsVC: UIViewController {
         
     }
     
+    @IBAction func driveNotificationSwitchButtonClicked() {
+        driveNotificationsEnabledSwitch.isOn = !driveNotificationsEnabledSwitch.isOn
+        
+        if driveNotificationsEnabledSwitch.isOn {
+            driveNotificationsEnabledSwitch.isOn = false
+            User.shared.settings.enableDriveNotifications(false)
+            updateAllViews()
+            return
+        }
+        else {
+            driveNotificationsEnabledSwitch.isOn = true
+            User.shared.settings.enableDriveNotifications(true)
+            updateAllViews()
+            return
+        }
+        
+    }
+    
+    @IBAction func workNotificationSwitchButtonClicked() {
+        workNotificationsEnabledSwitch.isOn = !workNotificationsEnabledSwitch.isOn
+        
+        if workNotificationsEnabledSwitch.isOn {
+            workNotificationsEnabledSwitch.isOn = false
+            User.shared.settings.enableWorkNotifications(false)
+            updateAllViews()
+            return
+        }
+        else {
+            workNotificationsEnabledSwitch.isOn = true
+            User.shared.settings.enableWorkNotifications(true)
+            updateAllViews()
+            return
+        }
+        
+    }
+    
+    
     
     
     
@@ -114,7 +166,7 @@ extension NotificationsVC {
         
         updateDatePickers()
         updateCoversAndButtons()
-        
+        updateActivitesSwitches()
         
     }
     
@@ -142,10 +194,11 @@ extension NotificationsVC {
     func updateCoversAndButtons() {
         
         if enabledSwitch.isOn {
-            clockInOutTimesView.isHidden = false
+            allSettingsView.isHidden = false
         } else {
-            clockInOutTimesView.isHidden = true
+            allSettingsView.isHidden = true
         }
+        
         if clockInTimePicker.date == .distantPast {
             clockInCover.isHidden = false
             removeClockInButton.isHidden = true
@@ -161,5 +214,16 @@ extension NotificationsVC {
             clockOutCover.isHidden = true
             removeClockOutButton.isHidden = false
         }
+    }
+    
+    func updateActivitesSwitches() {
+        
+        if let settings = User.shared.settings {
+            
+            driveNotificationsEnabledSwitch.isOn = settings.driveNotificationsEnabled
+            workNotificationsEnabledSwitch.isOn = settings.workNotificationsEnabled
+            
+        }
+        
     }
 }
