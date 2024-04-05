@@ -37,9 +37,12 @@ class DriveCell: UITableViewCell {
         topBarView.layer.cornerRadius = 20
         topBarView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner] // Top right corner, Top left corner respectively
         containerView.dropShadow(radius: 5)
+        
+        ticketNumberTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        notesTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
-    func setup(with d: Drive) {
+    func setup(with d: Drive, fields: (String, Double?, String)?) {
         self.drive = d
         
         self.initialTimeLabel.text = d.initialDate.toHourMinuteTime()
@@ -88,6 +91,15 @@ class DriveCell: UITableViewCell {
             self.milesDrivenLabel.text = "\(String(format: "%.1f", drive.milesDriven!)) mile drive"
             self.milesDrivenLabel.textColor = .black
         }
+        
+        if let fields = fields {
+            self.ticketNumberTextField.text = fields.0
+            self.notesTextField.text = fields.2
+        }
+        else {
+           self.ticketNumberTextField.text = ""
+           self.notesTextField.text = ""
+       }
         
     }
     
@@ -146,6 +158,13 @@ class DriveCell: UITableViewCell {
                  print(error!)
              }
          }
+    }
+    
+    @objc func textFieldDidChange() {
+        
+
+        parentVC.userEnteredValues[drive.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "")
+        
     }
 }
 

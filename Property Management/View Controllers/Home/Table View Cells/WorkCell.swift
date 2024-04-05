@@ -42,9 +42,13 @@ class WorkCell: UITableViewCell {
         topBarView.layer.cornerRadius = 20
         topBarView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner] // Top right corner, Top left corner respectively
         containerView.dropShadow(radius: 5)
+        
+        ticketNumberTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        moneyTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        notesTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
-    func setup(with w: Work) {
+    func setup(with w: Work, fields: (String, Double?, String)?) {
         self.work = w
         
         let initTime = work.initialDate.toHourMinuteTime()
@@ -99,6 +103,20 @@ class WorkCell: UITableViewCell {
         
         if work.finalDate == .ongoingDate {
             self.dateLabel.text = ""
+        }
+        
+        if let fields = fields {
+            self.ticketNumberTextField.text = fields.0
+            if let money = fields.1 {
+                self.moneyTextField.text = "\(money)"
+            } else {
+                self.moneyTextField.text = ""
+            }
+            self.notesTextField.text = fields.2
+        } else {
+            self.ticketNumberTextField.text = ""
+            self.moneyTextField.text = ""
+            self.notesTextField.text = ""
         }
     }
     
@@ -156,12 +174,13 @@ class WorkCell: UITableViewCell {
         }
     }
     
+    @objc func textFieldDidChange() {
+        
+        if moneyTextField.text?.count ?? 0 > 0 {
+            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", Double(moneyTextField.text ?? "0"), notesTextField.text ?? "")
+        } else {
+            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "")
+        }
+        
+    }
 }
-
-//extension DriveCell: MKMapViewDelegate {
-//
-//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-//        let view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "\(drive.initialCoordinate.latitude) to \(drive.initialCoordinate.longitude)")
-//        return view
-//    }
-//}

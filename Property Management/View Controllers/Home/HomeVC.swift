@@ -16,12 +16,13 @@ class HomeVC: UIViewController {
     
     var locationManager: LocationManager!
     var activities: [Activity] = []
+    var userEnteredValues: [Date : (String, Double?, String)] = [:] //Key is INITIAL DATE
     
     var shouldDeleteFromList = true
-    
     var isPresentingCamera = false
-    
     var isLoading = false
+    
+    
     
     var loadingScreen: UIView?
     
@@ -541,13 +542,12 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
         if activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1) == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: NoActivityCell.identifier) as! NoActivityCell
             cell.setup(vc: self)
-            
             return cell
         }
         if indexPath.row < activities.count {
             if activities[indexPath.row] is Work {
                 let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifier) as! WorkCell
-                cell.setup(with: activities[indexPath.row] as! Work)
+                cell.setup(with: activities[indexPath.row] as! Work, fields: userEnteredValues[activities[indexPath.row].initialDate])
                 cell.parentVC = self
                 
                 //Separator Full Line
@@ -558,7 +558,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
             }
             else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifier) as! DriveCell
-                cell.setup(with: activities[indexPath.row] as! Drive)
+                cell.setup(with: activities[indexPath.row] as! Drive, fields: userEnteredValues[activities[indexPath.row].initialDate])
                 cell.parentVC = self
                 
                 //Separator Full Line
@@ -574,7 +574,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifier) as! WorkCell
             let drive = LocationManager.shared.lastDriveCreated!
             let work = Work(initialCoordinates: drive.initialCoordinate, finalCoordinates: drive.finalCoordinate, initialDate: drive.finalDate, finalDate: Date.ongoingDate, initPlace: drive.finalPlace, finPlace: drive.finalPlace)
-            cell.setup(with: work)
+            cell.setup(with: work, fields: userEnteredValues[work.initialDate])
             cell.parentVC = self
             
             //Separator Full Line
