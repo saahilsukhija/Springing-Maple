@@ -9,6 +9,14 @@ import UIKit
 
 class AddressLookupCell: UITableViewCell {
 
+    static let identifier = "AddressLookupCell"
+    
+    @IBOutlet weak var placeLabel: UILabel!
+    
+    func setup(with address: String) {
+        placeLabel.text = address
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

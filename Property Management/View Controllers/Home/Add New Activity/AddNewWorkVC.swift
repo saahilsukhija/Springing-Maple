@@ -50,10 +50,19 @@ class AddNewWorkVC: UIViewController {
         notesField.delegate = self
         notesField.returnKeyType = .done
         
+        placeField.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(placeFieldClicked)))
         camera = FDTakeController()
         camera.allowsVideo = false
         
         self.hideKeyboardWhenTappedAround()
+    }
+    
+    @objc func placeFieldClicked() {
+        let vc = storyboard?.instantiateViewController(withIdentifier: AddressLookupVC.identifier) as! AddressLookupVC
+        vc.delegate = self
+        navigationController?.pushViewController(vc, animated: true)
+        
+    
     }
     
     @objc func createButtonClicked() {
@@ -134,6 +143,18 @@ class AddNewWorkVC: UIViewController {
             self.cameraButton.setImage(UIImage(systemName: "icloud.and.arrow.up"), for: .normal)
             self.image = photo
             
+        }
+    }
+    
+}
+
+extension AddNewWorkVC: AddressLookupDelegate {
+    
+    func didChooseAddress(_ address: String) {
+        self.placeField.text = address
+        
+        if placeField.text?.count ?? 0 > 0 {
+            createButton.tintColor = .accentColor
         }
     }
     

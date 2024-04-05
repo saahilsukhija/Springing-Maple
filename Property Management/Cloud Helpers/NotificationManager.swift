@@ -72,7 +72,7 @@ class NotificationManager: ObservableObject {
     
     func sendDriveLoggedNotification(drive: Drive) {
         
-        guard User.shared.settings.driveNotificationsEnabled else {
+        guard User.shared.settings.notificationsEnabled && User.shared.settings.driveNotificationsEnabled else {
             return
         }
         
@@ -102,7 +102,7 @@ class NotificationManager: ObservableObject {
     
     func sendWorkLoggedNotification(work: Work) {
         
-        guard User.shared.settings.workNotificationsEnabled else {
+        guard User.shared.settings.notificationsEnabled && User.shared.settings.workNotificationsEnabled else {
             return
         }
         let content = UNMutableNotificationContent()

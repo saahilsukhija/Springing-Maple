@@ -962,6 +962,73 @@
             </objects>
             <point key="canvasLocation" x="3612.9770992366412" y="-105.63380281690141"/>
         </scene>
+        <!--Address LookupVC-->
+        <scene sceneID="ioK-n9-SVo">
+            <objects>
+                <viewController storyboardIdentifier="AddressLookupScreen" id="taS-fh-luD" customClass="AddressLookupVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="jaL-WE-IxO">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="  Start typing address" textAlignment="natural" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eXt-NP-8eH">
+                                <rect key="frame" x="20" y="69" width="353" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="NXc-DH-wbx"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="0Lu-Fy-pM3">
+                                <rect key="frame" x="0.0" y="109" width="393" height="709"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="AddressLookupCell" id="nxJ-0k-u8f" customClass="AddressLookupCell" customModule="Property_Management" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="50" width="393" height="43.666667938232422"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="nxJ-0k-u8f" id="hcW-JW-hV4">
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="43.666667938232422"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Address" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7E0-dz-7lT">
+                                                    <rect key="frame" x="19.999999999999996" y="13.333333333333334" width="58.666666666666657" height="17.333333333333329"/>
+                                                    <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="14"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="7E0-dz-7lT" firstAttribute="centerY" secondItem="hcW-JW-hV4" secondAttribute="centerY" id="CfW-dc-lDZ"/>
+                                                <constraint firstItem="7E0-dz-7lT" firstAttribute="leading" secondItem="hcW-JW-hV4" secondAttribute="leading" constant="20" id="bKH-tM-hzC"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="placeLabel" destination="7E0-dz-7lT" id="HI5-Yy-F5S"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="WjL-jk-kHr"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="0Lu-Fy-pM3" firstAttribute="top" secondItem="eXt-NP-8eH" secondAttribute="bottom" id="F68-Vg-myL"/>
+                            <constraint firstItem="eXt-NP-8eH" firstAttribute="leading" secondItem="WjL-jk-kHr" secondAttribute="leading" constant="20" id="LNr-K2-5tn"/>
+                            <constraint firstItem="eXt-NP-8eH" firstAttribute="top" secondItem="WjL-jk-kHr" secondAttribute="top" constant="10" id="N2Y-6i-7Dt"/>
+                            <constraint firstItem="WjL-jk-kHr" firstAttribute="trailing" secondItem="0Lu-Fy-pM3" secondAttribute="trailing" id="NPO-Aa-99X"/>
+                            <constraint firstItem="0Lu-Fy-pM3" firstAttribute="leading" secondItem="WjL-jk-kHr" secondAttribute="leading" id="cxl-0K-pQU"/>
+                            <constraint firstItem="WjL-jk-kHr" firstAttribute="bottom" secondItem="0Lu-Fy-pM3" secondAttribute="bottom" id="jLO-0b-6dI"/>
+                            <constraint firstItem="WjL-jk-kHr" firstAttribute="trailing" secondItem="eXt-NP-8eH" secondAttribute="trailing" constant="20" id="jeG-wZ-7za"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="addressTextField" destination="eXt-NP-8eH" id="w7Z-Hf-Imo"/>
+                        <outlet property="tableView" destination="0Lu-Fy-pM3" id="aEC-Fo-1GY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XsE-Ea-p4M" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4909" y="217"/>
+        </scene>
         <!--New Work-->
         <scene sceneID="uUd-aU-ffZ">
             <objects>

@@ -8,7 +8,7 @@
 import UIKit
 
 class AddNewDriveVC: UIViewController {
-
+    
     static let identifier = "AddNewDriveScreen"
     
     @IBOutlet weak var datePicker: UIDatePicker!
@@ -21,9 +21,11 @@ class AddNewDriveVC: UIViewController {
     @IBOutlet weak var notesField: UITextField!
     
     var createButton: UIBarButtonItem!
+    
+    var currentTextField: Int! = -1 //0 for initial, 1 for final.
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
         //navigationController!.title = "Create Drive"
         
@@ -44,9 +46,27 @@ class AddNewDriveVC: UIViewController {
         notesField.delegate = self
         notesField.returnKeyType = .done
         
+        initialPlaceField.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(initialFieldClicked)))
+        finalPlaceField.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(finalFieldClicked)))
+        
         self.hideKeyboardWhenTappedAround()
     }
     
+    @objc func initialFieldClicked() {
+        let vc = storyboard?.instantiateViewController(withIdentifier: AddressLookupVC.identifier) as! AddressLookupVC
+        self.currentTextField = 0
+        vc.delegate = self
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func finalFieldClicked() {
+        let vc = storyboard?.instantiateViewController(withIdentifier: AddressLookupVC.identifier) as! AddressLookupVC
+        self.currentTextField = 1
+        vc.delegate = self
+        navigationController?.pushViewController(vc, animated: true)
+        
+        
+    }
     @objc func createButtonClicked() {
         guard initialPlaceField.text != "" else {
             self.showFailureToast(message: "Must give an initial address")
@@ -112,16 +132,22 @@ class AddNewDriveVC: UIViewController {
         }
     }
     
-    /*
-    // MARK: - Navigation
+}
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+extension AddNewDriveVC: AddressLookupDelegate {
+    func didChooseAddress(_ address: String) {
+        if currentTextField == 0 {
+            self.initialPlaceField.text = address
+        } else if currentTextField == 1 {
+            self.finalPlaceField.text = address
+        }
+        
+        if initialPlaceField.text?.count ?? 0 > 0 && finalPlaceField.text?.count ?? 0 > 0 {
+            createButton.tintColor = .accentColor
+        }
     }
-    */
-
+    
+    
 }
 
 extension AddNewDriveVC: UITextFieldDelegate {

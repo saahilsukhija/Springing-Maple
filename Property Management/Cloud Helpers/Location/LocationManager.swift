@@ -32,7 +32,7 @@ final class LocationManager: NSObject {
     
     private var locationAccuracy = kCLLocationAccuracyHundredMeters
     
-    private var lastLocation:CLLocation?
+    var lastLocation:CLLocation?
     private var lastActivity: CMMotionActivity?
     
     private var reverseGeocoding = false

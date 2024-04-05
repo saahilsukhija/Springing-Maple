@@ -28,6 +28,10 @@ extension String {
         return self.index(startIndex, offsetBy: from)
     }
     
+    func index(of char: Character) -> Int? {
+        return firstIndex(of: char)?.utf16Offset(in: self)
+    }
+    
     func substring(from: Int) -> String {
         let fromIndex = index(from: from)
         return String(self[fromIndex...])
