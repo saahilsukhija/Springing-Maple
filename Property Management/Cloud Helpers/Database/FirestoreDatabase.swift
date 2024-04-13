@@ -116,6 +116,7 @@ extension FirestoreDatabase {
             else {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").updateData(["uncategorized": FieldValue.arrayUnion([JSONEncoder().encode(work)])])
             }
+            try await incrementDailyCounter(.work)
             print("uploaded work: \(work)")
         } catch {
             throw FirestoreError("Error while uploading the work")
@@ -143,7 +144,6 @@ extension FirestoreDatabase {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredWork)])])
                 print("exists")
             }
-            try await incrementDailyCounter(.work)
             print("uploaded registered work: \(registeredWork)")
         } catch {
             throw FirestoreError("Error while uploading the registered work")
@@ -270,6 +270,7 @@ extension FirestoreDatabase {
             else {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").updateData(["uncategorized": FieldValue.arrayUnion([JSONEncoder().encode(drive)])])
             }
+            try await incrementDailyCounter(.drive)
             print("uploaded drive: \(drive)")
         } catch {
             throw FirestoreError("Error while uploading the drive")
@@ -296,7 +297,6 @@ extension FirestoreDatabase {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredDrive)])])
                 print("exists")
             }
-            try await incrementDailyCounter(.drive)
             print("uploaded registered drive: \(registeredDrive)")
         } catch {
             throw FirestoreError("Error while uploading the registered drive")

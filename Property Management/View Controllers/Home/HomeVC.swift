@@ -399,8 +399,8 @@ class HomeVC: UIViewController {
                     if let index = index {
                         tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .right)
                     } else {
-                        tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .right)
                         LocationManager.shared.removeLastDrive()
+                        tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .right)
                     }
                 } else {
                     tableView.reloadData()
@@ -508,8 +508,8 @@ class HomeVC: UIViewController {
                 if let index = index {
                     tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .left)
                 } else {
-                    tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .left)
                     LocationManager.shared.removeLastDrive()
+                    tableView.deleteRows(at: [IndexPath(row: activities.count + 1, section: 0)], with: .left)
                 }
             } else {
                 tableView.reloadData()

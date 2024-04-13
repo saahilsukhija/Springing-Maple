@@ -23,6 +23,10 @@
 	<string>This app needs constant location tracking to reliably classify your drives</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs constant location tracking to reliably classify your drives</string>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    </array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Black.ttf</string>

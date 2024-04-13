@@ -78,7 +78,7 @@
                                                                         <constraint firstAttribute="height" constant="40" id="RFD-1N-Hdp"/>
                                                                     </constraints>
                                                                     <fontDescription key="fontDescription" name="MontserratRoman-Regular" family="Montserrat" pointSize="14"/>
-                                                                    <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                                                                    <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
                                                                 </textField>
                                                                 <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="$0.00" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="JHc-G1-c5F">
                                                                     <rect key="frame" x="5" y="105.00000000000001" width="323" height="39.999999999999986"/>
@@ -123,10 +123,10 @@
                                                                                     <nil key="textColor"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
-                                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12:34" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yNT-D9-Q4z">
+                                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12:34" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yNT-D9-Q4z">
                                                                                     <rect key="frame" x="203" y="0.0" width="110" height="45"/>
                                                                                     <constraints>
-                                                                                        <constraint firstAttribute="width" constant="110" id="Ogb-Is-DQX"/>
+                                                                                        <constraint firstAttribute="width" constant="110" id="ZFB-Py-ckf"/>
                                                                                     </constraints>
                                                                                     <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="13"/>
                                                                                     <color key="textColor" systemColor="systemGrayColor"/>
@@ -335,7 +335,7 @@
                                                                         <constraint firstAttribute="height" constant="40" id="o3J-cQ-jc5"/>
                                                                     </constraints>
                                                                     <fontDescription key="fontDescription" name="MontserratRoman-Regular" family="Montserrat" pointSize="14"/>
-                                                                    <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                                                                    <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
                                                                 </textField>
                                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NYN-QI-AqV">
                                                                     <rect key="frame" x="0.0" y="0.0" width="333" height="100"/>
@@ -855,7 +855,7 @@
                                     <constraint firstAttribute="height" constant="45" id="9Mf-sq-esP"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="15"/>
-                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
                             </textField>
                             <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="time" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="vVU-ko-C9g">
                                 <rect key="frame" x="273" y="215.66666666666666" width="100" height="44.999999999999972"/>
@@ -1057,7 +1057,7 @@
                                     <constraint firstAttribute="height" constant="45" id="DLb-HM-sCF"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="15"/>
-                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
                             </textField>
                             <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" style="compact" translatesAutoresizingMaskIntoConstraints="NO" id="n1x-KL-k3Z">
                                 <rect key="frame" x="273" y="79" width="100" height="34.333333333333343"/>

@@ -91,6 +91,7 @@ class UserSettings: Codable {
         if type == .clockOut {
             clockOutTime = nil
         }
+        NotificationManager.shared.removeClockInOutNotifications(type: type)
         
         do {
             try UserDefaults.standard.set(object: self, forKey: "user_settings")

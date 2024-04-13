@@ -30,9 +30,9 @@ final class LocationManager: NSObject {
     private var locationManager:CLLocationManager?
     private var activityManager: CMMotionActivityManager?
     
-    private var locationAccuracy = kCLLocationAccuracyHundredMeters
+    private var locationAccuracy = kCLLocationAccuracyBest
     
-    var lastLocation:CLLocation?
+    private(set) var lastLocation:CLLocation?
     private var lastActivity: CMMotionActivity?
     
     private var reverseGeocoding = false
@@ -80,7 +80,6 @@ final class LocationManager: NSObject {
         locationManager = CLLocationManager()
         locationManager?.delegate = self
         locationManager?.desiredAccuracy = locationAccuracy
-        //locationManager?.distanceFilter = 200
         locationManager?.pausesLocationUpdatesAutomatically = false
         locationManager?.allowsBackgroundLocationUpdates = true
         locationManager?.activityType = .automotiveNavigation
@@ -314,7 +313,7 @@ final class LocationManager: NSObject {
             
         case .authorizedWhenInUse,.authorizedAlways:
             // self.locationManager?.startUpdatingLocation()
-            //self.locationManager?.startMonitoringVisits()
+            self.locationManager?.startMonitoringVisits()
             self.locationManager?.startMonitoringSignificantLocationChanges()
             print("started tracking location")
         case .denied:
@@ -373,6 +372,8 @@ final class LocationManager: NSObject {
         locationManager?.stopUpdatingLocation()
         locationManager?.stopMonitoringVisits()
         activityManager?.stopActivityUpdates()
+        locationManager = nil
+        activityManager = nil
     }
     
     func startTracking() {
@@ -479,7 +480,7 @@ extension LocationManager: CLLocationManagerDelegate {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
-                self.lastDriveCreated = drive 
+                self.lastDriveCreated = drive
                 do {
                     try UserDefaults.standard.set(object: drive, forKey: "lastDriveCreated")
                 } catch {

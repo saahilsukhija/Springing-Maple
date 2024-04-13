@@ -70,6 +70,14 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
     }
     
+    func removeClockInOutNotifications(type: UserSettings.ClockInNotificationSettings) {
+        removeScheduledNotification(id: type.rawValue)
+        removeScheduledNotification(id: "OrganizerPlusCategory")
+        for i in 1...7 {
+            removeScheduledNotification(id: type.rawValue + "_\(i)")
+        }
+    }
+    
     func sendDriveLoggedNotification(drive: Drive) {
         
         guard User.shared.settings.notificationsEnabled && User.shared.settings.driveNotificationsEnabled else {
@@ -83,7 +91,7 @@ class NotificationManager: ObservableObject {
         } else {
             content.body = "A new drive has been logged."
         }
-        content.categoryIdentifier = "OrganizerPlusCategory"
+        content.categoryIdentifier = "drive"
         content.sound = .default
 //        let taskData = try? JSONEncoder().encode(task)
 //        if let taskData = taskData {
@@ -112,7 +120,7 @@ class NotificationManager: ObservableObject {
         } else {
             content.body = "A new work has been logged."
         }
-        content.categoryIdentifier = "OrganizerPlusCategory"
+        content.categoryIdentifier = "work"
         content.sound = .default
 //        let taskData = try? JSONEncoder().encode(task)
 //        if let taskData = taskData {
@@ -131,30 +139,32 @@ class NotificationManager: ObservableObject {
     
     func scheduleClockNotification(type: UserSettings.ClockInNotificationSettings) {
         
-        
-        let content = UNMutableNotificationContent()
-        content.title = "Reminder to \(type.rawValue)"
-        content.body = "Your pre-set reminder to \(type.rawValue) at your given time"
-        content.categoryIdentifier = "OrganizerPlusCategory"
-        content.sound = .default
-//        let taskData = try? JSONEncoder().encode(task)
-//        if let taskData = taskData {
-//            content.userInfo = ["Task": taskData]
-//        }
-        
-        let dateComponent = (type == .clockIn ? User.shared.settings?.clockInTime : User.shared.settings?.clockOutTime)
-        guard let date = dateComponent else {
-            print("Error scheduling a clock in/out notification")
-            return
+        for i in 2...6 {
+            let content = UNMutableNotificationContent()
+            content.title = "Reminder to \(type.rawValue)"
+            content.body = "Your pre-set reminder to \(type.rawValue) at your given time"
+            content.categoryIdentifier = "\(type.rawValue)_\(i)"
+            content.sound = .default
+            //        let taskData = try? JSONEncoder().encode(task)
+            //        if let taskData = taskData {
+            //            content.userInfo = ["Task": taskData]
+            //        }
+            
+            var dateComponent = (type == .clockIn ? User.shared.settings?.clockInTime : User.shared.settings?.clockOutTime)
+            dateComponent?.weekday = i
+            guard let date = dateComponent else {
+                print("Error scheduling a clock in/out notification")
+                return
+            }
+            
+            let trigger = UNCalendarNotificationTrigger(dateMatching: date, repeats: true)
+            let request = UNNotificationRequest(identifier: "\(type.rawValue)_\(i)", content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request) { (error : Error?) in
+                if let theError = error {
+                    print(theError.localizedDescription)
+                }
+            }
         }
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: date, repeats: true)
-        let request = UNNotificationRequest(identifier: type.rawValue, content: content, trigger: trigger)
-                        UNUserNotificationCenter.current().add(request) { (error : Error?) in
-                            if let theError = error {
-                                print(theError.localizedDescription)
-                            }
-                        }
     }
 }
 

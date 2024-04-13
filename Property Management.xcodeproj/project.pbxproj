@@ -1100,6 +1100,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Property Management/Master Items/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Springing Maple";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = Location;
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Property Management needs your location to accurately store the address of your purchase";
 				INFOPLIST_KEY_NSLocationUsageDescription = Location;
@@ -1139,6 +1140,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Property Management/Master Items/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Springing Maple";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = Location;
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Property Management needs your location to accurately store the address of your purchase";
 				INFOPLIST_KEY_NSLocationUsageDescription = Location;
