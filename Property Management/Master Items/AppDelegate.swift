@@ -58,6 +58,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
+        print("will terminate")
+        NotificationManager.shared.sendNotificationNow(title: "App has been terminated!", subtitle: "Uh oh!")
         do {
             try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
             try UserDefaults.standard.set(object: RecentLocationQueue.shared, forKey: "recentLocationQueue")
@@ -73,6 +75,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("error while storing stopwatch / recentLocationQueue in UserDefaults")
         }
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        NotificationManager.shared.sendNotificationNow(title: "App going into the background", subtitle: "for test purposes")
+        LocationManager.shared.startTracking()
     }
 
 }

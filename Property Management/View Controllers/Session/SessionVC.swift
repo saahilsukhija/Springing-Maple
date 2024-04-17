@@ -88,7 +88,7 @@ class SessionVC: UIViewController {
                             }
                             else {
                                 User.shared.team = team
-                                self.dismiss(animated: true, completion: nil)
+                                //self.dismiss(animated: true, completion: nil)
                                 if !self.openingSettings {
                                     self.navigationController?.popViewController(animated: true)
                                 }
@@ -229,6 +229,7 @@ class SessionVC: UIViewController {
     
     @objc func userClockedIn() {
         LocationManager.shared.startTracking()
+        addLastDriveAtCurrentLocation()
     }
     
     @objc func userClockedOut() {
@@ -239,6 +240,19 @@ class SessionVC: UIViewController {
         openingSettings = true
         let vc = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: SettingsVC.identifier) as! SettingsVC
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func addLastDriveAtCurrentLocation() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if let location = LocationManager.shared.lastLocation {
+                LocationManager().getReverseGeoCodedLocation(location: location) { location, placemark, error in
+                    if let loc1 = location {
+                        LocationManager.shared.lastDriveCreated = Drive(initialCoordinates: loc1.coordinate, finalCoordinates: loc1.coordinate, initialDate: Date(), finalDate: Date(), initPlace: placemark?.name, finPlace: placemark?.name)
+                    }
+                }
+            }
+        }
+
     }
     /*
      // MARK: - Navigation

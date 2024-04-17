@@ -59,7 +59,7 @@ class ProfileVC: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
             GIDSignIn.sharedInstance.signOut()
-            self.navigationController?.popViewController(animated: true)
+            self.navigationController?.popToRootViewController(animated: true)
         }))
         self.present(alert, animated: true)
     }
@@ -74,7 +74,7 @@ class ProfileVC: UIViewController {
                     DispatchQueue.main.async {
                         self.showSuccessToast(message: "Successfully left team")
                         self.dismiss(animated: true)
-                        self.navigationController?.popViewController(animated: true)
+                        self.navigationController?.popToRootViewController(animated: true)
                     }
                 } catch {
                     DispatchQueue.main.async {
@@ -99,7 +99,7 @@ class ProfileVC: UIViewController {
                     GIDSignIn.sharedInstance.signOut()
                     DispatchQueue.main.async {
                         self.dismiss(animated: true)
-                        self.navigationController?.popViewController(animated: true)
+                        self.navigationController?.popToRootViewController(animated: true)
                     }
                 } catch {
                     DispatchQueue.main.async {

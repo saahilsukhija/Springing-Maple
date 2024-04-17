@@ -9,7 +9,8 @@ import Foundation
 
 class Constants {
     
-    static var NUMBER_DIGITS_IN_RECEIPT_ID = 20
-    static var NUMBER_DIGITS_IN_TEAM_ID = 6
-
+    static let NUMBER_DIGITS_IN_RECEIPT_ID = 20
+    static let NUMBER_DIGITS_IN_TEAM_ID = 6
+    
+    static let SECONDS_TO_WAIT_AFTER_DRIVE = 300
 }

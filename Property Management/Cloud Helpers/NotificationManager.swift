@@ -166,5 +166,26 @@ class NotificationManager: ObservableObject {
             }
         }
     }
+    
+    func sendNotificationNow(title: String, subtitle: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = subtitle
+        content.categoryIdentifier = "misc"
+        content.sound = .default
+//        let taskData = try? JSONEncoder().encode(task)
+//        if let taskData = taskData {
+//            content.userInfo = ["Task": taskData]
+//        }
+        
+        let date = DateComponents(second: 0)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: date, repeats: false)
+        let request = UNNotificationRequest(identifier: "misc", content: content, trigger: trigger)
+                        UNUserNotificationCenter.current().add(request) { (error : Error?) in
+                            if let theError = error {
+                                print(theError.localizedDescription)
+                            }
+                        }
+    }
 }
 
