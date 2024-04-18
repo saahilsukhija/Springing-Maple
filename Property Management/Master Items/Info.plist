@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSMotionUsageDescription</key>
-	<string>This app needs motion detection to classify activity as a Drive or Work</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This app will use camera to scan reciepts.</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -17,16 +17,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs constant location tracking to reliably classify your drives</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs constant location tracking to reliably classify your drives</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs constant location tracking to reliably classify your drives</string>
-    <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-    </array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Black.ttf</string>

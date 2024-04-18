@@ -208,7 +208,7 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
     "Break", "",
     "0.00", "", "", "", ""];
 
-  const backgroundColor = {red: 1, green: 165.0/255, blue: 0, alpha: 1.0/3};
+  const backgroundColor = {red: 246.0/255, green: 178.0/255, blue: 107.0/255, alpha: 1.0/3};
   // appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
   //     appendValue);
   const values = appendValue.map((e) => ({userEnteredValue: {stringValue: e},
@@ -263,7 +263,7 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
       "INDIRECT(\"A1:A\"&ROW()-1) = INDIRECT(\"A\"&ROW())))",
     "", "", "", ""];
 
-  const backgroundColor = {red: 0, green: 165.0/255, blue: 0, alpha: 1.0/3};
+  const backgroundColor = {red: 183.0/255, green: 215.0/255, blue: 168.0/255, alpha: 3.0/3};
   // appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
   //     appendValue);
   const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
