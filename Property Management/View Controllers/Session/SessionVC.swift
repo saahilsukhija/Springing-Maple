@@ -245,10 +245,10 @@ class SessionVC: UIViewController {
     func addLastDriveAtCurrentLocation() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if let location = LocationManager.shared.lastLocation {
-                LocationManager().getReverseGeoCodedLocation(location: location) { location, placemark, error in
-                    if let loc1 = location {
-                        LocationManager.shared.lastDriveCreated = Drive(initialCoordinates: loc1.coordinate, finalCoordinates: loc1.coordinate, initialDate: Date(), finalDate: Date(), initPlace: placemark?.name, finPlace: placemark?.name)
-                    }
+                LocationManager.geocode(coordinate: location.coordinate) { placemark, error in
+                    LocationManager.shared.lastDriveCreated = Drive(initialCoordinates: location.coordinate, finalCoordinates: location.coordinate, initialDate: Date(), finalDate: Date(), initPlace: placemark?[0].name ?? "error", finPlace: placemark?[0].name ?? "error")
+                    AppDelegate.saveVariables()
+                    NotificationCenter.default.post(name: .shouldUpdateTableView, object: nil)
                 }
             }
         }

@@ -45,6 +45,7 @@ class HomeVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(cloudDriveDetected(_:)), name: .cloudDriveDetected, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(cloudWorkDetected(_:)), name: .cloudWorkDetected, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(shouldUpdateTableView), name: .shouldUpdateTableView, object: nil)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.keyboardDismissMode = .onDrag
@@ -66,6 +67,12 @@ class HomeVC: UIViewController {
 
         
         
+    }
+    
+    @objc func shouldUpdateTableView() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -148,40 +155,40 @@ class HomeVC: UIViewController {
                     
                     for (i, a) in self.activities.enumerated() {
                         if a.initialPlace == nil || a.initialPlace == "" || a.initialPlace == "(error)" {
-                            
-                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.initialCoordinate.latitude, longitude: a.initialCoordinate.longitude)) { location, placemark, error in
-                                var text = ""
-                                if let error = error {
-                                    text = ""
-                                    print(error.localizedDescription)
-                                } else {
-                                    text = placemark?.name ?? "(error 2)"
-                                }
-                                
-                                DispatchQueue.main.async {
-                                    self.activities[i].setInitPlace(text)
-                                    self.tableView.reloadData()
-                                }
-                            }
+                            print("BRUH")
+//                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.initialCoordinate.latitude, longitude: a.initialCoordinate.longitude)) { location, placemark, error in
+//                                var text = ""
+//                                if let error = error {
+//                                    text = ""
+//                                    print(error.localizedDescription)
+//                                } else {
+//                                    text = placemark?.name ?? "(error 2)"
+//                                }
+//                                
+//                                DispatchQueue.main.async {
+//                                    self.activities[i].setInitPlace(text)
+//                                    self.tableView.reloadData()
+//                                }
+//                            }
                             
                         }
                         if a.finalPlace == nil || a.finalPlace == "" || a.finalPlace == "(error)" {
-                            
-                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.finalCoordinate.latitude, longitude: a.finalCoordinate.longitude)) { location, placemark, error in
-                                var text = ""
-                                if let error = error {
-                                    text = ""
-                                    print(error.localizedDescription)
-                                } else {
-                                    text = placemark?.name ?? "(error 2)"
-                                }
-                                
-                                DispatchQueue.main.async {
-                                    self.activities[i].setFinalPlace(text)
-                                    self.tableView.reloadData()
-                                    
-                                }
-                            }
+                            print("BRUH2")
+//                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.finalCoordinate.latitude, longitude: a.finalCoordinate.longitude)) { location, placemark, error in
+//                                var text = ""
+//                                if let error = error {
+//                                    text = ""
+//                                    print(error.localizedDescription)
+//                                } else {
+//                                    text = placemark?.name ?? "(error 2)"
+//                                }
+//                                
+//                                DispatchQueue.main.async {
+//                                    self.activities[i].setFinalPlace(text)
+//                                    self.tableView.reloadData()
+//                                    
+//                                }
+//                            }
                             
                         }
                     }

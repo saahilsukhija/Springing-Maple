@@ -63,6 +63,10 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
+    static var shouldUpdateTableView: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
     
     
     

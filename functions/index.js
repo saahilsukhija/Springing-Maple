@@ -208,11 +208,22 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
     "Break", "",
     "0.00", "", "", "", ""];
 
-  const backgroundColor = {red: 246.0/255, green: 178.0/255, blue: 107.0/255, alpha: 1.0/3};
+  const backgroundColor = {red: 246.0/255,
+    green: 178.0/255, blue: 107.0/255, alpha: 1.0/3};
   // appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
   //     appendValue);
-  const values = appendValue.map((e) => ({userEnteredValue: {stringValue: e},
-    userEnteredFormat: {backgroundColor}}));
+  const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
+  const values = appendValue.map((e, index) => (
+    {
+      userEnteredValue: {
+        numberValue: index === 0 ? dateNumber : undefined,
+        stringValue: (index === 1 || index === 2) ? e: undefined,
+      },
+      userEnteredFormat: {backgroundColor,
+        numberFormat: index <= 0 ?
+        {type: index === 0 ? "DATE" : "TIME",
+          pattern: index === 0 ? "mm/dd/yy" : "h:mm A/PM"} : undefined},
+    }));
   const sheetId = await getSheetID(auth, spreadsheetID, username);
 
   const sheets = google.sheets({version: "v4", auth});
@@ -258,20 +269,27 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
 
   const appendValue = [date, "",
     "", "",
-    "", "",
+    "Daily Summary", "",
     "=SUM(FILTER(INDIRECT(\"G1:G\"& ROW()-1), " +
       "INDIRECT(\"A1:A\"&ROW()-1) = INDIRECT(\"A\"&ROW())))",
-    "", "", "", ""];
+    "", "",
+    "=SUM(FILTER(INDIRECT(\"J1:J\"& ROW()-1), " +
+      "INDIRECT(\"A1:A\"&ROW()-1) = INDIRECT(\"A\"&ROW())))",
+    "=SUM(FILTER(INDIRECT(\"K1:K\"& ROW()-1), " +
+    "INDIRECT(\"A1:A\"&ROW()-1) = INDIRECT(\"A\"&ROW())))"];
 
-  const backgroundColor = {red: 183.0/255, green: 215.0/255, blue: 168.0/255, alpha: 3.0/3};
+  const backgroundColor = {red: 183.0/255,
+    green: 215.0/255, blue: 168.0/255, alpha: 3.0/3};
   // appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
   //     appendValue);
   const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
   const values = appendValue.map((e, index) => (
     {
       userEnteredValue: {
-        stringValue: (index === 6 || index == 0) ? undefined : e,
-        formulaValue: index === 6 ? e : undefined,
+        stringValue: (index === 6 || index == 0 ||
+          index === 9 || index === 10) ? undefined : e,
+        formulaValue: (index === 6 || index === 9 ||
+          index === 10) ? e : undefined,
         numberValue: index === 0 ? dateNumber : undefined},
       userEnteredFormat: {backgroundColor,
         numberFormat: index <= 2 ?

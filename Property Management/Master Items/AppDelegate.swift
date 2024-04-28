@@ -59,7 +59,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         print("will terminate")
-        NotificationManager.shared.sendNotificationNow(title: "App has been terminated!", subtitle: "Uh oh!")
+        NotificationManager.shared.sendNotificationNow(title: "Springing Maple has been terminated!", subtitle: "Things may not work as expected. Please reopen the app.")
+        AppDelegate.saveVariables()
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        //NotificationManager.shared.sendNotificationNow(title: "App going into the background", subtitle: "for test purposes")
+        LocationManager.shared.startTracking()
+    }
+
+    static func saveVariables() {
+        print("saving variables...")
         do {
             try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
             try UserDefaults.standard.set(object: RecentLocationQueue.shared, forKey: "recentLocationQueue")
@@ -72,15 +82,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let settings = User.shared.settings {
                 try UserDefaults.standard.set(object: settings, forKey: "user_settings")
             }
+            UserDefaults.standard.set(LocationManager.shared.isDriving, forKey: "isDriving")
+            
+            if let loc = LocationManager.shared.startDriveLocation {
+                UserDefaults.standard.set(loc.coordinate.latitude, forKey: "startDriveLocation_lat")
+                UserDefaults.standard.set(loc.coordinate.longitude, forKey: "startDriveLocation_lon")
+            }
+            
+            if let time = LocationManager.shared.startDriveTime {
+                try UserDefaults.standard.set(object: time, forKey: "startDriveTime")
+            }
         } catch {
             print("error while storing stopwatch / recentLocationQueue in UserDefaults")
         }
     }
-    
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        NotificationManager.shared.sendNotificationNow(title: "App going into the background", subtitle: "for test purposes")
-        LocationManager.shared.startTracking()
-    }
-
 }
 

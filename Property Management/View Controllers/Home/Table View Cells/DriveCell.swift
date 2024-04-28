@@ -75,7 +75,7 @@ class DriveCell: UITableViewCell {
             self.initialPlaceLabel.textColor = .black
         }
         
-        if drive.milesDriven == nil || drive.milesDriven == 0 {
+        if drive.milesDriven == nil || drive.milesDriven == -1 {
             DispatchQueue.main.async {
                 self.getMilesBetween(self.drive.initialCoordinate, and: self.drive.finalCoordinate) { miles in
                     DispatchQueue.main.async {

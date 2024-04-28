@@ -11,26 +11,26 @@ import MapKit
 
 class Drive: Activity {
     
-    public var milesDriven: Double? = 0
+    public var milesDriven: Double? = -1
     
-    init(from activity: Activity, milesDriven: Double = 0) {
+    init(from activity: Activity, milesDriven: Double = -1) {
         super.init(from: activity)
         
         self.milesDriven = milesDriven
         
-        if milesDriven == 0 {
+        if milesDriven == -1 {
             Drive.getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
                 self.milesDriven = miles
             }
         }
     }
     
-    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, initPlace: String? = nil, finPlace: String? = nil, milesDriven: Double = 0) {
+    init(initialCoordinates: CLLocationCoordinate2D, finalCoordinates: CLLocationCoordinate2D, initialDate: Date, finalDate: Date, initPlace: String? = nil, finPlace: String? = nil, milesDriven: Double = -1) {
         super.init(initialCoordinates: initialCoordinates, finalCoordinates: finalCoordinates, initialDate: initialDate, finalDate: finalDate, initPlace: initPlace, finPlace: finPlace)
         
         self.milesDriven = milesDriven
         
-        if milesDriven == 0 {
+        if milesDriven == -1 {
             Drive.getMilesBetween(self.initialCoordinate, and: self.finalCoordinate) { miles in
                 self.milesDriven = miles
             }

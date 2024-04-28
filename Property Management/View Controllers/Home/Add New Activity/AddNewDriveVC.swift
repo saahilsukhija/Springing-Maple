@@ -114,7 +114,7 @@ class AddNewDriveVC: UIViewController {
                         self.showFailureToast(message: "Please enter a valid final address")
                         loadingScreen.removeFromSuperview()
                     } else {
-                        let drive = RegisteredDrive(initialCoordinates: location!.coordinate, finalCoordinates: location2!.coordinate, initialDate: initialTime, finalDate: finalTime, initPlace: initialPlace, finPlace: finalPlace, ticketNumber: ticketNumber, notes: notes)
+                        let drive = RegisteredDrive(initialCoordinates: location!.coordinate, finalCoordinates: location2!.coordinate, initialDate: initialTime, finalDate: finalTime, initPlace: initialPlace, finPlace: finalPlace, milesDriven: -1, ticketNumber: ticketNumber, notes: notes)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             Task {
                                 try await FirestoreDatabase.shared.uploadRegisteredDrive(drive)
