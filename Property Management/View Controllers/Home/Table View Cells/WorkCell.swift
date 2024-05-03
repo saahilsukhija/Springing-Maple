@@ -132,11 +132,6 @@ class WorkCell: UITableViewCell {
         let money = moneyTextField.text == "" ? 0.00 : Double(moneyTextField.text ?? "0")
         let notes = notesTextField.text ?? ""
         
-        if work.finalDate == .ongoingDate {
-            work.setFinalDate(Date())
-            LocationManager.shared.removeLastDrive()
-        }
-        
         let registeredWork = RegisteredWork(from: work, moneySpent: money ?? 0.00, ticketNumber: ticketNumber, notes: notes, image: image ?? UIImage.checkmark)
         
         

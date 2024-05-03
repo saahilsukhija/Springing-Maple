@@ -65,7 +65,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationDidEnterBackground(_ application: UIApplication) {
         //NotificationManager.shared.sendNotificationNow(title: "App going into the background", subtitle: "for test purposes")
-        LocationManager.shared.startTracking()
+        LocationManager.shared.restartMotionManager()
+    }
+    
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        LocationManager.shared.restartMotionManager()
+        //NotificationManager.shared.sendNotificationNow(title: "Restarting motion manager", subtitle: "for test purposes")
     }
 
     static func saveVariables() {

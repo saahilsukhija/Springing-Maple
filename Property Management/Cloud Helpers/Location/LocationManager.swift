@@ -56,6 +56,7 @@ final class LocationManager: NSObject {
     }()
     
     override init() {
+        //NotificationManager.shared.sendNotificationNow(title: "override init", subtitle: "loading new locationmanager")
         if UserDefaults.standard.isKeyPresent(key: "lastDriveCreated") && lastDriveCreated == nil {
             do {
                 let lastDrive = try UserDefaults.standard.get(objectType: Drive.self, forKey: "lastDriveCreated")
@@ -465,10 +466,7 @@ extension LocationManager: CLLocationManagerDelegate {
         //RecentLocationQueue.shared.getLocation(within: 5)
         if (activity.automotive == true) && isDriving == false {
             
-            if isWaitingForDriveConfirmation {
-                //NotificationManager.shared.sendNotificationNow(title: "TEST: Should never happen", subtitle: "isWaiting is true somehow")
-            }
-            //NotificationManager.shared.sendNotificationNow(title: "TEST: New drive started", subtitle: "Starting a new drive now...")
+           // NotificationManager.shared.sendNotificationNow(title: "TEST: New drive started", subtitle: "Starting a new drive now...")
             //new drive
             self.isDriving = true
             self.currentMileage = 0.0
@@ -512,19 +510,19 @@ extension LocationManager: CLLocationManagerDelegate {
             guard let startLocation = startDriveLocation else {
                 print("start location was null")
                 //NotificationManager.shared.sendNotificationNow(title: "TEST: Guard statement", subtitle: "startLocation")
-                self.isDriving = true
+                self.isDriving = false
                 return
             }
             guard let startTime = startDriveTime else {
                 print("start time was null")
                 //NotificationManager.shared.sendNotificationNow(title: "TEST: Guard statement", subtitle: "startTime")
-                self.isDriving = true
+                self.isDriving = false
                 return
             }
             guard let endLocation = locationManager?.location else {
                 print("end location was null")
-                //NotificationManager.shared.sendNotificationNow(title: "TEST: Guard statement", subtitle: "endLocation")
-                self.isDriving = true
+               // NotificationManager.shared.sendNotificationNow(title: "TEST: Guard statement", subtitle: "endLocation")
+                self.isDriving = false
                 return
             }
             
@@ -542,9 +540,13 @@ extension LocationManager: CLLocationManagerDelegate {
             //NotificationManager.shared.sendNotificationNow(title: "TEST: Setting an internal 5 minute timer", subtitle: "Waiting for to see if the drive is still needed")
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Constants.SECONDS_TO_WAIT_AFTER_DRIVE)) {
                 if self.willCancelSoon {
+                    //NotificationManager.shared.sendNotificationNow(title: "TEST: Is continuing drive since willCancelSoon is true", subtitle: "first line after asyncafter SECONDS TO WAIT")
                     self.willCancelSoon = false
+                    self.isWaitingForDriveConfirmation = false
+                    self.isDriving = true
                     return
                 }
+                //NotificationManager.shared.sendNotificationNow(title: "TEST: Did NOT cancel timer after SECONDS TO WAIT", subtitle: "Will NOT continue drive. first line after asyncafter SECONDS TO WAIT")
                 
                 self.isWaitingForDriveConfirmation = false
                 
@@ -555,23 +557,13 @@ extension LocationManager: CLLocationManagerDelegate {
                 self.startDriveLocation = nil
                 NotificationCenter.default.post(name: .newDriveFinished, object: nil, userInfo: ["drive" : drive])
                 self.lastDriveCreated = drive
-                do {
-                    try UserDefaults.standard.set(object: drive, forKey: "lastDriveCreated")
-                } catch {
-                    
-                }
+                AppDelegate.saveVariables()
                 self.uploadDrive(drive)
                 NotificationManager.shared.sendDriveLoggedNotification(drive: drive)
             }
         }
     }
     
-    
-    func updateConfirmationVariable(with activity: CMMotionActivity) {
-        if activity.automotive == true {
-            hasDrivenInLast5Minutes = true
-        }
-    }
     
     private func uploadDrive(_ drive: Drive) {
         Task {
@@ -610,6 +602,16 @@ extension LocationManager: CLLocationManagerDelegate {
             removeLastDrive()
             print("new work detected!")
         }
+    }
+    
+    func restartMotionManager() {
+        //NotificationManager.shared.sendNotificationNow(title: "TEST: restarting motion manager", subtitle: "ATTEMPT")
+        guard Stopwatch.shared.shouldTrackLocation() else { return }
+        //NotificationManager.shared.sendNotificationNow(title: "TEST: restarting motion manager", subtitle: "SUCCEED")
+        activityManager?.stopActivityUpdates()
+        activityManager?.startActivityUpdates(to: OperationQueue.main, withHandler: { motion in
+            self.motionActivityDidUpdate(with: motion)
+        })
     }
 }
 

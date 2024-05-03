@@ -389,7 +389,9 @@ class HomeVC: UIViewController {
             
             let isOngoing = (work.finalDate == .ongoingDate)
             
-            if isOngoing {
+            if index == nil  {
+                work.setFinalDate(Date())
+                registeredWork.setFinalDate(Date())
                 LocationManager.shared.removeLastDrive()
                 DispatchQueue.main.async {
                     self.tableView.reloadData()

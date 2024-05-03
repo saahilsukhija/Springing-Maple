@@ -16,7 +16,7 @@ class RegisteredWork: RegisteredActivity {
     public var image: UIImage?
     
     public var imagePath: String {
-        return "receipts/\(internalID ?? "0")"
+        return "receipts/\(internalID ?? "0").jpeg"
     }
     //public var receiptURL: String?
     
@@ -67,7 +67,7 @@ class RegisteredWork: RegisteredActivity {
     }
     
     func getReceiptURL() async throws -> String  {
-        let reference = Storage.storage().reference(withPath: "receipts/\(internalID ?? "0")")
+        let reference = Storage.storage().reference(withPath: "receipts/\(internalID ?? "0").jpeg")
         do {
            let string = try await reference.downloadURL().absoluteString
            return string

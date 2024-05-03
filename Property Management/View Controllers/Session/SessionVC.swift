@@ -243,12 +243,14 @@ class SessionVC: UIViewController {
     }
     
     func addLastDriveAtCurrentLocation() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            if let location = LocationManager.shared.lastLocation {
-                LocationManager.geocode(coordinate: location.coordinate) { placemark, error in
-                    LocationManager.shared.lastDriveCreated = Drive(initialCoordinates: location.coordinate, finalCoordinates: location.coordinate, initialDate: Date(), finalDate: Date(), initPlace: placemark?[0].name ?? "error", finPlace: placemark?[0].name ?? "error")
-                    AppDelegate.saveVariables()
-                    NotificationCenter.default.post(name: .shouldUpdateTableView, object: nil)
+        if LocationManager.shared.lastActivity?.automotive == false {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if let location = LocationManager.shared.lastLocation {
+                    LocationManager.geocode(coordinate: location.coordinate) { placemark, error in
+                        LocationManager.shared.lastDriveCreated = Drive(initialCoordinates: location.coordinate, finalCoordinates: location.coordinate, initialDate: Date(), finalDate: Date(), initPlace: placemark?[0].name ?? "error", finPlace: placemark?[0].name ?? "error")
+                        AppDelegate.saveVariables()
+                        NotificationCenter.default.post(name: .shouldUpdateTableView, object: nil)
+                    }
                 }
             }
         }
