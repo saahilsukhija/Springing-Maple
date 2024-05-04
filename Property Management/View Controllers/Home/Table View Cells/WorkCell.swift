@@ -48,7 +48,7 @@ class WorkCell: UITableViewCell {
         notesTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
-    func setup(with w: Work, fields: (String, Double?, String)?) {
+    func setup(with w: Work, fields: (String, Double?, String, UIImage?)?) {
         self.work = w
         
         let initTime = work.initialDate.toHourMinuteTime()
@@ -113,11 +113,19 @@ class WorkCell: UITableViewCell {
                 self.moneyTextField.text = ""
             }
             self.notesTextField.text = fields.2
+            if let image = fields.3 {
+                self.image = image
+            } else {
+                self.image = nil
+            }
+            print((w.initialPlace ?? "place") + ": \(self.image)")
         } else {
             self.ticketNumberTextField.text = ""
             self.moneyTextField.text = ""
             self.notesTextField.text = ""
+            self.image = nil
         }
+        updateCameraButton()
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -160,8 +168,10 @@ class WorkCell: UITableViewCell {
         camera.didGetPhoto = {
             (_ photo: UIImage, _ info: [AnyHashable : Any]) in
             
-            self.cameraButton.setImage(UIImage(systemName: "icloud.and.arrow.up"), for: .normal)
+            
             self.image = photo
+            self.updateCameraButton()
+            self.textFieldDidChange()
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 self.parentVC.isPresentingCamera = false
@@ -169,12 +179,20 @@ class WorkCell: UITableViewCell {
         }
     }
     
+    func updateCameraButton() {
+        if self.image != nil {
+            self.cameraButton.setImage(UIImage(systemName: "icloud.and.arrow.up"), for: .normal)
+        } else {
+            self.cameraButton.setImage(UIImage(systemName: "camera"), for: .normal)
+        }
+    }
+    
     @objc func textFieldDidChange() {
         
         if moneyTextField.text?.count ?? 0 > 0 {
-            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", Double(moneyTextField.text ?? "0"), notesTextField.text ?? "")
+            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", Double(moneyTextField.text ?? "0"), notesTextField.text ?? "", self.image)
         } else {
-            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "")
+            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "", self.image)
         }
         
     }

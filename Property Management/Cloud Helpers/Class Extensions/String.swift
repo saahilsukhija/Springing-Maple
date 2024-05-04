@@ -16,6 +16,9 @@ extension String {
         for (i, c) in self.enumerated() {
             if c.isNumber || !c.isLetter {
                 count += 1
+                if (c.isWhitespace) {
+                    break
+                }
             } else {
                 break
             }

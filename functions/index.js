@@ -203,8 +203,13 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
     ],
   });
 
-  const appendValue = [date, initialTime,
-    finalTime, "",
+  const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
+  const date2 = ((new Date(date + ", " + initialTime)).getTime() /
+    1000 / 86400) + 25569;
+  const date3 = ((new Date(date + ", " + finalTime)).getTime() /
+    1000 / 86400) + 25569;
+  const appendValue = [dateNumber, date2,
+    date3, "",
     "Break", "",
     "0.00", "", "", "", ""];
 
@@ -212,17 +217,17 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
     green: 178.0/255, blue: 107.0/255, alpha: 1.0/3};
   // appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
   //     appendValue);
-  const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
+
   const values = appendValue.map((e, index) => (
     {
       userEnteredValue: {
-        numberValue: index === 0 ? dateNumber : undefined,
-        stringValue: (index === 1 || index === 2) ? e: undefined,
+        numberValue: (index <= 2) ? e : undefined,
+        stringValue: (index === 4) ? e: undefined,
       },
       userEnteredFormat: {backgroundColor,
-        numberFormat: index <= 0 ?
+        numberFormat: index <= 2 ?
         {type: index === 0 ? "DATE" : "TIME",
-          pattern: index === 0 ? "mm/dd/yy" : "h:mm A/PM"} : undefined},
+          pattern: index === 0 ? "mm/dd/yy" : "h:mm am/pm"} : undefined},
     }));
   const sheetId = await getSheetID(auth, spreadsheetID, username);
 

@@ -16,7 +16,7 @@ class HomeVC: UIViewController {
     
     var locationManager: LocationManager!
     var activities: [Activity] = []
-    var userEnteredValues: [Date : (String, Double?, String)] = [:] //Key is INITIAL DATE
+    var userEnteredValues: [Date : (String, Double?, String, UIImage?)] = [:] //Key is INITIAL DATE
     
     var shouldDeleteFromList = true
     var isPresentingCamera = false
@@ -127,10 +127,10 @@ class HomeVC: UIViewController {
                 }
             }
             Task {
-//                let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.034679, longitude: 37.322557), finalCoordinates: CLLocationCoordinate2D(latitude: -122.0562, longitude: 37.3150), initialDate: Date().getDate(byAdding: .minute, value: 12), finalDate: Date().getDate(byAdding: .minute, value: 18), initPlace: "Home Depot", finPlace: "Dolores Dr.", milesDriven: 1.7)
-//                let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.0562, longitude: 37.3150), finalCoordinates: CLLocationCoordinate2D(latitude: -122.034679, longitude: 37.322557), initialDate: Date().getDate(byAdding: .minute, value: 32), finalDate: Date().getDate(byAdding: .minute, value: 40), initPlace: "Dolores Dr.", finPlace: "Walmart", milesDriven: 1.7)
-//                let work = Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.0562, longitude: 37.3150), finalCoordinates: CLLocationCoordinate2D(latitude: -122.0562, longitude: 37.3150), initialDate: Date().getDate(byAdding: .minute, value: 18), finalDate: Date().getDate(byAdding: .minute, value: 32), initPlace: "Dolores Dr.", finPlace: "Dolores Dr.")
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+//                let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 12), finalDate: Date().getDate(byAdding: .minute, value: 18), milesDriven: 1.7)
+//                let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates:  CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), initialDate: Date().getDate(byAdding: .minute, value: 32), finalDate: Date().getDate(byAdding: .minute, value: 40), milesDriven: 1.7)
+//                let work = Work(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 18), finalDate: Date().getDate(byAdding: .minute, value: 32))
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
 //                    Task {
 //                        try? await FirestoreDatabase.shared.uploadPrivateDrive(d1)
 //                        try? await FirestoreDatabase.shared.uploadPrivateWork(work)
@@ -156,39 +156,39 @@ class HomeVC: UIViewController {
                     for (i, a) in self.activities.enumerated() {
                         if a.initialPlace == nil || a.initialPlace == "" || a.initialPlace == "(error)" {
                             print("BRUH")
-//                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.initialCoordinate.latitude, longitude: a.initialCoordinate.longitude)) { location, placemark, error in
-//                                var text = ""
-//                                if let error = error {
-//                                    text = ""
-//                                    print(error.localizedDescription)
-//                                } else {
-//                                    text = placemark?.name ?? "(error 2)"
-//                                }
-//                                
-//                                DispatchQueue.main.async {
-//                                    self.activities[i].setInitPlace(text)
-//                                    self.tableView.reloadData()
-//                                }
-//                            }
+                            LocationManager.geocode(coordinate: a.initialCoordinate) { placemark, error in
+                                var text = ""
+                                if let error = error {
+                                    text = ""
+                                    print(error.localizedDescription)
+                                } else {
+                                    text = placemark?[0].name ?? "(error 2)"
+                                }
+                                
+                                DispatchQueue.main.async {
+                                    self.activities[i].setInitPlace(text)
+                                    self.tableView.reloadData()
+                                }
+                            }
                             
                         }
-                        if a.finalPlace == nil || a.finalPlace == "" || a.finalPlace == "(error)" {
+                        if a.finalPlace == nil || a.finalPlace == "" || a.finalPlace == "(error)" || a.finalPlace == "Loading" {
                             print("BRUH2")
-//                            LocationManager().getReverseGeoCodedLocation(location: CLLocation(latitude: a.finalCoordinate.latitude, longitude: a.finalCoordinate.longitude)) { location, placemark, error in
-//                                var text = ""
-//                                if let error = error {
-//                                    text = ""
-//                                    print(error.localizedDescription)
-//                                } else {
-//                                    text = placemark?.name ?? "(error 2)"
-//                                }
-//                                
-//                                DispatchQueue.main.async {
-//                                    self.activities[i].setFinalPlace(text)
-//                                    self.tableView.reloadData()
-//                                    
-//                                }
-//                            }
+                            LocationManager.geocode(coordinate: a.finalCoordinate) { placemark, error in
+                                var text = ""
+                                if let error = error {
+                                    text = ""
+                                    print(error.localizedDescription)
+                                } else {
+                                    text = placemark?[0].name ?? "(error 2)"
+                                }
+                                
+                                DispatchQueue.main.async {
+                                    self.activities[i].setFinalPlace(text)
+                                    self.tableView.reloadData()
+                                    
+                                }
+                            }
                             
                         }
                     }

@@ -81,7 +81,7 @@ class Activity: Codable, Equatable {
                     text = ""
                     print(error.localizedDescription)
                 } else {
-                    text = placemark?[0].name ?? "(error 2)"
+                    text = placemark?[0].name ?? "(error)"
                 }
                 
                 DispatchQueue.main.async {
@@ -97,7 +97,7 @@ class Activity: Codable, Equatable {
                     text = ""
                     print(error.localizedDescription)
                 } else {
-                    text = placemark?[0].name ?? "(error 2)"
+                    text = placemark?[0].name ?? "(error)"
                 }
                 
                 DispatchQueue.main.async {

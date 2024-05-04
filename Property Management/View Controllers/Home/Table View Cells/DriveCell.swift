@@ -42,7 +42,7 @@ class DriveCell: UITableViewCell {
         notesTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
-    func setup(with d: Drive, fields: (String, Double?, String)?) {
+    func setup(with d: Drive, fields: (String, Double?, String, UIImage?)?) {
         self.drive = d
         
         self.initialTimeLabel.text = d.initialDate.toHourMinuteTime()
@@ -163,7 +163,7 @@ class DriveCell: UITableViewCell {
     @objc func textFieldDidChange() {
         
 
-        parentVC.userEnteredValues[drive.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "")
+        parentVC.userEnteredValues[drive.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "", nil)
         
     }
 }
