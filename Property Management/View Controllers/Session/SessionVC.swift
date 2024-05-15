@@ -196,10 +196,12 @@ class SessionVC: UIViewController {
                     self.driveCaptionLabel.text = "drives"
                     self.workCaptionLabel.text = "visits"
                 }
+                NotificationCenter.default.removeObserver(self, name: .locationAuthorized, object: nil)
             }))
             self.present(alert, animated: true, completion: nil)
             
         } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(locationAuthorizationGranted), name: .locationAuthorized, object: nil)
             Stopwatch.shared.start()
         }
         
@@ -216,9 +218,12 @@ class SessionVC: UIViewController {
         if Stopwatch.shared.isOnBreak {
             let (startDate, endDate) = Stopwatch.shared.endBreak()
             GoogleSheetAssistant.shared.appendBreakToSpreadsheet(start: startDate, end: endDate)
+            NotificationCenter.default.addObserver(self, selector: #selector(locationAuthorizationGranted), name: .locationAuthorized, object: nil)
+            
         } else {
             if Stopwatch.shared.isRunning {
                 Stopwatch.shared.startBreak()
+                NotificationCenter.default.removeObserver(self, name: .locationAuthorized, object: nil)
             } else {
                 Alert.showDefaultAlert(title: "Unable to start a break", message: "Check in before you start a break!", self)
             }
@@ -243,7 +248,7 @@ class SessionVC: UIViewController {
     }
     
     func addLastDriveAtCurrentLocation() {
-        if LocationManager.shared.lastActivity?.automotive == false {
+        if LocationManager.shared.lastActivity == nil || LocationManager.shared.lastActivity?.automotive == false {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 if let location = LocationManager.shared.lastLocation {
                     LocationManager.geocode(coordinate: location.coordinate) { placemark, error in
@@ -255,6 +260,11 @@ class SessionVC: UIViewController {
             }
         }
 
+    }
+    
+    @objc func locationAuthorizationGranted() {
+        print("granted")
+        addLastDriveAtCurrentLocation()
     }
     /*
      // MARK: - Navigation

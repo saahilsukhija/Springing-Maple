@@ -55,6 +55,7 @@ class Stopwatch: Codable {
         if !isRunning {
             startDate = Date()
             isRunning = true
+            AppDelegate.saveVariables()
             NotificationCenter.default.post(name: .userClockedIn, object: nil)
         }
     }
@@ -65,7 +66,7 @@ class Stopwatch: Codable {
         breaks = []
         currentBreak = nil
         isOnBreak = false
-        
+        AppDelegate.saveVariables()
         NotificationCenter.default.post(name: .userClockedOut, object: nil)
         return (startDate, Date())
     }
@@ -77,7 +78,7 @@ class Stopwatch: Codable {
         
         currentBreak = Break()
         isOnBreak = true
-        
+        AppDelegate.saveVariables()
         NotificationCenter.default.post(name: .userClockedOut, object: nil)
     }
     
@@ -91,6 +92,7 @@ class Stopwatch: Codable {
         breaks.append(currentBreak!)
         let start = currentBreak!.startBreak
         currentBreak = nil
+        AppDelegate.saveVariables()
         NotificationCenter.default.post(name: .userClockedIn, object: nil)
         return (start!, Date())
     }

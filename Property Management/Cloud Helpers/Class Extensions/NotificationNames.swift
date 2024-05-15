@@ -67,6 +67,10 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
+    static var locationAuthorized: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
     
     
     

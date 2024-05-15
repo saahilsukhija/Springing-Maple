@@ -248,6 +248,31 @@ extension FirestoreDatabase {
             }
         }
     }
+    
+    func getRegisteredWorks() async throws -> [Work] {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        guard let team = user.team else {
+            throw FirestoreError("User is not in a team")
+        }
+        
+        do {
+            let workdoc = try await db.collection("teams").document(team.id).collection("sukhija@gmail.com").document("works").getDocument()
+            if let data = workdoc.data()?["registered"] as? [Data] {
+                var arr: [Work] = []
+                for w in data {
+                    arr.append(try JSONDecoder().decode(Work.self, from: w))
+                }
+                return arr
+            } else {
+                throw FirestoreError("Error decoding")
+            }
+        } catch {
+            throw FirestoreError("Error getting works")
+        }
+    }
 }
 
 

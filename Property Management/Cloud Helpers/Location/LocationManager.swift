@@ -435,6 +435,9 @@ extension LocationManager: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         self.check(status: status)
+        if status == .authorizedAlways || status == .authorizedWhenInUse {
+            NotificationCenter.default.post(name: .locationAuthorized, object: nil)
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

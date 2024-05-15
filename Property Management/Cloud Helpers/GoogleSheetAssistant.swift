@@ -82,16 +82,8 @@ class GoogleSheetAssistant {
                         "receiptLink" : "",
                         "notes" : drive.notes ?? "",
                         "duration": drive.finalDate.durationSince(drive.initialDate),
-                        "milesDriven": drive.milesDriven ?? -1.0]
-            functions.httpsCallable("append_drive_to_spreadsheet").call(dict) { result, error in
-                if let error = error {
-                    print("error: \(error)")
-                }
-                guard let val = result?.data as? String else {
-                    return
-                }
-                print(val)
-            }
+                        "milesDriven": "\(drive.milesDriven ?? -1)"]
+            SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
         }
         
     }
@@ -121,15 +113,7 @@ class GoogleSheetAssistant {
                         "duration": work.finalDate.durationSince(work.initialDate),
                         "milesDriven": ""]
             
-            functions.httpsCallable("append_drive_to_spreadsheet").call(dict) { result, error in
-                if let error = error {
-                    print("error: \(error)")
-                }
-                guard let val = result?.data as? String else {
-                    return
-                }
-                print(val)
-            }
+            SpreadsheetEntryQueue.shared.putEntry(type: .work, data: dict)
         }
         
     }
@@ -238,6 +222,80 @@ class GoogleSheetAssistant {
             }
             completion(val)
         }
+    }
+    
+}
+
+class SpreadsheetEntryQueue {
+    
+    private(set) var entries: [SpreadsheetEntry]!
+    var isRunning: Bool!
+    
+    //Singleton Instance
+    static let shared: SpreadsheetEntryQueue = {
+        let instance = SpreadsheetEntryQueue()
+        return instance
+    }()
+    
+    init() {
+        entries = []
+        isRunning = false
+    }
+    
+    func putEntry(_ entry: SpreadsheetEntry) {
+        entries.append(entry)
+        executeNext()
+    }
+    
+    func putEntry(type: SpreadsheetEntry.ActivityType = .drive, data: [String : String?]) {
+        entries.append(SpreadsheetEntry(type: type, data: data))
+        executeNext()
+    }
+    
+    func executeNext() {
+        guard entries.count > 0 else {
+            print("finished spreadsheet entries");
+            self.isRunning = false
+            return
+        }
+        guard let spreadsheetID = GoogleSheetAssistant.shared.spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            self.isRunning = false
+            return
+        }
+        guard !isRunning else { return }
+        let entry = entries[0]
+        self.isRunning = true
+        Task {
+            GoogleSheetAssistant.shared.functions.httpsCallable("append_drive_to_spreadsheet").call(entry.data) { result, error in
+                if let error = error {
+                    print("error: \(error)")
+                }
+                guard let val = result?.data as? String else {
+                    return
+                }
+                self.entries.removeFirst()
+                self.isRunning = false
+                self.executeNext()
+            }
+        }
+    }
+        
+}
+
+class SpreadsheetEntry {
+    
+    var type: ActivityType!
+    var data: [String : String?]!
+    
+    init(type: ActivityType!, data: [String : String?]!) {
+        self.type = type
+        self.data = data
+    }
+    
+    enum ActivityType: String {
+        case drive = "drive"
+        case work = "work"
     }
     
 }

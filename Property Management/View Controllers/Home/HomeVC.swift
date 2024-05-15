@@ -140,6 +140,10 @@ class HomeVC: UIViewController {
 ////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.055925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home", finPlace: "Home Depot"))
 ////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home"))
 ////                try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home Depot"))
+//                let works = try await FirestoreDatabase.shared.getRegisteredWorks()
+//                for work in works {
+//                    print("\(work.initialDate.toMonthYearDate()), \(work.initialDate.toHourMinuteTime()) - \(work.finalDate.toHourMinuteTime()) at \(work.initialPlace)")
+//                }
                 do {
                     GoogleSheetAssistant.shared.addUserSheet()
                     var drives: [Drive] = []
