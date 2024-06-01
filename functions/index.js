@@ -160,7 +160,6 @@ exports.create_new_sheet = onRequest(async (req, res) => {
   });
 
   addNewSheet(auth, apiKey, spreadsheetID, username);
-
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
   logger.info("auth: " + auth.email, {structuredData: true});
   // return {result: "Hello from " + spreadsheetID};
@@ -203,15 +202,15 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
     ],
   });
 
-  const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
-  const date2 = ((new Date(date + ", " + initialTime)).getTime() /
-    1000 / 86400) + 25569;
-  const date3 = ((new Date(date + ", " + finalTime)).getTime() /
-    1000 / 86400) + 25569;
-  const appendValue = [dateNumber, date2,
-    date3, "",
-    "Break", "",
-    "0.00", "", "", "", ""];
+  // const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
+  // const date2 = ((new Date(date + ", " + initialTime)).getTime() /
+  //   1000 / 86400) + 25569;
+  // const date3 = ((new Date(date + ", " + finalTime)).getTime() /
+  //   1000 / 86400) + 25569;
+  const appendValue = ["", "",
+    "", "",
+    "", "",
+    "", "", "", "", ""];
 
   const backgroundColor = {red: 246.0/255,
     green: 178.0/255, blue: 107.0/255, alpha: 1.0/3};
@@ -221,13 +220,11 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
   const values = appendValue.map((e, index) => (
     {
       userEnteredValue: {
-        numberValue: (index <= 2) ? e : undefined,
-        stringValue: (index === 4) ? e: undefined,
+        numberValue: undefined,
+        stringValue: undefined,
       },
       userEnteredFormat: {backgroundColor,
-        numberFormat: index <= 2 ?
-        {type: index === 0 ? "DATE" : "TIME",
-          pattern: index === 0 ? "mm/dd/yy" : "h:mm am/pm"} : undefined},
+        numberFormat: undefined},
     }));
   const sheetId = await getSheetID(auth, spreadsheetID, username);
 
@@ -251,6 +248,14 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
       },
   );
 
+  const range = "'" + username + "'!A1";
+  await sort(auth, apiKey, spreadsheetID, username);
+  appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
+      [date, initialTime,
+        finalTime, "",
+        "BREAK", "",
+        "0.00", "", "",
+        "", ""]);
   await sort(auth, apiKey, spreadsheetID, username);
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
   logger.info("auth: " + auth.email, {structuredData: true});
@@ -349,7 +354,8 @@ exports.create_spreadsheet = onRequest(async (req, res) => {
       "properties": {
         "title": title,
       },
-      "sheets": [{properties: {title: "Team Info"}}],
+      "sheets": [{properties: {title: "Team Info"}},
+        {properties: {title: "Property List"}}],
     },
   }, (err, result) => {
     if (err) {
@@ -404,6 +410,26 @@ exports.create_spreadsheet = onRequest(async (req, res) => {
       });
     }
   });
+});
+
+exports.get_property_list = onRequest(async (req, res) => {
+  console.log("Getting Property List");
+  const spreadsheetID = req.body.data.spreadsheetID;
+  const apiKey = req.body.data.apiKey;
+
+  const auth = await authorize();
+  const sheets = google.sheets({version: "v4", auth});
+
+  const range = "'Property List'!2A";
+  const result = await sheets.spreadsheets.values.get({
+    auth: auth,
+    spreadsheetId: spreadsheetID,
+    key: apiKey,
+    range: range,
+  });
+
+  console.log("VALUES: " + result.data.values);
+  res.send({result: result});
 });
 
 /**
@@ -582,6 +608,21 @@ function resetHeader(auth, apiKey, spreadsheetID, name) {
             },
           },
       );
+    }
+  });
+
+  sheets.spreadsheets.values.update({
+    spreadsheetId: spreadsheetID,
+    range: "'Property List'!A1",
+    auth: auth,
+    key: apiKey,
+    valueInputOption: "RAW",
+    resource: {values: [["Original Property Address", "Custom Name"]]},
+  }, (err, result) => {
+    if (err) {
+      throw err;
+    } else {
+      console.log("Updated sheet: " + result.data.updates.updatedRange);
     }
   });
 }

@@ -142,7 +142,7 @@ extension FirestoreDatabase {
             }
             else {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredWork)])])
-                print("exists")
+               // print("exists")
             }
             print("uploaded registered work: \(registeredWork)")
         } catch {
@@ -223,7 +223,7 @@ extension FirestoreDatabase {
         db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").addSnapshotListener { snapshot, error in
             
             if self.disableUpdates {
-                print("disabled!")
+                //print("disabled!")
                 return
             }
             
@@ -320,7 +320,7 @@ extension FirestoreDatabase {
             }
             else {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredDrive)])])
-                print("exists")
+               // print("exists")
             }
             print("uploaded registered drive: \(registeredDrive)")
         } catch {
@@ -401,7 +401,7 @@ extension FirestoreDatabase {
         db.collection("teams").document(team.id).collection(user.getUserEmail()).document("drives").addSnapshotListener { snapshot, error in
             
             if self.disableUpdates {
-                print("disabled!")
+                //print("disabled!")
                 return
             }
             

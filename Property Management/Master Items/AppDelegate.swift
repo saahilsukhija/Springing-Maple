@@ -92,10 +92,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let loc = LocationManager.shared.startDriveLocation {
                 UserDefaults.standard.set(loc.coordinate.latitude, forKey: "startDriveLocation_lat")
                 UserDefaults.standard.set(loc.coordinate.longitude, forKey: "startDriveLocation_lon")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "startDriveLocation_lat")
+                UserDefaults.standard.removeObject(forKey: "startDriveLocation_lon")
             }
             
             if let time = LocationManager.shared.startDriveTime {
                 try UserDefaults.standard.set(object: time, forKey: "startDriveTime")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "startDriveTime")
             }
         } catch {
             print("error while storing stopwatch / recentLocationQueue in UserDefaults")

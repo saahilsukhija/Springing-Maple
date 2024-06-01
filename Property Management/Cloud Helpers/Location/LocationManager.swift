@@ -41,7 +41,7 @@ final class LocationManager: NSObject {
     var startDriveLocation: CLLocation?
     var startDriveTime: Date?
     
-    private var isWaitingForDriveConfirmation = false
+    var isWaitingForDriveConfirmation = false
     private var hasDrivenInLast5Minutes = false
     private var willCancelSoon = false
     
@@ -399,10 +399,14 @@ final class LocationManager: NSObject {
         locationManager?.stopUpdatingLocation()
         locationManager?.stopMonitoringVisits()
         activityManager?.stopActivityUpdates()
+        
         locationManager = nil
         activityManager = nil
+        
         isDriving = false
         isWaitingForDriveConfirmation = false
+        
+        
     }
     
     func startTracking() {
@@ -578,7 +582,7 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
     
-    private func uploadWork(_ work: Work) {
+    func uploadWork(_ work: Work) {
         Task {
             do {
                 try await FirestoreDatabase.shared.uploadPrivateWork(work)
@@ -604,6 +608,27 @@ extension LocationManager: CLLocationManagerDelegate {
             
             removeLastDrive()
             print("new work detected!")
+        }
+    }
+    
+    func endPendingDrive() {
+        if let time = startDriveTime, let location = startDriveLocation {
+            let drive = Drive(initialCoordinates: location.coordinate, finalCoordinates: location.coordinate, initialDate: time, finalDate: Date())
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                self.uploadDrive(drive)
+                NotificationManager.shared.sendDriveLoggedNotification(drive: drive)
+            }
+            
+            startDriveTime = nil
+            startDriveLocation = nil
+            self.isWaitingForDriveConfirmation = false
+            
+            //has not driven in last 5 minutes
+            self.currentMileage = 0.0
+            self.isDriving = false
+            self.removeLastDrive()
+            print("new drive detected!")
         }
     }
     

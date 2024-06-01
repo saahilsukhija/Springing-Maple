@@ -64,6 +64,8 @@ class HomeVC: UIViewController {
             }
         }
         
+        GoogleSheetAssistant.shared.getPropertyList()
+        
 
         
         
@@ -545,10 +547,13 @@ class HomeVC: UIViewController {
 extension HomeVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1) == 0 {
+        if activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1) + (LocationManager.shared.startDriveLocation == nil ? 0 : 1) == 0  {
             return 1
         }
-        return activities.count + (LocationManager.shared.lastDriveCreated == nil ? 0 : 1)
+        if LocationManager.shared.lastDriveCreated != nil {
+            return activities.count + 1
+        }
+        return activities.count + (LocationManager.shared.startDriveLocation == nil ? 0 : 1)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -582,19 +587,39 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
             }
         }
         else {
-            print("pending work!!!")
-            //pending work
-            let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifier) as! WorkCell
-            let drive = LocationManager.shared.lastDriveCreated!
-            let work = Work(initialCoordinates: drive.initialCoordinate, finalCoordinates: drive.finalCoordinate, initialDate: drive.finalDate, finalDate: Date.ongoingDate, initPlace: drive.finalPlace, finPlace: drive.finalPlace)
-            cell.setup(with: work, fields: userEnteredValues[work.initialDate])
-            cell.parentVC = self
-            
-            //Separator Full Line
-            cell.preservesSuperviewLayoutMargins = false
-            cell.separatorInset = .zero
-            cell.layoutMargins = .zero
-            return cell
+            if LocationManager.shared.lastDriveCreated != nil {
+                print("pending work!!!")
+                //pending work
+                let cell = tableView.dequeueReusableCell(withIdentifier: WorkCell.identifier) as! WorkCell
+                let drive = LocationManager.shared.lastDriveCreated!
+                let work = Work(initialCoordinates: drive.initialCoordinate, finalCoordinates: drive.finalCoordinate, initialDate: drive.finalDate, finalDate: Date.ongoingDate, initPlace: drive.finalPlace, finPlace: drive.finalPlace)
+                cell.setup(with: work, fields: userEnteredValues[work.initialDate])
+                cell.parentVC = self
+                
+                //Separator Full Line
+                cell.preservesSuperviewLayoutMargins = false
+                cell.separatorInset = .zero
+                cell.layoutMargins = .zero
+                return cell
+            } else {
+                print("pending drive!!!")
+                guard let location = LocationManager.shared.startDriveLocation?.coordinate, let date = LocationManager.shared.startDriveTime else {
+                    print("error something is null")
+                    return tableView.dequeueReusableCell(withIdentifier: DriveCell.identifier) as! DriveCell
+                }
+                
+                //pending work
+                let cell = tableView.dequeueReusableCell(withIdentifier: DriveCell.identifier) as! DriveCell
+                let drive = Drive(initialCoordinates: location, finalCoordinates: .init(latitude: 0, longitude: 0), initialDate: date, finalDate: .ongoingDate, initPlace: nil, finPlace: nil)
+                cell.setup(with: drive, fields: userEnteredValues[drive.initialDate])
+                cell.parentVC = self
+                
+                //Separator Full Line
+                cell.preservesSuperviewLayoutMargins = false
+                cell.separatorInset = .zero
+                cell.layoutMargins = .zero
+                return cell
+            }
         }
         
         

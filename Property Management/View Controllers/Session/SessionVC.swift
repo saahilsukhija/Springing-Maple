@@ -7,6 +7,7 @@
 
 import UIKit
 import GoogleSignIn
+import CoreLocation
 
 class SessionVC: UIViewController {
     
@@ -238,6 +239,13 @@ class SessionVC: UIViewController {
     }
     
     @objc func userClockedOut() {
+        //upload current work
+        if !LocationManager.shared.isDriving && !LocationManager.shared.isWaitingForDriveConfirmation {
+            LocationManager.shared.endPendingWork()
+        }
+        else {
+            LocationManager.shared.endPendingDrive()
+        }
         LocationManager.shared.stopTracking()
     }
     

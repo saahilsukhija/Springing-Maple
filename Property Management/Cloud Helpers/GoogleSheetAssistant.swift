@@ -26,40 +26,6 @@ class GoogleSheetAssistant {
 
     }
     
-    func appendToSpreadsheet(_ values: [String : Any]) {
-        guard let spreadsheetID = spreadsheetID else {
-            print("NO SPREADSHEET ID")
-            return
-        }
-        var dict: Dictionary<String, Any> = ["spreadsheetID": spreadsheetID, "apiKey": Constants.API_KEYS.google_sheet_api]
-        dict += values
-        functions.httpsCallable("append_to_spreadsheet").call(dict) { result, error in
-            if let error = error {
-                print("error: \(error)")
-            }
-            guard let val = result?.data as? String else {
-                return
-            }
-            print(val)
-        }
-    }
-    
-    func appendToSpreadsheet(_ val: String) {
-        guard let spreadsheetID = spreadsheetID else {
-            print("NO SPREADSHEET ID")
-            return
-        }
-        functions.httpsCallable("append_to_spreadsheet").call(["spreadsheetID": spreadsheetID, "apiKey": Constants.API_KEYS.google_sheet_api, "value": val == "" ? "(none)" : val]) { result, error in
-            if let error = error {
-                print("error: \(error)")
-            }
-            guard let val = result?.data as? String else {
-                return
-            }
-            print(val)
-        }
-    }
-    
     func appendRegisteredDriveToSpreadsheet(_ drive: RegisteredDrive) {
 
         guard let spreadsheetID = spreadsheetID else {
@@ -83,7 +49,9 @@ class GoogleSheetAssistant {
                         "notes" : drive.notes ?? "",
                         "duration": drive.finalDate.durationSince(drive.initialDate),
                         "milesDriven": "\(drive.milesDriven ?? -1)"]
-            SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
+            DispatchQueue.main.async {
+                SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
+            }
         }
         
     }
@@ -113,7 +81,9 @@ class GoogleSheetAssistant {
                         "duration": work.finalDate.durationSince(work.initialDate),
                         "milesDriven": ""]
             
-            SpreadsheetEntryQueue.shared.putEntry(type: .work, data: dict)
+            DispatchQueue.main.async {
+                SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
+            }
         }
         
     }
@@ -129,27 +99,7 @@ class GoogleSheetAssistant {
                     "username" : User.shared.getUserName(),
                     "apiKey" : Constants.API_KEYS.google_sheet_api,
                     ]
-        functions.httpsCallable("create_new_sheet").call(dict) { result, error in
-            if let error = error {
-                print("error: \(error)")
-            }
-            guard let val = result?.data as? String else {
-                return
-            }
-            print(val)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.functions.httpsCallable("reset_header").call(dict) { result, error in
-                    if let error = error {
-                        print("error: \(error)")
-                    }
-                    guard let val = result?.data as? String else {
-                        return
-                    }
-                    print(val)
-                }
-            }
-        }
+        SpreadsheetEntryQueue.shared.putEntry(type: .createnewsheet, data: dict)
     }
     
     func appendBreakToSpreadsheet(start: Date, end: Date) {
@@ -166,15 +116,7 @@ class GoogleSheetAssistant {
                     "initialTime" : start.toHourMinuteTime(),
                     "finalTime" : end.toHourMinuteTime()
                     ]
-        functions.httpsCallable("append_break_to_spreadsheet").call(dict) { result, error in
-            if let error = error {
-                print("error: \(error)")
-            }
-            guard let val = result?.data as? String else {
-                return
-            }
-            print(val)
-        }
+        SpreadsheetEntryQueue.shared.putEntry(type: .breaksession, data: dict)
     }
     
     func appendSummaryToSpreadsheet(date: Date) {
@@ -192,11 +134,27 @@ class GoogleSheetAssistant {
                         "date" : date.toMonthYearDate(),
                         "activities" : "\(count)"
             ]
-            functions.httpsCallable("append_dailysummary_to_spreadsheet").call(dict) { result, error in
+            SpreadsheetEntryQueue.shared.putEntry(type: .dailysummary, data: dict)
+        }
+    }
+    
+    func getPropertyList() {
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
+        Task {
+            let dict = ["spreadsheetID" : spreadsheetID,
+                        "username" : User.shared.getUserName(),
+                        "apiKey" : Constants.API_KEYS.google_sheet_api,
+            ]
+            functions.httpsCallable("get_property_list").call(dict) { result, error in
                 if let error = error {
                     print("error: \(error)")
                 }
                 guard let val = result?.data as? String else {
+                    print(result?.data)
                     return
                 }
                 print(val)
@@ -204,24 +162,10 @@ class GoogleSheetAssistant {
         }
     }
     
-    func appendToSpreadsheet(_ val: Int) {
-        appendToSpreadsheet(String(val))
-    }
-    
-    
     func createNewSpreadsheet(from team: Team, spreadsheetName: String, completion: @escaping((String) -> Void)) {
 
         let dict = ["teamID": team.id, "spreadsheetName": spreadsheetName, "teamName" : team.name, "email" : User.shared.getUserEmail(), "apiKey" : Constants.API_KEYS.google_sheet_api]
-        functions.httpsCallable("create_spreadsheet").call(dict) { result, error in
-            if let error = error {
-                print("error: \(error)")
-            }
-            guard let val = result?.data as? String else {
-                completion("")
-                return
-            }
-            completion(val)
-        }
+        SpreadsheetEntryQueue.shared.putEntry(type: .createspreadsheet, data: dict)
     }
     
 }
@@ -243,13 +187,17 @@ class SpreadsheetEntryQueue {
     }
     
     func putEntry(_ entry: SpreadsheetEntry) {
-        entries.append(entry)
-        executeNext()
+        DispatchQueue.main.async { [self] in
+            entries.append(entry)
+            executeNext()
+        }
     }
     
     func putEntry(type: SpreadsheetEntry.ActivityType = .drive, data: [String : String?]) {
-        entries.append(SpreadsheetEntry(type: type, data: data))
-        executeNext()
+        DispatchQueue.main.async { [self] in
+            entries.append(SpreadsheetEntry(type: type, data: data))
+            executeNext()
+        }
     }
     
     func executeNext() {
@@ -266,20 +214,51 @@ class SpreadsheetEntryQueue {
         guard !isRunning else { return }
         let entry = entries[0]
         self.isRunning = true
-        Task {
-            GoogleSheetAssistant.shared.functions.httpsCallable("append_drive_to_spreadsheet").call(entry.data) { result, error in
-                if let error = error {
-                    print("error: \(error)")
+        
+        if entry.type == .createnewsheet {
+            Task {
+                GoogleSheetAssistant.shared.functions.httpsCallable("create_new_sheet").call(entry.data) { result, error in
+                    if let error = error {
+                        print("error: \(error)")
+                    }
+                    guard let val = result?.data as? String else {
+                        return
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        GoogleSheetAssistant.shared.functions.httpsCallable("reset_header").call(entry.data) { result, error in
+                            if let error = error {
+                                print("error: \(error)")
+                            }
+                            guard let val = result?.data as? String else {
+                                return
+                            }
+                            self.entries.removeFirst()
+                            self.isRunning = false
+                            self.executeNext()
+                        }
+                    }
                 }
-                guard let val = result?.data as? String else {
-                    return
+            }
+        }
+        else {
+            Task {
+                GoogleSheetAssistant.shared.functions.httpsCallable(entry.type.rawValue).call(entry.data) { result, error in
+                    if let error = error {
+                        print("error: \(error)")
+                    }
+                    guard let val = result?.data as? String else {
+                        return
+                    }
+                    self.entries.removeFirst()
+                    self.isRunning = false
+                    self.executeNext()
                 }
-                self.entries.removeFirst()
-                self.isRunning = false
-                self.executeNext()
             }
         }
     }
+    
+    
         
 }
 
@@ -294,8 +273,11 @@ class SpreadsheetEntry {
     }
     
     enum ActivityType: String {
-        case drive = "drive"
-        case work = "work"
+        case drive = "append_drive_to_spreadsheet"
+        case dailysummary = "append_dailysummary_to_spreadsheet"
+        case breaksession = "append_break_to_spreadsheet"
+        case createspreadsheet = "create_spreadsheet"
+        case createnewsheet = "create_new_sheet"
     }
     
 }

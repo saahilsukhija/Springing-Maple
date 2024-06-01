@@ -68,7 +68,18 @@ class DriveCell: UITableViewCell {
         }
         
         if d.initialPlace == nil {
-            //TODO: ADD TO REVERSE GEOLOCATION QUEUE
+            LocationManager.geocode(coordinate: drive.initialCoordinate) { placemark, error in
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    self.drive.setInitPlace(placemark?[0].name ?? "(error)")
+                }
+                
+                DispatchQueue.main.async {
+                    self.initialPlaceLabel.text = self.drive.initialPlace
+                    self.initialPlaceLabel.textColor = .black
+                }
+            }
         }
         else {
             self.initialPlaceLabel.text = d.initialPlace?.removeNumbers()
@@ -101,6 +112,14 @@ class DriveCell: UITableViewCell {
            self.notesTextField.text = ""
        }
         
+        if drive.finalDate == .ongoingDate {
+            self.milesDrivenLabel.text = "Pending drive"
+            self.finalPlaceLabel.text = "Pending"
+            self.finalPlaceLabel.textColor = .systemGray
+            self.finalTimeLabel.text = ""
+            self.dateLabel.text = "\(d.initialDate.get(.month))/\(d.initialDate.get(.day))"
+        }
+        
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -110,6 +129,10 @@ class DriveCell: UITableViewCell {
     }
     
     @IBAction func checkMarkClicked(_ sender: Any) {
+        if drive.finalDate == .ongoingDate {
+            Alert.showDefaultAlert(title: "Unable to submit pending drive", message: "You are unable to submit a pending drive. Please wait until the drive is logged before submitting it", parentVC)
+            return
+        }
         
         let ticketNumber = ticketNumberTextField.text ?? ""
         let notes = notesTextField.text ?? ""
@@ -121,6 +144,10 @@ class DriveCell: UITableViewCell {
     }
     
     @IBAction func trashButtonClicked(_ sender: Any) {
+        if drive.finalDate == .ongoingDate {
+            Alert.showDefaultAlert(title: "Unable to delete pending drive", message: "You are unable to delete a pending drive. Please wait until the drive is logged before deleting it", parentVC)
+            return
+        }
         NotificationCenter.default.post(name: .driveMarkedAsDeleted, object: nil, userInfo: ["drive" : self.drive!])
     }
     
