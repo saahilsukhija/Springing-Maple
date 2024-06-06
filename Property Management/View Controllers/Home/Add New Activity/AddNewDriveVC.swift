@@ -118,7 +118,7 @@ class AddNewDriveVC: UIViewController {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             Task {
                                 try await FirestoreDatabase.shared.uploadRegisteredDrive(drive)
-                                GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(drive)
+                                GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(drive, deletePreviousEntry: false)
                                 DispatchQueue.main.async {
                                     self.showSuccessToast(message: "Created drive!")
                                     loadingScreen.removeFromSuperview()

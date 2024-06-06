@@ -27,6 +27,7 @@
 		6D6979772B85C66300E93E28 /* FirebaseStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6979762B85C66300E93E28 /* FirebaseStorage.swift */; };
 		6D6B26862B4FE43500809D6D /* RecentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26852B4FE43500809D6D /* RecentLocation.swift */; };
 		6D6B26882B4FE47100809D6D /* RecentLocationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */; };
+		6D78CD2B2C0D6B4400732BD8 /* SavedLocations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D78CD2A2C0D6B4400732BD8 /* SavedLocations.swift */; };
 		6D8191C62AF1DD3F0001E211 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8191C52AF1DD3F0001E211 /* HideKeyboard.swift */; };
 		6D8191C92AF1EFF50001E211 /* GoogleSheetAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8191C82AF1EFF50001E211 /* GoogleSheetAssistant.swift */; };
 		6D8191CE2AFB34940001E211 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8191CD2AFB34940001E211 /* Constants.swift */; };
@@ -150,6 +151,7 @@
 		6D6979762B85C66300E93E28 /* FirebaseStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorage.swift; sourceTree = "<group>"; };
 		6D6B26852B4FE43500809D6D /* RecentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocation.swift; sourceTree = "<group>"; };
 		6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocationQueue.swift; sourceTree = "<group>"; };
+		6D78CD2A2C0D6B4400732BD8 /* SavedLocations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedLocations.swift; sourceTree = "<group>"; };
 		6D8191C52AF1DD3F0001E211 /* HideKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		6D8191C82AF1EFF50001E211 /* GoogleSheetAssistant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetAssistant.swift; sourceTree = "<group>"; };
 		6D8191CD2AFB34940001E211 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -464,6 +466,7 @@
 				6DDBF2112B081D430013A77B /* LocationManager.swift */,
 				6D6B26852B4FE43500809D6D /* RecentLocation.swift */,
 				6D6B26872B4FE47100809D6D /* RecentLocationQueue.swift */,
+				6D78CD2A2C0D6B4400732BD8 /* SavedLocations.swift */,
 			);
 			path = Location;
 			sourceTree = "<group>";
@@ -863,6 +866,7 @@
 				6DB502502B48FF27007FE430 /* MapView.swift in Sources */,
 				6D626C752BB7B92500031DE1 /* UserSettings.swift in Sources */,
 				6DBAF51D2B40D002004D23EE /* Visit.swift in Sources */,
+				6D78CD2B2C0D6B4400732BD8 /* SavedLocations.swift in Sources */,
 				6D626C712BB663C300031DE1 /* SettingCell.swift in Sources */,
 				6D05E4A12B5324AB001DF6D2 /* SessionVC.swift in Sources */,
 				6DBAF5222B40DE19004D23EE /* UserDefaults.swift in Sources */,
@@ -1117,7 +1121,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.06;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.saahilsukhija.Property-Management";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1162,7 +1166,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.04;
+				MARKETING_VERSION = 1.06;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.saahilsukhija.Property-Management";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

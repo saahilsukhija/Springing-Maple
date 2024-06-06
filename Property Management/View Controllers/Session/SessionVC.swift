@@ -58,6 +58,8 @@ class SessionVC: UIViewController {
             view.layer.borderColor = UIColor.systemGray5.cgColor
             view.dropShadow()
         }
+        
+
     }
     
     deinit {
@@ -66,6 +68,8 @@ class SessionVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        GoogleSheetAssistant.shared.getPropertyList()
         
         openingSettings = false
         
@@ -271,7 +275,7 @@ class SessionVC: UIViewController {
     }
     
     @objc func locationAuthorizationGranted() {
-        print("granted")
+        //print("granted")
         addLastDriveAtCurrentLocation()
     }
     /*

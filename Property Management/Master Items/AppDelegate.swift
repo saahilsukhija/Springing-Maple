@@ -74,10 +74,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     static func saveVariables() {
-        print("saving variables...")
+        //print("saving variables...")
         do {
             try UserDefaults.standard.set(object: Stopwatch.shared, forKey: "stopwatch")
             try UserDefaults.standard.set(object: RecentLocationQueue.shared, forKey: "recentLocationQueue")
+            try UserDefaults.standard.set(object: SavedLocations.shared, forKey: "savedLocations")
+            
             if let lastDrive = LocationManager.shared.lastDriveCreated {
                 try UserDefaults.standard.set(object: lastDrive, forKey: "lastDriveCreated")
             }

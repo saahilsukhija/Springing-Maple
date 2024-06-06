@@ -7,6 +7,7 @@
 
 import UIKit
 import GoogleSignIn
+import FirebaseAuth
 
 class LoginVC: UIViewController {
 
@@ -41,23 +42,27 @@ class LoginVC: UIViewController {
             }
             print("ID: " + idToken)
             // let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            self.showSignInToast()
-            
-            Task {
-                do {
-                    let team = try await FirestoreDatabase.shared.getUserTeam()
-                    DispatchQueue.main.async {
-                        if team == nil {
-                        
-                            let vc = self.storyboard!.instantiateViewController(withIdentifier: NewTeamVC.identifierWithoutNavController)
-                            vc.modalPresentationStyle = .fullScreen
-                            self.navigationController?.pushViewController(vc, animated: true)
-                            return
-                        }
-                        else {
-                            User.shared.team = team
-                            self.dismiss(animated: true, completion: nil)
-                            self.navigationController?.popViewController(animated: true)
+            let credential = GoogleAuthProvider.credential(withIDToken: result?.user.idToken?.tokenString ?? "",
+                                                           accessToken: result?.user.accessToken.tokenString ?? "")
+            Auth.auth().signIn(with: credential) { [self] result, error in
+                self.showSignInToast()
+                
+                Task {
+                    do {
+                        let team = try await FirestoreDatabase.shared.getUserTeam()
+                        DispatchQueue.main.async {
+                            if team == nil {
+                                
+                                let vc = self.storyboard!.instantiateViewController(withIdentifier: NewTeamVC.identifierWithoutNavController)
+                                vc.modalPresentationStyle = .fullScreen
+                                self.navigationController?.pushViewController(vc, animated: true)
+                                return
+                            }
+                            else {
+                                User.shared.team = team
+                                self.dismiss(animated: true, completion: nil)
+                                self.navigationController?.popViewController(animated: true)
+                            }
                         }
                     }
                 }

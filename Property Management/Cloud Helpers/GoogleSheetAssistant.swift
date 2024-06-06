@@ -23,46 +23,46 @@ class GoogleSheetAssistant {
     }
     
     func loadSpreadsheet() {
-
+        
     }
     
-    func appendRegisteredDriveToSpreadsheet(_ drive: RegisteredDrive) {
-
+    func appendRegisteredDriveToSpreadsheet(_ drive: RegisteredDrive, deletePreviousEntry: Bool) {
+        
         guard let spreadsheetID = spreadsheetID else {
             print("NO SPREADSHEET ID")
             return
         }
         
-        Task {
-            let dict = ["spreadsheetID" : spreadsheetID,
-                        "username" : User.shared.getUserName(),
-                        "apiKey" : Constants.API_KEYS.google_sheet_api,
-                        "date" : drive.initialDate.toMonthYearDate(),
-                        "initialLocation" : drive.initialPlace ?? "(none)",
-                        "finalLocation" : drive.finalPlace ?? "none",
-                        "initialTime" : drive.initialDate.toHourMinuteTime(),
-                        "finalTime" : drive.finalDate.toHourMinuteTime(),
-                        "money" : "0.00",
-                        "type" : "Drive",
-                        "ticketNumber" : drive.ticketNumber ?? "",
-                        "receiptLink" : "",
-                        "notes" : drive.notes ?? "",
-                        "duration": drive.finalDate.durationSince(drive.initialDate),
-                        "milesDriven": "\(drive.milesDriven ?? -1)"]
-            DispatchQueue.main.async {
-                SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
+        let dict = ["spreadsheetID" : spreadsheetID,
+                    "username" : User.shared.getUserName(),
+                    "apiKey" : Constants.API_KEYS.google_sheet_api,
+                    "date" : drive.initialDate.toMonthYearDate(),
+                    "initialLocation" : drive.initialPlace ?? "(none)",
+                    "finalLocation" : drive.finalPlace ?? "none",
+                    "initialTime" : drive.initialDate.toHourMinuteTime(),
+                    "finalTime" : drive.finalDate.toHourMinuteTime(),
+                    "money" : "0.00",
+                    "type" : "Drive",
+                    "ticketNumber" : drive.ticketNumber ?? "",
+                    "receiptLink" : "",
+                    "notes" : drive.notes ?? "",
+                    "duration": drive.finalDate.durationSince(drive.initialDate),
+                    "milesDriven": "\(drive.milesDriven ?? -1)"]
+        DispatchQueue.main.async {
+            if deletePreviousEntry {
+                SpreadsheetEntryQueue.shared.putEntry(type: .deleteitem, data: dict)
             }
+            SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
         }
         
     }
     
-    func appendRegisteredWorkToSpreadsheet(_ work: RegisteredWork) {
-
+    func appendRegisteredWorkToSpreadsheet(_ work: RegisteredWork, deletePreviousEntry: Bool) {
+        
         guard let spreadsheetID = spreadsheetID else {
             print("NO SPREADSHEET ID")
             return
         }
-        
         Task {
             let link = try? await work.getReceiptURL()
             let dict = ["spreadsheetID" : spreadsheetID,
@@ -82,12 +82,87 @@ class GoogleSheetAssistant {
                         "milesDriven": ""]
             
             DispatchQueue.main.async {
+                if deletePreviousEntry {
+                    SpreadsheetEntryQueue.shared.putEntry(type: .deleteitem, data: dict)
+                }
                 SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
             }
         }
         
     }
     
+    func appendUnregisteredDriveToSpreadsheet(_ drive: Drive) {
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
+        let dict = ["spreadsheetID" : spreadsheetID,
+                    "username" : User.shared.getUserName(),
+                    "apiKey" : Constants.API_KEYS.google_sheet_api,
+                    "date" : drive.initialDate.toMonthYearDate(),
+                    "initialLocation" : drive.initialPlace ?? "(none)",
+                    "finalLocation" : drive.finalPlace ?? "(none)",
+                    "initialTime" : drive.initialDate.toHourMinuteTime(),
+                    "finalTime" : drive.finalDate.toHourMinuteTime(),
+                    "money" : "",
+                    "type" : "Drive",
+                    "ticketNumber" : "",
+                    "receiptLink" : "",
+                    "notes" : "",
+                    "duration": drive.finalDate.durationSince(drive.initialDate),
+                    "milesDriven": ""]
+        
+        DispatchQueue.main.async {
+            SpreadsheetEntryQueue.shared.putEntry(type: .unregistereddrive, data: dict)
+        }
+    }
+    
+    func appendUnregisteredWorkToSpreadsheet(_ work: Work) {
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
+        let dict = ["spreadsheetID" : spreadsheetID,
+                    "username" : User.shared.getUserName(),
+                    "apiKey" : Constants.API_KEYS.google_sheet_api,
+                    "date" : work.initialDate.toMonthYearDate(),
+                    "initialLocation" : work.initialPlace ?? "(none)",
+                    "finalLocation" : work.finalPlace ?? "(none)",
+                    "initialTime" : work.initialDate.toHourMinuteTime(),
+                    "finalTime" : work.finalDate.toHourMinuteTime(),
+                    "money" : "",
+                    "type" : "Work",
+                    "ticketNumber" : "",
+                    "receiptLink" : "",
+                    "notes" : "",
+                    "duration": work.finalDate.durationSince(work.initialDate),
+                    "milesDriven": ""]
+        
+        DispatchQueue.main.async {
+            SpreadsheetEntryQueue.shared.putEntry(type: .unregistereddrive, data: dict)
+        }
+    }
+    
+    func deleteItemFromSpreadsheet(_ activity: Activity) {
+        let dict = ["spreadsheetID" : spreadsheetID,
+                    "username" : User.shared.getUserName(),
+                    "apiKey" : Constants.API_KEYS.google_sheet_api,
+                    "date" : activity.initialDate.toMonthYearDate(),
+                    "initialTime" : activity.initialDate.toHourMinuteTime(),
+                    "finalTime" : activity.finalDate.toHourMinuteTime(),
+                    "money" : "",
+                    "type" : "",
+                    "ticketNumber" : "",
+                    "receiptLink" : "",
+                    "notes" : "",
+                    "milesDriven": ""]
+        
+        DispatchQueue.main.async {
+            SpreadsheetEntryQueue.shared.putEntry(type: .deleteitem, data: dict)
+        }
+    }
     func addUserSheet() {
         
         guard let spreadsheetID = spreadsheetID else {
@@ -98,7 +173,7 @@ class GoogleSheetAssistant {
         let dict = ["spreadsheetID" : spreadsheetID,
                     "username" : User.shared.getUserName(),
                     "apiKey" : Constants.API_KEYS.google_sheet_api,
-                    ]
+        ]
         SpreadsheetEntryQueue.shared.putEntry(type: .createnewsheet, data: dict)
     }
     
@@ -115,7 +190,7 @@ class GoogleSheetAssistant {
                     "date" : start.toMonthYearDate(),
                     "initialTime" : start.toHourMinuteTime(),
                     "finalTime" : end.toHourMinuteTime()
-                    ]
+        ]
         SpreadsheetEntryQueue.shared.putEntry(type: .breaksession, data: dict)
     }
     
@@ -125,7 +200,6 @@ class GoogleSheetAssistant {
             print("NO SPREADSHEET ID")
             return
         }
-        
         Task {
             let count = try await FirestoreDatabase.shared.getDailyCounter(.general)
             let dict = ["spreadsheetID" : spreadsheetID,
@@ -134,7 +208,9 @@ class GoogleSheetAssistant {
                         "date" : date.toMonthYearDate(),
                         "activities" : "\(count)"
             ]
-            SpreadsheetEntryQueue.shared.putEntry(type: .dailysummary, data: dict)
+            DispatchQueue.main.async {
+                SpreadsheetEntryQueue.shared.putEntry(type: .dailysummary, data: dict)
+            }
         }
     }
     
@@ -149,21 +225,28 @@ class GoogleSheetAssistant {
                         "username" : User.shared.getUserName(),
                         "apiKey" : Constants.API_KEYS.google_sheet_api,
             ]
+            print("executing...")
             functions.httpsCallable("get_property_list").call(dict) { result, error in
                 if let error = error {
                     print("error: \(error)")
                 }
-                guard let val = result?.data as? String else {
-                    print(result?.data)
-                    return
+                if let data = (result?.data as? [String : Any]) {
+                    if let values = (data["data"] as? [String : Any])?["values"] as? [[String]] {
+                        SavedLocations.shared.removeDeletedLocations(pairs: values)
+                        for pair in values {
+                            let actual = pair[0]
+                            let assigned = pair[1]
+                            
+                            SavedLocations.shared.addLocation(actualName: actual, assignedName: assigned)
+                        }
+                    }
                 }
-                print(val)
             }
         }
     }
     
     func createNewSpreadsheet(from team: Team, spreadsheetName: String, completion: @escaping((String) -> Void)) {
-
+        
         let dict = ["teamID": team.id, "spreadsheetName": spreadsheetName, "teamName" : team.name, "email" : User.shared.getUserEmail(), "apiKey" : Constants.API_KEYS.google_sheet_api]
         SpreadsheetEntryQueue.shared.putEntry(type: .createspreadsheet, data: dict)
     }
@@ -215,51 +298,26 @@ class SpreadsheetEntryQueue {
         let entry = entries[0]
         self.isRunning = true
         
-        if entry.type == .createnewsheet {
-            Task {
-                GoogleSheetAssistant.shared.functions.httpsCallable("create_new_sheet").call(entry.data) { result, error in
-                    if let error = error {
-                        print("error: \(error)")
-                    }
-                    guard let val = result?.data as? String else {
-                        return
-                    }
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        GoogleSheetAssistant.shared.functions.httpsCallable("reset_header").call(entry.data) { result, error in
-                            if let error = error {
-                                print("error: \(error)")
-                            }
-                            guard let val = result?.data as? String else {
-                                return
-                            }
-                            self.entries.removeFirst()
-                            self.isRunning = false
-                            self.executeNext()
-                        }
-                    }
+        Task {
+            GoogleSheetAssistant.shared.functions.httpsCallable(entry.type.rawValue).call(entry.data) { result, error in
+                if let error = error {
+                    print("Error doing \(entry.type.rawValue): \(error.localizedDescription)")
                 }
-            }
-        }
-        else {
-            Task {
-                GoogleSheetAssistant.shared.functions.httpsCallable(entry.type.rawValue).call(entry.data) { result, error in
-                    if let error = error {
-                        print("error: \(error)")
-                    }
-                    guard let val = result?.data as? String else {
-                        return
-                    }
-                    self.entries.removeFirst()
-                    self.isRunning = false
-                    self.executeNext()
+                print("Finished executing SpreadsheetRequest: \(entry.type.rawValue)")
+                
+                self.entries.removeFirst()
+                self.isRunning = false
+                
+                if entry.type == .createnewsheet {
+                    self.entries.insert(SpreadsheetEntry(type: .resetheader, data: entry.data), at: 0)
                 }
+                self.executeNext()
             }
         }
     }
     
     
-        
+    
 }
 
 class SpreadsheetEntry {
@@ -278,6 +336,10 @@ class SpreadsheetEntry {
         case breaksession = "append_break_to_spreadsheet"
         case createspreadsheet = "create_spreadsheet"
         case createnewsheet = "create_new_sheet"
+        case getpropertylist = "get_property_list"
+        case resetheader = "reset_header"
+        case unregistereddrive = "append_unreg_drive_to_spreadsheet"
+        case deleteitem = "delete_item_from_spreadsheet"
     }
     
 }

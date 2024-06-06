@@ -112,13 +112,13 @@ class AddNewWorkVC: UIViewController {
                                 
                                 Task {
                                     try await FirestoreDatabase.shared.uploadRegisteredWork(work)
-                                    GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work)
+                                    GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work, deletePreviousEntry: false)
                                 }
                             }
                         } else {
                             Task {
                                 try await FirestoreDatabase.shared.uploadRegisteredWork(work)
-                                GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work)
+                                GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work, deletePreviousEntry: false)
                             }
                         }
                         

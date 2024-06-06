@@ -9,6 +9,8 @@
 import UIKit
 import MapKit
 import CoreMotion
+import Contacts
+import Intents
 
 final class LocationManager: NSObject {
     
@@ -194,9 +196,28 @@ final class LocationManager: NSObject {
     }
     
     static func geocode(latitude: Double, longitude: Double, completion: @escaping (_ placemark: [CLPlacemark]?, _ error: Error?) -> Void)  {
-        CLGeocoder().reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitude), completionHandler: completion)
+        let loc = CLLocation(latitude: latitude, longitude: longitude)
+        if let name = SavedLocations.shared.assignedName(for: loc), name != "" {
+            let pl = CLPlacemark(location: loc, name: name, postalAddress: nil)
+            completion([pl], nil)
+        } else {
+            CLGeocoder().reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitude), completionHandler: completion)
+        }
     }
     
+    static func reverseGeocode(address: String, completion: @escaping (_ placemark: [CLPlacemark]?, _ error: Error?) -> Void) {
+        
+        CLGeocoder().geocodeAddressString(address, completionHandler: completion)
+        
+    }
+    
+    private static func mock(coordinate: CLLocationCoordinate2D, name: String) -> CLPlacemark {
+        let mkPlacemark = MKPlacemark(
+            coordinate: coordinate,
+            addressDictionary: ["name": name]
+        )
+        return CLPlacemark(placemark: mkPlacemark)
+    }
     /// Get Reverse Geocoded Placemark address by passing CLLocation
     ///
     /// - Parameters:
@@ -342,7 +363,7 @@ final class LocationManager: NSObject {
             self.locationManager?.startUpdatingLocation()
             self.locationManager?.startMonitoringVisits()
             self.locationManager?.startMonitoringSignificantLocationChanges()
-            print("started tracking location")
+            //print("started tracking location")
         case .denied:
             let deniedError = NSError(
                 domain: self.classForCoder.description(),
@@ -410,7 +431,7 @@ final class LocationManager: NSObject {
     }
     
     func startTracking() {
-        print("started tracking")
+        //print("started tracking")
         setupLocationManager()
         setupActivityManager()
     }
@@ -546,6 +567,9 @@ extension LocationManager: CLLocationManagerDelegate {
             
             //NotificationManager.shared.sendNotificationNow(title: "TEST: Setting an internal 5 minute timer", subtitle: "Waiting for to see if the drive is still needed")
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Constants.SECONDS_TO_WAIT_AFTER_DRIVE)) {
+                if Stopwatch.shared.isOnBreak {
+                    return
+                }
                 if self.willCancelSoon {
                     //NotificationManager.shared.sendNotificationNow(title: "TEST: Is continuing drive since willCancelSoon is true", subtitle: "first line after asyncafter SECONDS TO WAIT")
                     self.willCancelSoon = false
@@ -554,7 +578,7 @@ extension LocationManager: CLLocationManagerDelegate {
                     return
                 }
                 //NotificationManager.shared.sendNotificationNow(title: "TEST: Did NOT cancel timer after SECONDS TO WAIT", subtitle: "Will NOT continue drive. first line after asyncafter SECONDS TO WAIT")
-                
+
                 self.isWaitingForDriveConfirmation = false
                 
                 //has not driven in last 5 minutes
@@ -612,8 +636,8 @@ extension LocationManager: CLLocationManagerDelegate {
     }
     
     func endPendingDrive() {
-        if let time = startDriveTime, let location = startDriveLocation {
-            let drive = Drive(initialCoordinates: location.coordinate, finalCoordinates: location.coordinate, initialDate: time, finalDate: Date())
+        if let time = startDriveTime, let location = startDriveLocation, let lastLocation = lastLocation {
+            let drive = Drive(initialCoordinates: location.coordinate, finalCoordinates: lastLocation.coordinate, initialDate: time, finalDate: Date(), milesDriven: self.currentMileage)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 self.uploadDrive(drive)
@@ -623,8 +647,6 @@ extension LocationManager: CLLocationManagerDelegate {
             startDriveTime = nil
             startDriveLocation = nil
             self.isWaitingForDriveConfirmation = false
-            
-            //has not driven in last 5 minutes
             self.currentMileage = 0.0
             self.isDriving = false
             self.removeLastDrive()

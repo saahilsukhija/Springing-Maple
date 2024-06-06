@@ -64,7 +64,7 @@ class HomeVC: UIViewController {
             }
         }
         
-        GoogleSheetAssistant.shared.getPropertyList()
+
         
 
         
@@ -84,6 +84,8 @@ class HomeVC: UIViewController {
         loadingScreen?.removeFromSuperview()
     }
     override func viewDidAppear(_ animated: Bool) {
+        
+        GoogleSheetAssistant.shared.getPropertyList()
         
         guard !isPresentingCamera else { return }
         
@@ -129,23 +131,19 @@ class HomeVC: UIViewController {
                 }
             }
             Task {
-//                let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 12), finalDate: Date().getDate(byAdding: .minute, value: 18), milesDriven: 1.7)
-//                let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates:  CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), initialDate: Date().getDate(byAdding: .minute, value: 32), finalDate: Date().getDate(byAdding: .minute, value: 40), milesDriven: 1.7)
-//                let work = Work(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 18), finalDate: Date().getDate(byAdding: .minute, value: 32))
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
-//                    Task {
-//                        try? await FirestoreDatabase.shared.uploadPrivateDrive(d1)
-//                        try? await FirestoreDatabase.shared.uploadPrivateWork(work)
-//                        try? await FirestoreDatabase.shared.uploadPrivateDrive(d2)
+//                for i in 0...10 {
+//                    let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 12*i), finalDate: Date().getDate(byAdding: .minute, value: 18*i), milesDriven: 1.7)
+//                    let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates:  CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), initialDate: Date().getDate(byAdding: .minute, value: 32*i), finalDate: Date().getDate(byAdding: .minute, value: 40*i), milesDriven: 1.7)
+//                    let work = Work(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 18*i), finalDate: Date().getDate(byAdding: .minute, value: 32*i))
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
+//                        Task {
+//                            try? await FirestoreDatabase.shared.uploadPrivateDrive(d1)
+//                            try? await FirestoreDatabase.shared.uploadPrivateWork(work)
+//                            try? await FirestoreDatabase.shared.uploadPrivateDrive(d2)
+//                        }
 //                    }
 //                }
-////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.055925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home", finPlace: "Home Depot"))
-////                try? await FirestoreDatabase.shared.uploadPrivateDrive(Drive(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home"))
-////                try? await FirestoreDatabase.shared.uploadPrivateWork(Work(initialCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), finalCoordinates: CLLocationCoordinate2D(latitude: -122.054925, longitude: 37.323040), initialDate: Date(), finalDate: Date(), initPlace: "Home Depot", finPlace: "Home Depot"))
-//                let works = try await FirestoreDatabase.shared.getRegisteredWorks()
-//                for work in works {
-//                    print("\(work.initialDate.toMonthYearDate()), \(work.initialDate.toHourMinuteTime()) - \(work.finalDate.toHourMinuteTime()) at \(work.initialPlace)")
-//                }
+                
                 do {
                     GoogleSheetAssistant.shared.addUserSheet()
                     var drives: [Drive] = []
@@ -158,7 +156,7 @@ class HomeVC: UIViewController {
                     } catch {}
                     self.activities = drives
                     self.activities.replaceWorks(with: works)
-                    
+
                     for (i, a) in self.activities.enumerated() {
                         if a.initialPlace == nil || a.initialPlace == "" || a.initialPlace == "(error)" {
                             print("BRUH")
@@ -365,7 +363,7 @@ class HomeVC: UIViewController {
             
             do {
                 try await FirestoreDatabase.shared.registerDrive(from: activities.getDrives(), drive: drive, to: registeredDrive)
-                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive)
+                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive, deletePreviousEntry: true)
 
             } catch {
                 DispatchQueue.main.async {
@@ -428,12 +426,12 @@ class HomeVC: UIViewController {
                         print("did upload reciept: \(completion)")
                         Task {
                             try await FirestoreDatabase.shared.registerWork(from: self.activities.getWorks(), work: work, to: registeredWork)
-                            GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(registeredWork)
+                            GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(registeredWork, deletePreviousEntry: true)
                         }
                     }
                 } else {
                     try await FirestoreDatabase.shared.registerWork(from: activities.getWorks(), work: work, to: registeredWork)
-                    GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(registeredWork)
+                    GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(registeredWork, deletePreviousEntry: true)
                 }
 
             } catch {

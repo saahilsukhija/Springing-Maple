@@ -147,6 +147,83 @@ exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
   res.send({result: "Added row onto " + spreadsheetID});
 });
 
+exports.append_unreg_drive_to_spreadsheet = onRequest(async (req, res) => {
+  const spreadsheetID = req.body.data.spreadsheetID;
+  const apiKey = req.body.data.apiKey;
+  const date = req.body.data.date;
+  // const initialLocation = req.body.data.initialLocation;
+  const finalLocation = req.body.data.finalLocation;
+  const type = req.body.data.type;
+  const initialTime = req.body.data.initialTime;
+  const finalTime = req.body.data.finalTime;
+  const username = req.body.data.username;
+  const duration = req.body.data.duration;
+  const milesDriven = Math.round(parseFloat(req.body.data.milesDriven)*100)/100;
+
+  const auth = await google.auth.getClient({
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+    ],
+  });
+  const range = "'" + username + "'!A1";
+
+  addNewSheet(auth, apiKey, spreadsheetID, username);
+  // const values = request.query.values
+
+  const appendValue = ["", "",
+    "", "",
+    "", "",
+    "", "", "", "", ""];
+
+  const backgroundColor = {red: 220.0/255,
+    green: 220.0/255, blue: 220.0/255, alpha: 1.0/3};
+
+  const values = appendValue.map((e, index) => (
+    {
+      userEnteredValue: {
+        numberValue: undefined,
+        stringValue: undefined,
+      },
+      userEnteredFormat: {backgroundColor,
+        numberFormat: undefined},
+    }));
+
+  const sheetId = await getSheetID(auth, spreadsheetID, username);
+
+  const sheets = google.sheets({version: "v4", auth});
+  sheets.spreadsheets.batchUpdate(
+      {
+        auth: auth,
+        spreadsheetId: spreadsheetID,
+        key: apiKey,
+        resource: {
+          requests: [
+            {
+              "appendCells": {
+                "rows": [{values}],
+                "sheetId": sheetId,
+                "fields": "userEnteredValue,userEnteredFormat",
+              },
+            },
+          ],
+        },
+      },
+  );
+
+  await sort(auth, apiKey, spreadsheetID, username);
+  appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
+      [date, initialTime,
+        finalTime, "",
+        type, finalLocation,
+        "", "", "",
+        duration, milesDriven]);
+  await sort(auth, apiKey, spreadsheetID, username);
+  logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
+
+  res.send({result: "Added unregistered onto " + spreadsheetID});
+});
+
 exports.create_new_sheet = onRequest(async (req, res) => {
   const spreadsheetID = req.body.data.spreadsheetID;
   const apiKey = req.body.data.apiKey;
@@ -333,6 +410,7 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
   await sort(auth, apiKey, spreadsheetID, username);
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
   logger.info("auth: " + auth.email, {structuredData: true});
+  res.send({result: "Added daily summary onto " + spreadsheetID});
   // return {result: "Hello from " + spreadsheetID};
 });
 
@@ -413,14 +491,13 @@ exports.create_spreadsheet = onRequest(async (req, res) => {
 });
 
 exports.get_property_list = onRequest(async (req, res) => {
-  console.log("Getting Property List");
   const spreadsheetID = req.body.data.spreadsheetID;
   const apiKey = req.body.data.apiKey;
 
   const auth = await authorize();
   const sheets = google.sheets({version: "v4", auth});
 
-  const range = "'Property List'!2A";
+  const range = "Properties!A2:B";
   const result = await sheets.spreadsheets.values.get({
     auth: auth,
     spreadsheetId: spreadsheetID,
@@ -428,9 +505,103 @@ exports.get_property_list = onRequest(async (req, res) => {
     range: range,
   });
 
-  console.log("VALUES: " + result.data.values);
+  const values = result.data.values;
+  const pairs = [];
+  for (let i = 0; i < values.length; i += 2) {
+    pairs.push([values[i], values[i+1]]);
+  }
+  console.log("Property values: " + pairs);
   res.send({result: result});
 });
+
+exports.delete_item_from_spreadsheet = onRequest(async (req, res) => {
+  const spreadsheetID = req.body.data.spreadsheetID;
+  const apiKey = req.body.data.apiKey;
+  const date = req.body.data.date;
+  // const finalLocation = req.body.data.finalLocation;
+  // const type = req.body.data.type;
+  const initialTime = req.body.data.initialTime;
+  const finalTime = req.body.data.finalTime;
+  const username = req.body.data.username;
+  // const duration = req.body.data.duration;
+
+  const auth = await authorize();
+  // const numCols = 11;
+  const rows = await getAllCells(auth, apiKey, spreadsheetID, username);
+
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (row[0] == date && row[1] == initialTime && row[2] == finalTime) {
+      console.log("Found match at row " + (i+1));
+      await deleteRow(auth, apiKey, spreadsheetID, username, i);
+      res.send({result: "Deleted row at " + (i+1)});
+    }
+  }
+
+
+  // console.log("length: " + r.length);
+  console.log("Cell values: " + rows);
+  res.send({result: "Failed to find any matching row"});
+});
+
+/**
+ * Returns an array of all values in a given spreadsheet
+ * @param {auth} auth TODO: OAUTH
+ * @param {String} apiKey API Key
+ * @param {String} spreadsheetID The second number.
+ * @param {String} name the name of sheet
+ */
+async function getAllCells(auth, apiKey, spreadsheetID, name) {
+  const sheets = google.sheets({version: "v4", auth});
+  const range = "'" + name + "'!A1:K";
+  const result = await sheets.spreadsheets.values.get({
+    auth: auth,
+    spreadsheetId: spreadsheetID,
+    key: apiKey,
+    range: range,
+  });
+
+  const values = result.data.values;
+
+
+  return values;
+}
+
+
+/**
+ * Deletes a row from the spreadsheet
+ * @param {*} auth TODO: OAUTH
+ * @param {*} apiKey the apiKey
+ * @param {*} spreadsheetID the id of ENTIRE spreadsheet
+ * @param {*} username name of user
+ * @param {*} row the row to delete
+ */
+async function deleteRow(auth, apiKey, spreadsheetID, username, row) {
+  const sheets = google.sheets({version: "v4", auth});
+  const sheetId = await getSheetID(auth, spreadsheetID, username);
+  sheets.spreadsheets.batchUpdate(
+      {
+        auth: auth,
+        spreadsheetId: spreadsheetID,
+        key: apiKey,
+        resource: {
+          "requests": [
+            {
+              "deleteDimension": {
+                "range": {
+                  "sheetId": sheetId,
+                  "dimension": "ROWS",
+                  "startIndex": row,
+                  "endIndex": row+1,
+                },
+              },
+            },
+          ],
+        },
+      },
+  );
+}
 
 /**
  * Adds a new sheet
@@ -613,7 +784,7 @@ function resetHeader(auth, apiKey, spreadsheetID, name) {
 
   sheets.spreadsheets.values.update({
     spreadsheetId: spreadsheetID,
-    range: "'Property List'!A1",
+    range: "Properties!A1",
     auth: auth,
     key: apiKey,
     valueInputOption: "RAW",

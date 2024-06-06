@@ -122,6 +122,8 @@ extension FirestoreDatabase {
             throw FirestoreError("Error while uploading the work")
         }
         
+        GoogleSheetAssistant.shared.appendUnregisteredWorkToSpreadsheet(work)
+        
     }
     
     func uploadRegisteredWork(_ registeredWork: RegisteredWork) async throws {
@@ -301,6 +303,7 @@ extension FirestoreDatabase {
             throw FirestoreError("Error while uploading the drive")
         }
         
+        GoogleSheetAssistant.shared.appendUnregisteredDriveToSpreadsheet(drive)
     }
     
     func uploadRegisteredDrive(_ registeredDrive: RegisteredDrive) async throws {
