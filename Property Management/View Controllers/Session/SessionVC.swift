@@ -70,7 +70,6 @@ class SessionVC: UIViewController {
         super.viewDidAppear(animated)
         
         GoogleSheetAssistant.shared.getPropertyList()
-        
         openingSettings = false
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {

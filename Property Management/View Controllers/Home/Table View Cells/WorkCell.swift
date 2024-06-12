@@ -25,8 +25,9 @@ class WorkCell: UITableViewCell {
     @IBOutlet weak var moneyTextField: UITextField!
     @IBOutlet weak var notesTextField: UITextField!
     
-    @IBOutlet weak var cameraButton: UIButton!
-
+    @IBOutlet weak var receiptCameraButton: UIButton!
+    @IBOutlet weak var propertyImagesCameraButton: UIButton!
+    
     var work: Work!
     
     var image: UIImage?
@@ -179,11 +180,17 @@ class WorkCell: UITableViewCell {
         }
     }
     
+    @IBAction func propertyImagesCameraButtonClicked(_ sender: Any) {
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: AddPropertyImagesVC.identifier) as! AddPropertyImagesVC
+        vc.propertyName = work.finalPlace?.removeNumbers()
+        parentVC.navigationController?.pushViewController(vc, animated: true)
+    }
+    
     func updateCameraButton() {
         if self.image != nil {
-            self.cameraButton.setImage(UIImage(systemName: "icloud.and.arrow.up"), for: .normal)
+            self.receiptCameraButton.setImage(UIImage(systemName: "icloud.and.arrow.up"), for: .normal)
         } else {
-            self.cameraButton.setImage(UIImage(systemName: "camera"), for: .normal)
+            self.receiptCameraButton.setImage(UIImage(systemName: "camera"), for: .normal)
         }
     }
     

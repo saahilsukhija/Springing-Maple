@@ -855,6 +855,7 @@ PODS:
   - nanopb/encode (2.30909.0)
   - PromisesObjC (2.3.1)
   - RecaptchaInterop (100.0.0)
+  - SwiftyDropbox (10.0.7)
 
 DEPENDENCIES:
   - FDTake
@@ -867,6 +868,7 @@ DEPENDENCIES:
   - GoogleAPIClientForREST/Sheets
   - GoogleSignIn
   - lottie-ios
+  - SwiftyDropbox
 
 SPEC REPOS:
   trunk:
@@ -902,6 +904,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
+    - SwiftyDropbox
 
 SPEC CHECKSUMS:
   abseil: 926fb7a82dc6d2b8e1f2ed7f3a718bce691d1e46
@@ -936,7 +939,8 @@ SPEC CHECKSUMS:
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  SwiftyDropbox: bd1e6f84cf36fa8d1440d4b54421d297e292dcd5
 
-PODFILE CHECKSUM: 3cd2057cfa595c82a2e0d08f265ddca04c94c74f
+PODFILE CHECKSUM: 722aaf976c6269eee30373d486af1be2a47dcb0b
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2

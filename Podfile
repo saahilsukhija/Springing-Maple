@@ -13,6 +13,7 @@ target 'Property Management' do
     pod 'Firebase/Analytics'
     pod 'FirebaseFunctions'
     pod 'FirebaseFirestore'
+    pod 'SwiftyDropbox'
   # Regular Animations
     pod 'lottie-ios'
     

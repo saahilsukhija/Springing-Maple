@@ -43,6 +43,12 @@ extension DropboxFolderConnectVC: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        parentVC.dropboxFolderChosen(folders[indexPath.row])
+        self.tableView.deselectRow(at: indexPath, animated: true)
+        self.dismiss(animated: true)
+    }
+    
     
     
 }

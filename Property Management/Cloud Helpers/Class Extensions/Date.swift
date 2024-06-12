@@ -52,6 +52,12 @@ extension Date
         return "\(month)/\(day)/\(year)"
     }
     
+    func toLongMonthDayYearFormat() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM d, yyyy"
+        return dateFormatter.string(from: self)
+    }
+    
     
     
     func durationSince(_ date: Date) -> String {

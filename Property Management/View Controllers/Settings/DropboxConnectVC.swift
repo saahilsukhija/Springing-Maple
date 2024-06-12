@@ -39,7 +39,9 @@ class DropboxConnectVC: UIViewController {
     @IBAction func dropboxButtonClicked(_ sender: Any) {
         if User.shared.dropbox.isConnected {
             DropboxClientsManager.unlinkClients()
-            navigationController?.popViewController(animated: true)
+            User.shared.dropbox.selectedFolder = nil
+            AppDelegate.saveVariables()
+            navigationController?.popToRootViewController(animated: true)
             self.showSuccessToast(message: "Unlinked dropbox")
             return
         }
@@ -73,6 +75,12 @@ class DropboxConnectVC: UIViewController {
         vc.setupFolders(folders)
         vc.parentVC = self
         self.present(vc, animated: true)
+    }
+    
+    func dropboxFolderChosen(_ folder: DropboxFolder) {
+        User.shared.dropbox.selectedFolder = folder
+        self.showSuccessToast(message: "Successfully linked Dropbox")
+        self.navigationController?.popToRootViewController(animated: true)
     }
     
     /*

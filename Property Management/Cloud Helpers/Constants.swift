@@ -14,5 +14,5 @@ class Constants {
     
     static let SECONDS_TO_WAIT_AFTER_DRIVE = 180
     
-    static let SAVED_LOCATION_RANGE = 100 //meters
+    static let SAVED_LOCATION_RANGE = 258 //meters
 }

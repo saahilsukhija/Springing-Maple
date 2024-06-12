@@ -86,7 +86,7 @@ class HomeVC: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         
         GoogleSheetAssistant.shared.getPropertyList()
-        
+
         guard !isPresentingCamera else { return }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
@@ -199,8 +199,8 @@ class HomeVC: UIViewController {
                     print("got drives: \(drives)")
                     print("got works: \(works)")
                     for work in works {
-                        print("initial: \(work.initialCoordinate) at \(work.initialDate) \n final: \(work.finalCoordinate) at \(work.finalDate)")
-                        print(work.finalDate.secondsSince(work.initialDate))
+                        //print("initial: \(work.initialCoordinate) at \(work.initialDate) \n final: \(work.finalCoordinate) at \(work.finalDate)")
+                        //print(work.finalDate.secondsSince(work.initialDate))
                     }
                     DispatchQueue.main.async {
                         self.isLoading = false
@@ -332,12 +332,7 @@ class HomeVC: UIViewController {
     }
     
     func askToSubmitDrive(_ drive: Drive, _ registeredDrive: RegisteredDrive) {
-        let alert = UIAlertController(title: "No Ticket Number Given!", message: "No ticket number was provided, are you sure you want to continue?", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
-            self.submitDrive(drive, registeredDrive)
-        }))
-        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
-        self.present(alert, animated: true)
+        self.submitDrive(drive, registeredDrive)
     }
     
     

@@ -597,11 +597,23 @@ extension LocationManager: CLLocationManagerDelegate {
     
     
     private func uploadDrive(_ drive: Drive) {
-        Task {
-            do {
-                try await FirestoreDatabase.shared.uploadPrivateDrive(drive)
-            } catch {
-                print(error.localizedDescription)
+        if User.shared.settings.autoUploadDrives {
+            Task {
+                let registeredDrive = RegisteredDrive(from: drive, ticketNumber: "", notes: "")
+                do {
+                    try await FirestoreDatabase.shared.uploadRegisteredDrive(registeredDrive)
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
+        }
+        else {
+            Task {
+                do {
+                    try await FirestoreDatabase.shared.uploadPrivateDrive(drive)
+                } catch {
+                    print(error.localizedDescription)
+                }
             }
         }
     }

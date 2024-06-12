@@ -34,10 +34,12 @@ class LoginVC: UIViewController {
         
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { result, error in
             guard error == nil else {
+                print("error signing in: \(error!)")
                 return
             }
             
             guard let user = result?.user, let idToken = user.idToken?.tokenString else {
+                print("huh")
                 return
             }
             print("ID: " + idToken)

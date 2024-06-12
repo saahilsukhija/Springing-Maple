@@ -19,6 +19,7 @@ class User {
     
     var team: Team?
     var settings: UserSettings!
+    var dropbox: UserDropbox!
     
     init() {
         do {
@@ -26,7 +27,9 @@ class User {
         } catch {
             print("no team available.")
         }
+        
         settings = UserSettings()
+        dropbox = UserDropbox()
     }
     
     func isLoggedIn() -> Bool {
@@ -57,7 +60,9 @@ class User {
         } catch {
             team = nil
         }
+        
         settings = UserSettings()
+        dropbox = UserDropbox()
     }
     
 }

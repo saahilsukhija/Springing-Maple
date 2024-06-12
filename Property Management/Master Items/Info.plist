@@ -14,6 +14,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.90801618206-pjtqmmqo8iqpiaremv9184m9ct56e7t9</string>
+                <string>db-yy98obil2mox730</string>
 			</array>
 		</dict>
 	</array>
@@ -64,5 +65,10 @@
 		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>dbapi-8-emm</string>
+        <string>dbapi-2</string>
+    </array>
 </dict>
 </plist>

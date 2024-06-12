@@ -9,14 +9,15 @@ import UIKit
 import FirebaseCore
 import FirebaseAuth
 import GoogleSignIn
+import SwiftyDropbox
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
-
+    
+    
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
+        
         FirebaseApp.configure()
         
         guard let clientID = FirebaseApp.app()?.options.clientID else { return true }
@@ -33,17 +34,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         
+        DropboxClientsManager.setupWithAppKey(Constants.API_KEYS.dropbox_app_key)
+        
         return true
     }
-
+    
     // MARK: UISceneSession Lifecycle
-
+    
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
-
+    
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
@@ -54,9 +57,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ app: UIApplication,
                      open url: URL,
                      options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-      return GIDSignIn.sharedInstance.handle(url)
+//        let oauthCompletion: DropboxOAuthCompletion = {
+//            if let authResult = $0 {
+//                switch authResult {
+//                case .success:
+//                    print("Success! User is logged into DropboxClientsManager.")
+//                case .cancel:
+//                    print("Authorization flow was manually canceled by user!")
+//                case .error(_, let description):
+//                    print("Error: \(String(describing: description))")
+//                }
+//            }
+//        }
+//        let canHandleUrl = DropboxClientsManager.handleRedirectURL(url, includeBackgroundClient: false, completion: oauthCompletion)
+        
+        return GIDSignIn.sharedInstance.handle(url)
     }
-
+    
     func applicationWillTerminate(_ application: UIApplication) {
         print("will terminate")
         NotificationManager.shared.sendNotificationNow(title: "Springing Maple has been terminated!", subtitle: "Things may not work as expected. Please reopen the app.")
@@ -72,7 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         LocationManager.shared.restartMotionManager()
         //NotificationManager.shared.sendNotificationNow(title: "Restarting motion manager", subtitle: "for test purposes")
     }
-
+    
     static func saveVariables() {
         //print("saving variables...")
         do {
@@ -86,8 +103,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let team = User.shared.team {
                 try UserDefaults.standard.set(object: team, forKey: "user_team")
             }
+            
             if let settings = User.shared.settings {
                 try UserDefaults.standard.set(object: settings, forKey: "user_settings")
+            }
+            if let dropbox = User.shared.dropbox {
+                try UserDefaults.standard.set(object: dropbox, forKey: "user_dropbox")
             }
             UserDefaults.standard.set(LocationManager.shared.isDriving, forKey: "isDriving")
             

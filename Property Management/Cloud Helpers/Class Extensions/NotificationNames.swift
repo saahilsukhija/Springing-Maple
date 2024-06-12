@@ -71,6 +71,10 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
+    static var dropboxAuthenticationComplete: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
     
     
     

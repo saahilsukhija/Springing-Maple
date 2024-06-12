@@ -9,4 +9,11 @@ import UIKit
 
 class ImagePreviewCell: UICollectionViewCell {
     
+    static let identifier = "ImagePreviewCell"
+    
+    @IBOutlet weak var imageView: UIImageView!
+    
+    func setup(with image: UIImage) {
+        imageView.image = image
+    }
 }
