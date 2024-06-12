@@ -13,7 +13,7 @@ class SettingsVC: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    let settings = ["Notifications", "Profile"]
+    let settings = ["Notifications", "Profile", "Drives", "Dropbox"]
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -48,6 +48,12 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         else if indexPath.row == 1{
             cell.setup(title: settings[indexPath.row], status: User.shared.getUserName())
         }
+        else if indexPath.row == 2 {
+            cell.setup(title: settings[indexPath.row], status: "")
+        }
+        else if indexPath.row == 3 {
+            cell.setup(title: settings[indexPath.row], status: User.shared.dropbox.isConnected ? "Connected" : "Not connected")
+        }
         //Separator Full Line
         cell.preservesSuperviewLayoutMargins = false
         cell.separatorInset = .zero
@@ -65,6 +71,14 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         }
         else if indexPath.row == 1{
             let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: ProfileVC.identifier) as! ProfileVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        else if indexPath.row == 2 {
+            let vc = storyboard?.instantiateViewController(withIdentifier: DriveSettingsVC.identifier) as! DriveSettingsVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        else if indexPath.row == 3 {
+            let vc = storyboard?.instantiateViewController(withIdentifier: DropboxConnectVC.identifier) as! DropboxConnectVC
             self.navigationController?.pushViewController(vc, animated: true)
         }
         tableView.deselectRow(at: indexPath, animated: true)

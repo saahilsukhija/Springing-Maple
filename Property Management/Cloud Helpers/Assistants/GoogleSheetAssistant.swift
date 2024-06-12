@@ -111,7 +111,7 @@ class GoogleSheetAssistant {
                     "receiptLink" : "",
                     "notes" : "",
                     "duration": drive.finalDate.durationSince(drive.initialDate),
-                    "milesDriven": ""]
+                    "milesDriven": "\(drive.milesDriven ?? 0)"]
         
         DispatchQueue.main.async {
             SpreadsheetEntryQueue.shared.putEntry(type: .unregistereddrive, data: dict)
@@ -225,7 +225,6 @@ class GoogleSheetAssistant {
                         "username" : User.shared.getUserName(),
                         "apiKey" : Constants.API_KEYS.google_sheet_api,
             ]
-            print("executing...")
             functions.httpsCallable("get_property_list").call(dict) { result, error in
                 if let error = error {
                     print("error: \(error)")
@@ -250,7 +249,6 @@ class GoogleSheetAssistant {
         let dict = ["teamID": team.id, "spreadsheetName": spreadsheetName, "teamName" : team.name, "email" : User.shared.getUserEmail(), "apiKey" : Constants.API_KEYS.google_sheet_api]
         SpreadsheetEntryQueue.shared.putEntry(type: .createspreadsheet, data: dict)
     }
-    
 }
 
 class SpreadsheetEntryQueue {
@@ -299,11 +297,12 @@ class SpreadsheetEntryQueue {
         self.isRunning = true
         
         Task {
+            print("Starting SpreadsheetRequest: \(entry.type.rawValue)")
             GoogleSheetAssistant.shared.functions.httpsCallable(entry.type.rawValue).call(entry.data) { result, error in
                 if let error = error {
                     print("Error doing \(entry.type.rawValue): \(error.localizedDescription)")
                 }
-                print("Finished executing SpreadsheetRequest: \(entry.type.rawValue)")
+                print("FINISHED")
                 
                 self.entries.removeFirst()
                 self.isRunning = false
