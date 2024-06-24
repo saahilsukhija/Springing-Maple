@@ -602,6 +602,7 @@ extension LocationManager: CLLocationManagerDelegate {
                 let registeredDrive = RegisteredDrive(from: drive, ticketNumber: "", notes: "")
                 do {
                     try await FirestoreDatabase.shared.uploadRegisteredDrive(registeredDrive)
+                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive, deletePreviousEntry: false)
                 } catch {
                     print(error.localizedDescription)
                 }

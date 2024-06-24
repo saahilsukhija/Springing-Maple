@@ -341,6 +341,79 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
   res.send({result: "Reset header onto " + spreadsheetID});
 });
 
+exports.append_clockinout_to_spreadsheet = onRequest(async (req, res) => {
+  const spreadsheetID = req.body.data.spreadsheetID;
+  const apiKey = req.body.data.apiKey;
+  const username = req.body.data.username;
+  const date = req.body.data.date;
+  const location = req.body.data.location;
+  const type = req.body.data.type;
+  const time = req.body.data.time;
+
+  const auth = await google.auth.getClient({
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+    ],
+  });
+
+  const appendValue = ["", "",
+    "", "",
+    "", "",
+    "",
+    "", "",
+    "",
+    ""];
+  const range = "'" + username + "'!A1";
+  const backgroundColor = type == "Clock In" ? {red: 255/255,
+    green: 210/255, blue: 217/255, alpha: 3.0/3} :
+    {red: 215/255,
+      green: 199/255, blue: 255/255, alpha: 3.0/3};
+
+  // const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
+  const values = appendValue.map((e, index) => (
+    {
+      userEnteredValue: {
+        numberValue: undefined,
+        stringValue: undefined,
+      },
+      userEnteredFormat: {backgroundColor,
+        numberFormat: undefined},
+    }));
+  const sheetId = await getSheetID(auth, spreadsheetID, username);
+
+  const sheets = google.sheets({version: "v4", auth});
+  sheets.spreadsheets.batchUpdate(
+      {
+        auth: auth,
+        spreadsheetId: spreadsheetID,
+        key: apiKey,
+        resource: {
+          requests: [
+            {
+              "appendCells": {
+                "rows": [{values}],
+                "sheetId": sheetId,
+                "fields": "userEnteredValue,userEnteredFormat"
+                ,
+              },
+            },
+          ],
+        },
+      },
+  );
+
+  await sort(auth, apiKey, spreadsheetID, username);
+  appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
+      [date, time, "", "", type, location,
+        "", "", "", "", ""]);
+  await sort(auth, apiKey, spreadsheetID, username);
+  logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
+
+  res.send({result: "Added " + type + " onto " + spreadsheetID});
+  // return {result: "Hello from " + spreadsheetID};
+});
+
 exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
   const spreadsheetID = req.body.data.spreadsheetID;
   const apiKey = req.body.data.apiKey;

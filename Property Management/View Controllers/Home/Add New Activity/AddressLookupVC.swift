@@ -12,23 +12,23 @@ class AddressLookupVC: UIViewController {
     
     static let identifier = "AddressLookupScreen"
     weak var delegate: AddressLookupDelegate?
-    private var completer: MKLocalSearchCompleter!
+     
+    let dataSource = MapDataSource()
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addressTextField: UITextField!
     
-    private var addresses: [String] = []
+    private var addresses: [(String, String)] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        completer = MKLocalSearchCompleter()
-        completer.delegate = self
+        dataSource.delegate = self
         
         addressTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         
-        tableView.delegate = self
-        tableView.dataSource = self
+        tableView.delegate = dataSource
+        tableView.dataSource = dataSource
         
         self.hideKeyboardWhenTappedAround()
     }
@@ -40,8 +40,10 @@ class AddressLookupVC: UIViewController {
     
     @objc func textFieldChanged() {
         if addressTextField.text?.count ?? 0 > 0 {
-            completer.region = MKCoordinateRegion(center: LocationManager.shared.lastLocation?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0), latitudinalMeters: 10_000, longitudinalMeters: 10_000)
-            completer.queryFragment = addressTextField.text!
+            
+//            completer.region = MKCoordinateRegion(center: LocationManager.shared.lastLocation?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0), latitudinalMeters: 10_000, longitudinalMeters: 10_000)
+//            completer.queryFragment = addressTextField.text!
+            dataSource.updateQuery(with: addressTextField.text!)
         }
         else {
             addresses = []
@@ -60,47 +62,47 @@ class AddressLookupVC: UIViewController {
     
 }
 
-extension AddressLookupVC: UITableViewDelegate, UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: AddressLookupCell.identifier) as! AddressLookupCell
-        cell.setup(with: addresses[indexPath.row])
-        
-        //Separator Full Line
-        cell.preservesSuperviewLayoutMargins = false
-        cell.separatorInset = .zero
-        cell.layoutMargins = .zero
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return addresses.count
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let address = addresses[indexPath.row]
-        
-        delegate?.didChooseAddress(address)
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-        navigationController?.popViewController(animated: true)
-    }
-    
-    
-    
-}
+//extension AddressLookupVC: UITableViewDelegate, UITableViewDataSource {
+//    
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: AddressLookupCell.identifier) as! AddressLookupCell
+//        cell.setup(with: addresses[indexPath.row])
+//        
+//        //Separator Full Line
+//        cell.preservesSuperviewLayoutMargins = false
+//        cell.separatorInset = .zero
+//        cell.layoutMargins = .zero
+//        return cell
+//    }
+//    
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return addresses.count
+//    }
+//    
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        let address = addresses[indexPath.row]
+////        let completion = completer.results.first { com in
+////
+////        }
+////        let search = MKLocalSearch(request: MKLocalSearch.Request(completion: completer.results))
+//        delegate?.didChooseAddress(address)
+//        tableView.deselectRow(at: indexPath, animated: true)
+//        
+//        navigationController?.popViewController(animated: true)
+//    }
+//    
+//    
+//    
+//}
 
-extension AddressLookupVC: MKLocalSearchCompleterDelegate {
-    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-        let addresses = completer.results.map { result in
-            if let index = result.subtitle.index(of: ",") {
-                result.title + ", " + result.subtitle.substring(with: Range(uncheckedBounds: (0,index)))
-            } else {
-                result.title
-            }
-        }
-        
-        self.addresses = addresses
+extension AddressLookupVC: MapDataSourceDelegate {
+    func didSelectAddress(_ address: String, location: CLLocationCoordinate2D) {
+        delegate?.didChooseAddress(address, coordinate: location)
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    func refreshData() {
+        //self.addresses = addresses
         tableView.reloadData()
     }
 }
@@ -108,5 +110,5 @@ extension AddressLookupVC: MKLocalSearchCompleterDelegate {
 
 protocol AddressLookupDelegate: AnyObject {
     
-    func didChooseAddress(_ address: String)
+    func didChooseAddress(_ address: String, coordinate: CLLocationCoordinate2D)
 }

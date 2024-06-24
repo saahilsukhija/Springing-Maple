@@ -249,6 +249,58 @@ class GoogleSheetAssistant {
         let dict = ["teamID": team.id, "spreadsheetName": spreadsheetName, "teamName" : team.name, "email" : User.shared.getUserEmail(), "apiKey" : Constants.API_KEYS.google_sheet_api]
         SpreadsheetEntryQueue.shared.putEntry(type: .createspreadsheet, data: dict)
     }
+    
+    func appendClockInOutToSpreadsheet(date: Date, type: ClockInOut) {
+        guard let spreadsheetID = spreadsheetID else {
+            print("NO SPREADSHEET ID")
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + (type == .clockIn ? 2 : 0)) {
+            if let location = LocationManager.shared.lastLocation {
+                LocationManager.geocode(coordinate: location.coordinate) { placemark, error in
+                    if let error = error {
+                        print("ERROR 2")
+                        print(error.localizedDescription)
+                        return
+                    }
+                    Task {
+                        let dict = ["spreadsheetID" : spreadsheetID,
+                                    "username" : User.shared.getUserName(),
+                                    "apiKey" : Constants.API_KEYS.google_sheet_api,
+                                    "date" : date.toMonthYearDate(),
+                                    "time" : date.toHourMinuteTime(),
+                                    "type" : type.rawValue,
+                                    "location" : "\(placemark?[0].name ?? "")"
+                        ]
+                        DispatchQueue.main.async {
+                            SpreadsheetEntryQueue.shared.putEntry(type: .clockinout, data: dict)
+                        }
+                    }
+                }
+            } else {
+                Task {
+                    let dict = ["spreadsheetID" : spreadsheetID,
+                                "username" : User.shared.getUserName(),
+                                "apiKey" : Constants.API_KEYS.google_sheet_api,
+                                "date" : date.toMonthYearDate(),
+                                "time" : date.toHourMinuteTime(),
+                                "type" : type.rawValue,
+                                "location" : ""
+                    ]
+                    DispatchQueue.main.async {
+                        SpreadsheetEntryQueue.shared.putEntry(type: .clockinout, data: dict)
+                    }
+                }
+            }
+        }
+
+    }
+    
+    enum ClockInOut: String {
+        case clockIn = "Clock In"
+        case clockOut = "Clock Out"
+    }
 }
 
 class SpreadsheetEntryQueue {
@@ -339,6 +391,9 @@ class SpreadsheetEntry {
         case resetheader = "reset_header"
         case unregistereddrive = "append_unreg_drive_to_spreadsheet"
         case deleteitem = "delete_item_from_spreadsheet"
+        case clockinout = "append_clockinout_to_spreadsheet"
     }
     
 }
+
+

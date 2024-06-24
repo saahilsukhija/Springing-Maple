@@ -188,6 +188,7 @@ class SessionVC: UIViewController {
             alert.addAction(UIAlertAction(title: "Continue", style: UIAlertAction.Style.default, handler: { action in
                 let _ = Stopwatch.shared.end()
                 self.updateButtons()
+                GoogleSheetAssistant.shared.appendClockInOutToSpreadsheet(date: Date(), type: .clockOut)
                 GoogleSheetAssistant.shared.appendSummaryToSpreadsheet(date: Date())
                 LocationManager.shared.endPendingWork()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -207,6 +208,7 @@ class SessionVC: UIViewController {
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(locationAuthorizationGranted), name: .locationAuthorized, object: nil)
             Stopwatch.shared.start()
+            GoogleSheetAssistant.shared.appendClockInOutToSpreadsheet(date: Date(), type: .clockIn)
         }
         
         updateButtons()

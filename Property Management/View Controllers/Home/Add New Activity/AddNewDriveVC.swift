@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import CoreLocation
 class AddNewDriveVC: UIViewController {
     
     static let identifier = "AddNewDriveScreen"
@@ -16,7 +16,9 @@ class AddNewDriveVC: UIViewController {
     @IBOutlet weak var finalTimePicker: UIDatePicker!
     
     @IBOutlet weak var initialPlaceField: UITextField!
+    var initialPlaceCoordinate: CLLocationCoordinate2D?
     @IBOutlet weak var finalPlaceField: UITextField!
+    var finalPlaceCoordinate: CLLocationCoordinate2D?
     @IBOutlet weak var ticketNumberField: UITextField!
     @IBOutlet weak var notesField: UITextField!
     
@@ -92,8 +94,11 @@ class AddNewDriveVC: UIViewController {
     
     func submitDrive() {
         self.resignFirstResponder()
-        let initialPlace = initialPlaceField.text
-        let finalPlace = finalPlaceField.text
+        
+        guard let initialPlace = initialPlaceField.text else { return }
+        guard let finalPlace = finalPlaceField.text else { return }
+        guard let location = initialPlaceCoordinate else { return }
+        guard let location2 = finalPlaceCoordinate else { return }
         var initialTime = initialTimePicker.date
         var finalTime = finalTimePicker.date
         let date = datePicker.date
@@ -104,42 +109,29 @@ class AddNewDriveVC: UIViewController {
         
         let loadingScreen = createLoadingScreen(frame: view.frame)
         view.addSubview(loadingScreen)
-        LocationManager().getReverseGeoCodedLocation(address: initialPlace ?? "") { location, placemark, error in
-            if let error = error {
-                self.showFailureToast(message: "Please enter a valid initial address")
-                loadingScreen.removeFromSuperview()
-            } else {
-                LocationManager().getReverseGeoCodedLocation(address: finalPlace ?? "") { location2, placemark2, error2 in
-                    if let error2 = error2 {
-                        self.showFailureToast(message: "Please enter a valid final address")
-                        loadingScreen.removeFromSuperview()
-                    } else {
-                        let drive = RegisteredDrive(initialCoordinates: location!.coordinate, finalCoordinates: location2!.coordinate, initialDate: initialTime, finalDate: finalTime, initPlace: initialPlace, finPlace: finalPlace, milesDriven: -1, ticketNumber: ticketNumber, notes: notes)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            Task {
-                                try await FirestoreDatabase.shared.uploadRegisteredDrive(drive)
-                                GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(drive, deletePreviousEntry: false)
-                                DispatchQueue.main.async {
-                                    self.showSuccessToast(message: "Created drive!")
-                                    loadingScreen.removeFromSuperview()
-                                    self.navigationController?.popToRootViewController(animated: true)
-                                }
-                            }
-                        }
-                    }
+        let drive = RegisteredDrive(initialCoordinates: location, finalCoordinates: location2, initialDate: initialTime, finalDate: finalTime, initPlace: initialPlace, finPlace: finalPlace, milesDriven: -1, ticketNumber: ticketNumber, notes: notes)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            Task {
+                try await FirestoreDatabase.shared.uploadRegisteredDrive(drive)
+                GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(drive, deletePreviousEntry: false)
+                DispatchQueue.main.async {
+                    self.showSuccessToast(message: "Created drive!")
+                    loadingScreen.removeFromSuperview()
+                    self.navigationController?.popToRootViewController(animated: true)
                 }
             }
         }
     }
-    
 }
 
 extension AddNewDriveVC: AddressLookupDelegate {
-    func didChooseAddress(_ address: String) {
+    func didChooseAddress(_ address: String, coordinate: CLLocationCoordinate2D) {
         if currentTextField == 0 {
             self.initialPlaceField.text = address
+            self.initialPlaceCoordinate = coordinate
         } else if currentTextField == 1 {
             self.finalPlaceField.text = address
+            self.finalPlaceCoordinate = coordinate
         }
         
         if initialPlaceField.text?.count ?? 0 > 0 && finalPlaceField.text?.count ?? 0 > 0 {

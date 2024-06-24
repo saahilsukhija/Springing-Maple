@@ -12,9 +12,10 @@ class AddressLookupCell: UITableViewCell {
     static let identifier = "AddressLookupCell"
     
     @IBOutlet weak var placeLabel: UILabel!
-    
-    func setup(with address: String) {
-        placeLabel.text = address
+    @IBOutlet weak var subtitleLabel: UILabel!
+    func setup(with address: (String, String)) {
+        placeLabel.text = address.0
+        subtitleLabel.text = address.1
     }
     
     override func awakeFromNib() {

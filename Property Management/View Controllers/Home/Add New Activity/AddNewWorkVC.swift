@@ -7,7 +7,7 @@
 
 import UIKit
 import FDTake
-
+import CoreLocation
 class AddNewWorkVC: UIViewController {
     
     static let identifier = "AddNewWorkScreen"
@@ -17,6 +17,8 @@ class AddNewWorkVC: UIViewController {
     @IBOutlet weak var finalTimePicker: UIDatePicker!
     
     @IBOutlet weak var placeField: UITextField!
+    var placeCoordinate: CLLocationCoordinate2D?
+    
     @IBOutlet weak var ticketNumberField: UITextField!
     @IBOutlet weak var moneyField: UITextField!
     @IBOutlet weak var notesField: UITextField!
@@ -62,7 +64,7 @@ class AddNewWorkVC: UIViewController {
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
         
-    
+        
     }
     
     @objc func createButtonClicked() {
@@ -86,6 +88,7 @@ class AddNewWorkVC: UIViewController {
     func submitWork() {
         self.resignFirstResponder()
         let place = placeField.text ?? ""
+        guard let location = placeCoordinate else { return }
         var initialTime = initialTimePicker.date
         var finalTime = finalTimePicker.date
         let date = datePicker.date
@@ -97,41 +100,34 @@ class AddNewWorkVC: UIViewController {
         
         let loadingScreen = createLoadingScreen(frame: view.frame)
         view.addSubview(loadingScreen)
-        LocationManager().getReverseGeoCodedLocation(address: place) { location, placemark, error in
-            if let error = error {
-                self.showFailureToast(message: "Please enter a valid address")
-                loadingScreen.removeFromSuperview()
-            } else {
-                let work = RegisteredWork(initialCoordinates: location!.coordinate, finalCoordinates: location!.coordinate, initialDate: initialTime, finalDate: finalTime, initPlace: place, finPlace: place, moneySpent: money, ticketNumber: ticketNumber, notes: notes, image: self.image ?? UIImage.checkmark)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    Task {
+        let work = RegisteredWork(initialCoordinates: location, finalCoordinates: location, initialDate: initialTime, finalDate: finalTime, initPlace: place, finPlace: place, moneySpent: money, ticketNumber: ticketNumber, notes: notes, image: self.image ?? UIImage.checkmark)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            Task {
+                
+                if let image = self.image {
+                    try FirebaseStorage.shared.uploadWorkReciept(work, image: image) { completion in
+                        print("did upload reciept: \(completion)")
                         
-                        if let image = self.image {
-                            try FirebaseStorage.shared.uploadWorkReciept(work, image: image) { completion in
-                                print("did upload reciept: \(completion)")
-                                
-                                Task {
-                                    try await FirestoreDatabase.shared.uploadRegisteredWork(work)
-                                    GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work, deletePreviousEntry: false)
-                                }
-                            }
-                        } else {
-                            Task {
-                                try await FirestoreDatabase.shared.uploadRegisteredWork(work)
-                                GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work, deletePreviousEntry: false)
-                            }
-                        }
-                        
-                        DispatchQueue.main.async {
-                            self.showSuccessToast(message: "Created work!")
-                            loadingScreen.removeFromSuperview()
-                            self.navigationController?.popToRootViewController(animated: true)
+                        Task {
+                            try await FirestoreDatabase.shared.uploadRegisteredWork(work)
+                            GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work, deletePreviousEntry: false)
                         }
                     }
-                    
-                    
+                } else {
+                    Task {
+                        try await FirestoreDatabase.shared.uploadRegisteredWork(work)
+                        GoogleSheetAssistant.shared.appendRegisteredWorkToSpreadsheet(work, deletePreviousEntry: false)
+                    }
+                }
+                
+                DispatchQueue.main.async {
+                    self.showSuccessToast(message: "Created work!")
+                    loadingScreen.removeFromSuperview()
+                    self.navigationController?.popToRootViewController(animated: true)
                 }
             }
+            
+            
         }
     }
     
@@ -150,9 +146,9 @@ class AddNewWorkVC: UIViewController {
 
 extension AddNewWorkVC: AddressLookupDelegate {
     
-    func didChooseAddress(_ address: String) {
+    func didChooseAddress(_ address: String, coordinate: CLLocationCoordinate2D) {
         self.placeField.text = address
-        
+        self.placeCoordinate = coordinate
         if placeField.text?.count ?? 0 > 0 {
             createButton.tintColor = .accentColor
         }
