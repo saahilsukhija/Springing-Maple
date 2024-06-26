@@ -13,13 +13,17 @@ class DropboxConnectVC: UIViewController {
     static let identifier = "DropboxConnectScreen"
     
     @IBOutlet weak var dropboxButton: UIButton!
-    
+    @IBOutlet weak var folderSelectButton: UIButton!
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         NotificationCenter.default.addObserver(self, selector: #selector(dropboxAuthCompleted), name: .dropboxAuthenticationComplete, object: nil)
         
+        folderSelectButton.dropShadow()
+        dropboxButton.dropShadow()
+        //dropboxButton.setImage(UIImage(named: "dropbox-1-logo-png-transparent"), for: .normal)
         
     }
     
@@ -34,6 +38,12 @@ class DropboxConnectVC: UIViewController {
             .foregroundColor: UIColor.accentColor
         ])
         dropboxButton.setAttributedTitle(atr, for: .normal)
+        
+        if User.shared.dropbox.isConnected == true {
+            folderSelectButton.isHidden = false
+        } else {
+            folderSelectButton.isHidden = true
+        }
     }
     
     @IBAction func dropboxButtonClicked(_ sender: Any) {
@@ -56,6 +66,14 @@ class DropboxConnectVC: UIViewController {
         )
     }
     
+    @IBAction func folderButtonClicked(_ sender: Any) {
+        guard User.shared.dropbox.isConnected else { return }
+        
+        DropboxAssistant.shared.getAllFolders() { folders in
+            self.showFolders(folders)
+        }
+        
+    }
     @objc func dropboxAuthCompleted() {
         
         guard User.shared.dropbox.isConnected else { print("user not authenticated in dropbox"); return }

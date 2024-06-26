@@ -25,6 +25,7 @@ class PhotoUploadVC: UIViewController {
     var images: [UIImage] = []
     var keys: [Int] = []
     
+    var shouldChangePropertyField = true
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -190,6 +191,9 @@ extension PhotoUploadVC: AddressLookupDelegate {
     
     func didChooseAddress(_ address: String, coordinate: CLLocationCoordinate2D) {
         propertyField.text = address
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.shouldChangePropertyField = true
+        }
     }
     
     
@@ -217,6 +221,8 @@ extension PhotoUploadVC {
     
     
     func autofillTextField() {
+        guard shouldChangePropertyField else { return }
+        
         if !Stopwatch.shared.isRunning {
             LocationManager.shared.startTracking()
         }
@@ -244,6 +250,7 @@ extension PhotoUploadVC {
     @objc func textFieldClicked() {
         let vc = storyboard?.instantiateViewController(withIdentifier: AddressLookupVC.identifier) as! AddressLookupVC
         vc.delegate = self
+        shouldChangePropertyField = false
         navigationController?.pushViewController(vc, animated: true)
     }
 }

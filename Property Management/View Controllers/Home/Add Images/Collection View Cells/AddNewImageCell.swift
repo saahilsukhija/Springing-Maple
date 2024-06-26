@@ -79,25 +79,15 @@ class AddNewImageCell: UICollectionViewCell {
             // User canceled selection.
         }, finish: { (assets) in
             for asset in assets {
-                var completedImages: [UIImage] = []
-                PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil) { [self] (image, info) in
-                    if let image = image {
-                        if completedImages.contains(image) {
-                            print("SKIPPING")
-                            return
-                        }
+                let image = asset.getAssetThumbnail()
+                PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil) { [self] (_, info) in
                         if let vc = parentVC as? AddPropertyImagesVC {
                             
                             vc.newImageAdded(image, key: info?["PHImageResultRequestIDKey"] as? Int ?? 0)
-                            completedImages.append(image)
                         }
                         if let vc = parentVC as? PhotoUploadVC {
                             vc.newImageAdded(image, key: info?["PHImageResultRequestIDKey"] as? Int ?? 0)
-                            completedImages.append(image)
                         }
-                    } else {
-                        print("FAIL")
-                    }
                 }
                 //(parentVC as? AddPropertyImagesVC)?.newImageAdded(asset.)
             }

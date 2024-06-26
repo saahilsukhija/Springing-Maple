@@ -90,7 +90,7 @@ extension DropboxAssistant {
         
         for (index, image) in images.enumerated() {
             
-            guard let imageData = ImageCompressor.compressImageToTargetSize(image: image, targetSizeMB: CGFloat(Constants.MAX_IMAGE_SIZE)) else { print("unable to compress"); return }
+            guard let imageData = ImageCompressor.compressImageToTargetSize(image: image, targetSize: CGFloat(Constants.MAX_IMAGE_SIZE)) else { print("unable to compress"); return }
             let fileName: String
             switch namingConvention {
             case .propertyName:
