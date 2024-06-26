@@ -38,24 +38,34 @@ class AddNewImageCell: UICollectionViewCell {
         sheet.addAction(UIAlertAction(title: "Choose from library", style: .default, handler: { action in
             self.openGallery()
         }))
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         self.parentVC.present(sheet, animated: true)
     
     }
     
     func openCamera() {
-        if(UIImagePickerController .isSourceTypeAvailable(UIImagePickerController.SourceType.camera)){
-            imagePicker.sourceType = UIImagePickerController.SourceType.camera
-            //If you dont want to edit the photo then you can set allowsEditing to false
-            imagePicker.allowsEditing = false
-            imagePicker.delegate = parentVC as? any UIImagePickerControllerDelegate & UINavigationControllerDelegate
-            
-            self.parentVC.present(imagePicker, animated: true, completion: nil)
+        
+        if parentVC is AddPropertyImagesVC {
+            if(UIImagePickerController .isSourceTypeAvailable(UIImagePickerController.SourceType.camera)){
+                imagePicker.sourceType = UIImagePickerController.SourceType.camera
+                //If you dont want to edit the photo then you can set allowsEditing to false
+                imagePicker.allowsEditing = false
+                imagePicker.delegate = parentVC as? any UIImagePickerControllerDelegate & UINavigationControllerDelegate
+                
+                self.parentVC.present(imagePicker, animated: true, completion: nil)
+            }
+            else{
+                let alert  = UIAlertController(title: "Warning", message: "You don't have camera", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                self.parentVC.present(alert, animated: true, completion: nil)
+            }
+            return
         }
-        else{
-            let alert  = UIAlertController(title: "Warning", message: "You don't have camera", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.parentVC.present(alert, animated: true, completion: nil)
-        }
+        
+        let vc = CameraViewController()
+        vc.parentVC = self.parentVC
+        self.parentVC.present(vc, animated: true)
+
     }
 
     /// Choose image from camera roll

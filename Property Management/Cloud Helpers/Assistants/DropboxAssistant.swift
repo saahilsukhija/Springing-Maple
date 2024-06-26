@@ -85,48 +85,43 @@ extension DropboxAssistant {
             completion(false, NSError(domain: "DropboxClient", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authenticated"]))
             return
         }
-
+        
         var filesCommitInfo = [URL : Files.CommitInfo]()
-
+        
         for (index, image) in images.enumerated() {
-            ImageCompressor.compress(image: image, maxByte: Constants.MAX_IMAGE_SIZE) { image in
-                guard let image = image else { print("unable to compress"); return }
-                if let imageData = image.jpegData(compressionQuality: 1) {
-                    let fileName: String
-                    switch namingConvention {
-                    case .propertyName:
-                        fileName = "\(property)_\(index+1).jpg"
-                    default:
-                        fileName = "\(Date().toLongMonthDayYearFormat())_\(index+1).jpg"
-                    }
-                    let filePath = "\(folderPath)/\(fileName)"
-                    let tempUrl = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
-                    
-                    do {
-                        try imageData.write(to: tempUrl)
-                        filesCommitInfo[tempUrl] = Files.CommitInfo(path: filePath, mode: .overwrite)
-                    } catch {
-                        print("Failed to write image data to temporary file for image \(index + 1)")
-                    }
-                } else {
-                    print("Failed to get PNG data for image \(index + 1)")
-                }
+            
+            guard let imageData = ImageCompressor.compressImageToTargetSize(image: image, targetSizeMB: CGFloat(Constants.MAX_IMAGE_SIZE)) else { print("unable to compress"); return }
+            let fileName: String
+            switch namingConvention {
+            case .propertyName:
+                fileName = "\(property)_\(Date().toLongMonthDayYearFormat())_\(index+1).jpg"
+            default:
+                fileName = "\(Date().toLongMonthDayYearFormat())_\(index+1).jpg"
+            }
+            let filePath = "\(folderPath)/\(fileName)"
+            let tempUrl = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
+            
+            do {
+                try imageData.write(to: tempUrl)
+                filesCommitInfo[tempUrl] = Files.CommitInfo(path: filePath, mode: .overwrite)
+            } catch {
+                print("Failed to write image data to temporary file for image \(index + 1)")
             }
             
         }
-
+        
         client.files.batchUploadFiles(
             fileUrlsToCommitInfo: filesCommitInfo,
             responseBlock: { (uploadResults: [URL: Files.UploadSessionFinishBatchResultEntry]?,
                               finishBatchRequestError: BatchUploadError?,
                               fileUrlsToRequestErrors: [URL: BatchUploadError]) -> Void in
-
+                
                 if let uploadResults = uploadResults {
                     for (clientSideFileUrl, result) in uploadResults {
                         switch result {
                         case .success(let metadata):
                             let dropboxFilePath = metadata.pathDisplay!
-                            print("Upload \(clientSideFileUrl.absoluteString) to \(dropboxFilePath) succeeded")
+                            //print("Upload \(clientSideFileUrl.absoluteString) to \(dropboxFilePath) succeeded")
                         case .failure(let error):
                             print("Upload \(clientSideFileUrl.absoluteString) failed: \(error)")
                         }
@@ -146,7 +141,7 @@ extension DropboxAssistant {
             }
         )
     }
-
+    
 }
 
 struct DropboxFolder: Codable {

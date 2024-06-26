@@ -286,7 +286,7 @@ exports.append_clockinout_to_spreadsheet = onRequest(async (req, res) => {
     {red: 215/255,
       green: 199/255, blue: 255/255, alpha: 3.0/3};
 
-  addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
+  await addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
 
   const range = "'" + username + "'!A1";
   await sort(auth, apiKey, spreadsheetID, username);
@@ -322,7 +322,8 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
     "=SUM(FILTER(INDIRECT(ADDRESS(1, COLUMN()) & \":\" & ADDRESS(ROW()-1, "+
       "COLUMN())), INDIRECT(\"A1:A\" & ROW()-1) = INDIRECT(\"A\" & ROW())))",
     "=SUM(FILTER(INDIRECT(ADDRESS(1, COLUMN()) & \":\" & ADDRESS(ROW()-1, "+
-    "COLUMN())), INDIRECT(\"A1:A\" & ROW()-1) = INDIRECT(\"A\" & ROW())))"];
+    "COLUMN())), INDIRECT(\"A1:A\" & ROW()-1) = INDIRECT(\"A\" & ROW())))",
+    ""];
 
   const backgroundColor = {red: 183.0/255,
     green: 215.0/255, blue: 168.0/255, alpha: 3.0/3};

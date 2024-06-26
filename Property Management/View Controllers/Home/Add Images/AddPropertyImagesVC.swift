@@ -84,7 +84,7 @@ class AddPropertyImagesVC: UIViewController {
     }
     
     func newImageAdded(_ image: UIImage, key: Int) {
-        if self.keys.contains(key) {
+        if self.keys.contains(key) && key != -1 {
             return
         }
         self.keys.append(key)
@@ -128,7 +128,7 @@ extension AddPropertyImagesVC: UIImagePickerControllerDelegate, UINavigationCont
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         // Get the image from the info dictionary.
         if let editedImage = info[.editedImage] as? UIImage {
-            self.newImageAdded(editedImage, key: Int.random(in: 0...(.max)))
+            self.newImageAdded(editedImage, key: -1)
         }
         
         // Dismiss the UIImagePicker after selection

@@ -91,13 +91,13 @@ class PhotoUploadVC: UIViewController {
         
         let unit = unitButton.attributedTitle(for: .normal)?.string
         let path = (unit == "Unit #" || unit == nil) ? "/\(selectedFolder)/\(propertyName)" : "/\(selectedFolder)/\(propertyName)/\(unit ?? "unknown")"
-        //let name = (unit == "Unit #" || unit == nil) ? "\(propertyName)" : "\(propertyName)_\(unit ?? "unknown")"
+        let name = (unit == "Unit #" || unit == nil) ? "\(propertyName)" : "\(propertyName)_\(unit ?? "unknown")"
         let loadingScreen = createLoadingScreen(frame: view.frame)
         view.addSubview(loadingScreen)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
 
-            DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: path, namingConvention: .propertyName, property: propertyName) { completed, error in
+            DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: path, namingConvention: .propertyName, property: name) { completed, error in
                 if let error = error {
                     print(error.localizedDescription)
                 }
@@ -141,7 +141,7 @@ class PhotoUploadVC: UIViewController {
     }
     
     func newImageAdded(_ image: UIImage, key: Int) {
-        if self.keys.contains(key) {
+        if self.keys.contains(key) && key != -1 {
             return
         }
         self.keys.append(key)
@@ -252,7 +252,7 @@ extension PhotoUploadVC: UIImagePickerControllerDelegate, UINavigationController
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         // Get the image from the info dictionary.
         if let editedImage = info[.originalImage] as? UIImage {
-            self.newImageAdded(editedImage, key: Int.random(in: 0...(.max)))
+            self.newImageAdded(editedImage, key: -1)
         }
         // Dismiss the UIImagePicker after selection
         picker.dismiss(animated: true, completion: nil)

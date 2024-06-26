@@ -10,33 +10,50 @@ import UIKit
 struct ImageCompressor {
     static func compress(image: UIImage, maxByte: Int,
                          completion: @escaping (UIImage?) -> ()) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard let currentImageSize = image.jpegData(compressionQuality: 1.0)?.count else {
-                return completion(nil)
-            }
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            guard let currentImageSize = image.jpegData(compressionQuality: 1.0)?.count else {
+//                return completion(nil)
+//            }
+//        
+//            var iterationImage: UIImage? = image
+//            var iterationImageSize = currentImageSize
+//            var iterationCompression: CGFloat = 1.0
+//        
+//            while iterationImageSize > maxByte && iterationCompression > 0.01 {
+//                let percentageDecrease = getPercentageToDecreaseTo(forDataCount: iterationImageSize)
+//            
+//                let canvasSize = CGSize(width: image.size.width * iterationCompression,
+//                                        height: image.size.height * iterationCompression)
+//                UIGraphicsBeginImageContextWithOptions(canvasSize, false, image.scale)
+//                defer { UIGraphicsEndImageContext() }
+//                image.draw(in: CGRect(origin: .zero, size: canvasSize))
+//                iterationImage = UIGraphicsGetImageFromCurrentImageContext()
+//            
+//                guard let newImageSize = iterationImage?.jpegData(compressionQuality: 1.0)?.count else {
+//                    return completion(nil)
+//                }
+//                iterationImageSize = newImageSize
+//                iterationCompression -= percentageDecrease
+//            }
+//            completion(iterationImage)
+//        }
+        completion(image)
+    }
+    
+    //returns jpeg data
+    static func compressImageToTargetSize(image: UIImage, targetSizeMB: CGFloat) -> Data? {
+        let targetSizeBytes = targetSizeMB * 1024 * 1024
+        var compression: CGFloat = 1.0
+        var imageData = image.jpegData(compressionQuality: compression)
         
-            var iterationImage: UIImage? = image
-            var iterationImageSize = currentImageSize
-            var iterationCompression: CGFloat = 1.0
+        guard imageData != nil else { return nil }
         
-            while iterationImageSize > maxByte && iterationCompression > 0.01 {
-                let percentageDecrease = getPercentageToDecreaseTo(forDataCount: iterationImageSize)
-            
-                let canvasSize = CGSize(width: image.size.width * iterationCompression,
-                                        height: image.size.height * iterationCompression)
-                UIGraphicsBeginImageContextWithOptions(canvasSize, false, image.scale)
-                defer { UIGraphicsEndImageContext() }
-                image.draw(in: CGRect(origin: .zero, size: canvasSize))
-                iterationImage = UIGraphicsGetImageFromCurrentImageContext()
-            
-                guard let newImageSize = iterationImage?.jpegData(compressionQuality: 1.0)?.count else {
-                    return completion(nil)
-                }
-                iterationImageSize = newImageSize
-                iterationCompression -= percentageDecrease
-            }
-            completion(iterationImage)
+        while imageData!.count > Int(targetSizeBytes) && compression > 0.01 {
+            compression -= 0.01
+            imageData = image.jpegData(compressionQuality: compression)
         }
+        
+        return imageData
     }
 
     private static func getPercentageToDecreaseTo(forDataCount dataCount: Int) -> CGFloat {
