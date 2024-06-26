@@ -29,7 +29,7 @@ final class LocationManager: NSObject {
     typealias ReverseGeoLocationClosure = ((_ location:CLLocation?, _ placemark:CLPlacemark?,_ error: NSError?)->Void)
     private var geoLocationCompletionHandler: ReverseGeoLocationClosure?
     
-    private var locationManager:CLLocationManager?
+    var locationManager:CLLocationManager?
     private var activityManager: CMMotionActivityManager?
     
     private var locationAccuracy = kCLLocationAccuracyBest

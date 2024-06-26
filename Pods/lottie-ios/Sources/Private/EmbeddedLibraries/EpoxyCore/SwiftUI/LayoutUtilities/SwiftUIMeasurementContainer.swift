@@ -1,6 +1,7 @@
 // Created by Bryn Bodayle on 1/24/22.
 // Copyright © 2022 Airbnb Inc. All rights reserved.
 
+#if canImport(SwiftUI)
 import SwiftUI
 
 // MARK: - SwiftUIMeasurementContainer
@@ -12,7 +13,6 @@ import SwiftUI
 /// height through the `SwiftUISizingContext` binding.
 ///
 /// - SeeAlso: ``MeasuringViewRepresentable``
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
 final class SwiftUIMeasurementContainer<Content: ViewType>: ViewType {
 
   // MARK: Lifecycle
@@ -450,3 +450,4 @@ extension CGSize {
       height: height == ViewType.noIntrinsicMetric ? fallback.height : height)
   }
 }
+#endif

@@ -56,11 +56,11 @@ class HomeVC: UIViewController {
             }
             if Stopwatch.shared.shouldTrackLocation() {
                 self.locationManager = LocationManager.shared
-                LocationManager.shared.getLocation { location, error in
-                    if let loc = location {
-                        print("initial location: \(loc)")
-                    }
-                }
+//                LocationManager.shared.getLocation { location, error in
+//                    if let loc = location {
+//                        print("initial location: \(loc)")
+//                    }
+//                }
             }
         }
         
@@ -656,6 +656,13 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource {
         
         
         return view
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.row >= activities.count || activities[indexPath.row] is Work {
+            return 350
+        }
+        return 350
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

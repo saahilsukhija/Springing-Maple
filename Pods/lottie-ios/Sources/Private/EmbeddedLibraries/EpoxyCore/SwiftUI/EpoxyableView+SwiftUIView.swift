@@ -1,11 +1,11 @@
 // Created by eric_horacek on 9/13/21.
 // Copyright © 2021 Airbnb Inc. All rights reserved.
 
+#if canImport(SwiftUI)
 import SwiftUI
 
 // MARK: - StyledView
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
 extension StyledView where Self: ContentConfigurableView & BehaviorsConfigurableView {
   /// Returns a SwiftUI `View` representing this `EpoxyableView`.
   ///
@@ -51,7 +51,6 @@ extension StyledView where Self: ContentConfigurableView & BehaviorsConfigurable
   }
 }
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
 extension StyledView
   where
   Self: ContentConfigurableView & BehaviorsConfigurableView,
@@ -95,7 +94,6 @@ extension StyledView
   }
 }
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
 extension StyledView
   where
   Self: ContentConfigurableView & BehaviorsConfigurableView,
@@ -137,7 +135,6 @@ extension StyledView
   }
 }
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
 extension StyledView
   where
   Self: ContentConfigurableView & BehaviorsConfigurableView,
@@ -170,3 +167,4 @@ extension StyledView
     }
   }
 }
+#endif

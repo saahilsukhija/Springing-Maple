@@ -62,7 +62,7 @@ extension UIViewController {
     
     ///Shows a green toast
     func showSuccessToast(message: String) {
-        showAnimationToast(animationName: "CheckMark", message: message, color: .systemGreen, fontColor: .systemGreen)
+        showAnimationToast(animationName: "CheckMark", message: message, color: .mapGreen, fontColor: .mapGreen)
     }
     
     ///Shows a red toast

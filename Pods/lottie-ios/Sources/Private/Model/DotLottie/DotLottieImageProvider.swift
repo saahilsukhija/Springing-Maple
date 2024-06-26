@@ -5,7 +5,6 @@
 //  Created by Evandro Hoffmann on 20/10/22.
 //
 
-import Foundation
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)
@@ -23,12 +22,12 @@ class DotLottieImageProvider: AnimationImageProvider {
   ///
   /// - Parameter filepath: The absolute filepath containing the images.
   ///
-  init(filepath: String) {
-    self.filepath = URL(fileURLWithPath: filepath)
-    loadImages()
+  convenience init?(filepath: String) {
+    self.init(filepath: URL(fileURLWithPath: filepath))
   }
 
-  init(filepath: URL) {
+  init?(filepath: URL) {
+    guard filepath.urls.count > 0 else { return nil }
     self.filepath = filepath
     loadImages()
   }
@@ -38,7 +37,11 @@ class DotLottieImageProvider: AnimationImageProvider {
   let filepath: URL
 
   func imageForAsset(asset: ImageAsset) -> CGImage? {
-    images[asset.name]
+    if let base64Image = asset.base64Image {
+      return base64Image
+    }
+
+    return images[asset.name]
   }
 
   // MARK: Private
@@ -52,14 +55,14 @@ class DotLottieImageProvider: AnimationImageProvider {
 
   private func loadImages() {
     for url in filepath.urls {
-      #if os(iOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+      #if canImport(UIKit)
       if
         let data = try? Data(contentsOf: url),
         let image = UIImage(data: data)?.cgImage
       {
         images[url.lastPathComponent] = image
       }
-      #elseif os(macOS)
+      #elseif canImport(AppKit)
       if
         let data = try? Data(contentsOf: url),
         let image = NSImage(data: data)?.lottie_CGImage

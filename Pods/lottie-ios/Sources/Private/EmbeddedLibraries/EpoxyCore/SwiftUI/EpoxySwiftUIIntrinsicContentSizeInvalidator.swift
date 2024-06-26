@@ -1,6 +1,7 @@
 // Created by matthew_cheok on 11/19/21.
 // Copyright © 2021 Airbnb Inc. All rights reserved.
 
+#if canImport(SwiftUI)
 import SwiftUI
 
 // MARK: - EpoxyIntrinsicContentSizeInvalidator
@@ -28,7 +29,6 @@ struct EpoxyIntrinsicContentSizeInvalidator {
 
 // MARK: - EnvironmentValues
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
 extension EnvironmentValues {
   /// A means of invalidating the intrinsic content size of the parent `EpoxySwiftUIHostingView`.
   var epoxyIntrinsicContentSizeInvalidator: EpoxyIntrinsicContentSizeInvalidator {
@@ -42,3 +42,4 @@ extension EnvironmentValues {
 private struct EpoxyIntrinsicContentSizeInvalidatorKey: EnvironmentKey {
   static let defaultValue = EpoxyIntrinsicContentSizeInvalidator(invalidate: { })
 }
+#endif

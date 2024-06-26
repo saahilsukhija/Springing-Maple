@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		2059A15D4325ED8D3D29FCE6 /* Pods_Property_Management_Property_ManagementUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 167838D5BFE2A18DB108A80F /* Pods_Property_Management_Property_ManagementUITests.framework */; };
 		2C3984CFB1CAF7C0BC421BB9 /* Pods_Property_ManagementTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73D0707DC6D5018C44F351E2 /* Pods_Property_ManagementTests.framework */; };
+		6D01B0492C2C9FFE007C336C /* ImageCompressor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D01B0482C2C9FFE007C336C /* ImageCompressor.swift */; };
 		6D05E4A12B5324AB001DF6D2 /* SessionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D05E4A02B5324AB001DF6D2 /* SessionVC.swift */; };
 		6D05E4A32B534F38001DF6D2 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D05E4A22B534F38001DF6D2 /* Stopwatch.swift */; };
 		6D1B7CBC2B46C81700A9EC96 /* API_KEYS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1B7CBB2B46C81700A9EC96 /* API_KEYS.swift */; };
 		6D1B7CBE2B47644400A9EC96 /* Drive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1B7CBD2B47644400A9EC96 /* Drive.swift */; };
 		6D227E042B954DC9008C4289 /* ProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D227E032B954DC9008C4289 /* ProfileVC.swift */; };
 		6D5C80B92C29F3DE00A02C3F /* AddressComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5C80B82C29F3DE00A02C3F /* AddressComplete.swift */; };
+		6D5C80BC2C2A22BB00A02C3F /* PhotoUploadVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5C80BB2C2A22BB00A02C3F /* PhotoUploadVC.swift */; };
 		6D6034342BA8193300E799B0 /* NoActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6034332BA8193300E799B0 /* NoActivityCell.swift */; };
 		6D626C6F2BB5EF4B00031DE1 /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D626C6E2BB5EF4B00031DE1 /* SettingsVC.swift */; };
 		6D626C712BB663C300031DE1 /* SettingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D626C702BB663C300031DE1 /* SettingCell.swift */; };
@@ -143,12 +145,14 @@
 		167838D5BFE2A18DB108A80F /* Pods_Property_Management_Property_ManagementUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Property_Management_Property_ManagementUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		261B3A137CED5B969EB5042C /* Pods-Property Management-Property ManagementUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Property Management-Property ManagementUITests.debug.xcconfig"; path = "Target Support Files/Pods-Property Management-Property ManagementUITests/Pods-Property Management-Property ManagementUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		3C7EC148C450BD7B0AF6AD68 /* Pods-Property Management.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Property Management.release.xcconfig"; path = "Target Support Files/Pods-Property Management/Pods-Property Management.release.xcconfig"; sourceTree = "<group>"; };
+		6D01B0482C2C9FFE007C336C /* ImageCompressor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCompressor.swift; sourceTree = "<group>"; };
 		6D05E4A02B5324AB001DF6D2 /* SessionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionVC.swift; sourceTree = "<group>"; };
 		6D05E4A22B534F38001DF6D2 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
 		6D1B7CBB2B46C81700A9EC96 /* API_KEYS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API_KEYS.swift; sourceTree = "<group>"; };
 		6D1B7CBD2B47644400A9EC96 /* Drive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drive.swift; sourceTree = "<group>"; };
 		6D227E032B954DC9008C4289 /* ProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileVC.swift; sourceTree = "<group>"; };
 		6D5C80B82C29F3DE00A02C3F /* AddressComplete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressComplete.swift; sourceTree = "<group>"; };
+		6D5C80BB2C2A22BB00A02C3F /* PhotoUploadVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadVC.swift; sourceTree = "<group>"; };
 		6D6034332BA8193300E799B0 /* NoActivityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoActivityCell.swift; sourceTree = "<group>"; };
 		6D626C6E2BB5EF4B00031DE1 /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
 		6D626C702BB663C300031DE1 /* SettingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingCell.swift; sourceTree = "<group>"; };
@@ -302,6 +306,14 @@
 			path = Session;
 			sourceTree = "<group>";
 		};
+		6D5C80BA2C2A229F00A02C3F /* Photo Upload */ = {
+			isa = PBXGroup;
+			children = (
+				6D5C80BB2C2A22BB00A02C3F /* PhotoUploadVC.swift */,
+			);
+			path = "Photo Upload";
+			sourceTree = "<group>";
+		};
 		6D626C6D2BB5EF3600031DE1 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -421,6 +433,7 @@
 		6DAC41E22B4544C80092A26F /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				6D5C80BA2C2A229F00A02C3F /* Photo Upload */,
 				6D626C6D2BB5EF3600031DE1 /* Settings */,
 				6D05E49F2B532498001DF6D2 /* Session */,
 				6DAC41EA2B4663C90092A26F /* Home */,
@@ -583,6 +596,7 @@
 				6DAC41EE2B46663E0092A26F /* Date.swift */,
 				6DC9DFFF2B8C58520091A376 /* ActivityArray.swift */,
 				6DB84C712B9E5B5100B21222 /* String.swift */,
+				6D01B0482C2C9FFE007C336C /* ImageCompressor.swift */,
 			);
 			path = "Class Extensions";
 			sourceTree = "<group>";
@@ -927,6 +941,7 @@
 				6DDBF1882AFF29990013A77B /* Toast.swift in Sources */,
 				6DAC41D42B4542AF0092A26F /* Alert.swift in Sources */,
 				6D6B26882B4FE47100809D6D /* RecentLocationQueue.swift in Sources */,
+				6D01B0492C2C9FFE007C336C /* ImageCompressor.swift in Sources */,
 				6D66685C2BBFD99A007A7D90 /* AddressLookupVC.swift in Sources */,
 				6D9E667E2AF1CD1B002E9664 /* HomeVC.swift in Sources */,
 				6D1B7CBC2B46C81700A9EC96 /* API_KEYS.swift in Sources */,
@@ -953,6 +968,7 @@
 				6DAC41DC2B4542B00092A26F /* Notification.swift in Sources */,
 				6DB84C762BA3BE6D00B21222 /* CreateTeamVC.swift in Sources */,
 				6DDBF2152B08226E0013A77B /* Dictionary.swift in Sources */,
+				6D5C80BC2C2A22BB00A02C3F /* PhotoUploadVC.swift in Sources */,
 				6D227E042B954DC9008C4289 /* ProfileVC.swift in Sources */,
 				6DAC41E12B4542B00092A26F /* ViewShadow.swift in Sources */,
 				6DFB55EE2BAFEFA1006758C9 /* CreateSpreadsheetVC.swift in Sources */,

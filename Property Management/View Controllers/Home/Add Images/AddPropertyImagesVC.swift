@@ -14,6 +14,7 @@ class AddPropertyImagesVC: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     
     var images: [UIImage] = []
+    var keys: [Int] = []
     var propertyName: String?
     
     var doneButton: UIBarButtonItem!
@@ -59,7 +60,7 @@ class AddPropertyImagesVC: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             loadingScreen.removeFromSuperview()
             self.navigationController?.popViewController(animated: true)
-            DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: "/\(selectedFolder)/\(propertyName)") { completed, error in
+            DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: "/\(selectedFolder)/\(propertyName)", namingConvention: .propertyName, property: propertyName) { completed, error in
                 if let error = error {
                     print(error.localizedDescription)
                 }
@@ -82,8 +83,14 @@ class AddPropertyImagesVC: UIViewController {
         }
     }
     
-    func newImageAdded(_ image: UIImage) {
+    func newImageAdded(_ image: UIImage, key: Int) {
+        if self.keys.contains(key) {
+            return
+        }
+        self.keys.append(key)
+        
         self.images.append(image)
+        
         self.collectionView.reloadData()
         
         doneButton.tintColor = .accentColor
@@ -115,4 +122,21 @@ extension AddPropertyImagesVC: UICollectionViewDelegate, UICollectionViewDataSou
     
     
     
+}
+
+extension AddPropertyImagesVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        // Get the image from the info dictionary.
+        if let editedImage = info[.editedImage] as? UIImage {
+            self.newImageAdded(editedImage, key: Int.random(in: 0...(.max)))
+        }
+        
+        // Dismiss the UIImagePicker after selection
+        picker.dismiss(animated: true, completion: nil)
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.isNavigationBarHidden = false
+        self.dismiss(animated: true, completion: nil)
+    }
 }

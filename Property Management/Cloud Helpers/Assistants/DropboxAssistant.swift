@@ -80,47 +80,83 @@ extension DropboxAssistant {
         }
     }
     
-    func uploadImagesToFolder(images: [UIImage], folderPath: String, completion: @escaping (Bool, Error?) -> Void) {
-        guard let client = client else { completion(false, NSError(domain: "DropboxClient", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authenticated"])); return }
-        
-        let dispatchGroup = DispatchGroup()
-        var uploadError: Error?
-        
-        for (index, image) in images.enumerated() {
-            if let imageData = image.pngData() {
-                let fileName = "\(Date().toLongMonthDayYearFormat())_\(index+1).png"
-                let filePath = "\(folderPath)/\(fileName)"
-                
-                dispatchGroup.enter()
-                client.files.upload(path: filePath, input: imageData)
-                    .response { response, error in
-                        if let error = error {
-                            uploadError = error
-                        }
-                        dispatchGroup.leave()
-                    }
-                    .progress { progressData in
-                        //print("Upload progress for \(fileName): \(progressData.fractionCompleted)")
-                    }
-            } else {
-                print("Failed to get PNG data for image \(index + 1)")
-            }
+    func uploadImagesToFolder(images: [UIImage], folderPath: String, namingConvention: DropboxNamingConvention, property: String, completion: @escaping (Bool, Error?) -> Void) {
+        guard let client = client else {
+            completion(false, NSError(domain: "DropboxClient", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authenticated"]))
+            return
         }
-        
-        dispatchGroup.notify(queue: .main) {
-            if let error = uploadError {
-                completion(false, error)
-            } else {
-                completion(true, nil)
-            }
-        }
-    }
-}
 
+        var filesCommitInfo = [URL : Files.CommitInfo]()
+
+        for (index, image) in images.enumerated() {
+            ImageCompressor.compress(image: image, maxByte: Constants.MAX_IMAGE_SIZE) { image in
+                guard let image = image else { print("unable to compress"); return }
+                if let imageData = image.jpegData(compressionQuality: 1) {
+                    let fileName: String
+                    switch namingConvention {
+                    case .propertyName:
+                        fileName = "\(property)_\(index+1).jpg"
+                    default:
+                        fileName = "\(Date().toLongMonthDayYearFormat())_\(index+1).jpg"
+                    }
+                    let filePath = "\(folderPath)/\(fileName)"
+                    let tempUrl = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
+                    
+                    do {
+                        try imageData.write(to: tempUrl)
+                        filesCommitInfo[tempUrl] = Files.CommitInfo(path: filePath, mode: .overwrite)
+                    } catch {
+                        print("Failed to write image data to temporary file for image \(index + 1)")
+                    }
+                } else {
+                    print("Failed to get PNG data for image \(index + 1)")
+                }
+            }
+            
+        }
+
+        client.files.batchUploadFiles(
+            fileUrlsToCommitInfo: filesCommitInfo,
+            responseBlock: { (uploadResults: [URL: Files.UploadSessionFinishBatchResultEntry]?,
+                              finishBatchRequestError: BatchUploadError?,
+                              fileUrlsToRequestErrors: [URL: BatchUploadError]) -> Void in
+
+                if let uploadResults = uploadResults {
+                    for (clientSideFileUrl, result) in uploadResults {
+                        switch result {
+                        case .success(let metadata):
+                            let dropboxFilePath = metadata.pathDisplay!
+                            print("Upload \(clientSideFileUrl.absoluteString) to \(dropboxFilePath) succeeded")
+                        case .failure(let error):
+                            print("Upload \(clientSideFileUrl.absoluteString) failed: \(error)")
+                        }
+                    }
+                    completion(true, nil)
+                } else if let finishBatchRequestError = finishBatchRequestError {
+                    print("Error uploading files: possible error on Dropbox server: \(finishBatchRequestError)")
+                    completion(false, finishBatchRequestError as? Error)
+                } else if fileUrlsToRequestErrors.count > 0 {
+                    print("Error uploading files: \(fileUrlsToRequestErrors)")
+                    if let firstError = fileUrlsToRequestErrors.values.first {
+                        completion(false, firstError as? Error)
+                    } else {
+                        completion(false, NSError(domain: "DropboxClient", code: 500, userInfo: [NSLocalizedDescriptionKey: "Unknown error occurred during batch upload"]))
+                    }
+                }
+            }
+        )
+    }
+
+}
 
 struct DropboxFolder: Codable {
     
     var id: String!
     var name: String!
     
+}
+
+enum DropboxNamingConvention {
+    
+    case propertyName
 }

@@ -1,10 +1,10 @@
 // Created by Cal Stephens on 8/11/23.
 // Copyright © 2023 Airbnb Inc. All rights reserved.
 
+#if canImport(SwiftUI)
 import SwiftUI
 
 /// A wrapper which exposes Lottie's `AnimatedSwitch` to SwiftUI
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
 public struct LottieSwitch: UIViewConfiguringSwiftUIView {
 
   // MARK: Lifecycle
@@ -142,3 +142,4 @@ public struct LottieSwitch: UIViewConfiguringSwiftUIView {
   private var isOn: Binding<Bool>?
 
 }
+#endif

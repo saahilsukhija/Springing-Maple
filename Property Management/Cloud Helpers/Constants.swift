@@ -14,5 +14,9 @@ class Constants {
     
     static let SECONDS_TO_WAIT_AFTER_DRIVE = 180
     
-    static let SAVED_LOCATION_RANGE = 258 //meters
+    static let SAVED_LOCATION_RANGE = 200 //meters
+    
+    static let MAX_UNITS = 25
+    
+    static let MAX_IMAGE_SIZE = 5000000
 }

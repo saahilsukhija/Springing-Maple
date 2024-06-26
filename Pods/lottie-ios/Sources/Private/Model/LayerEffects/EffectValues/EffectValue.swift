@@ -1,8 +1,6 @@
 // Created by Cal Stephens on 8/15/23.
 // Copyright © 2023 Airbnb Inc. All rights reserved.
 
-import Foundation
-
 // MARK: - EffectValueType
 
 /// https://lottiefiles.github.io/lottie-docs/schema/#/$defs/effect-values
@@ -50,8 +48,8 @@ class EffectValue: Codable, DictionaryInitializable {
   }
 
   required init(dictionary: [String: Any]) throws {
-    type = EffectValueType(rawValue: try dictionary.value(for: CodingKeys.type)) ?? .unknown
-    name = try dictionary.value(for: CodingKeys.name) ?? "Effect"
+    type = (try? dictionary.value(for: CodingKeys.type)).flatMap(EffectValueType.init(rawValue:)) ?? .unknown
+    name = (try? dictionary.value(for: CodingKeys.name)) ?? "Effect"
   }
 
   // MARK: Internal
@@ -70,7 +68,7 @@ class EffectValue: Codable, DictionaryInitializable {
   }
 }
 
-extension Array where Element == EffectValue {
+extension [EffectValue] {
   static func fromDictionaries(_ dictionaries: [[String: Any]]) throws -> [EffectValue] {
     try dictionaries.compactMap { dictionary in
       let shapeType = dictionary[EffectValue.CodingKeys.type.rawValue] as? Int
@@ -95,4 +93,5 @@ extension Array where Element == EffectValue {
 
 /// Since `EffectValue` isn't `final`, we have to use `@unchecked Sendable` instead of `Sendable.`
 /// All `EffectValue` subclasses are immutable `Sendable` values.
+// swiftlint:disable:next no_unchecked_sendable
 extension EffectValue: @unchecked Sendable { }

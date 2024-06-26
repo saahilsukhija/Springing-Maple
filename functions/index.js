@@ -133,10 +133,10 @@ exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
   addNewSheet(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
       [date, initialTime,
-        finalTime, ticketNumber,
-        type, finalLocation,
-        moneySpent, receiptLink, notes,
-        duration, milesDriven]);
+        finalTime, type,
+        ticketNumber, finalLocation,
+        moneySpent, notes,
+        duration, milesDriven, receiptLink]);
   // const values = request.query.values
 
   await sort(auth, apiKey, spreadsheetID, username);
@@ -169,55 +169,19 @@ exports.append_unreg_drive_to_spreadsheet = onRequest(async (req, res) => {
   const range = "'" + username + "'!A1";
 
   addNewSheet(auth, apiKey, spreadsheetID, username);
-  // const values = request.query.values
-
-  const appendValue = ["", "",
-    "", "",
-    "", "",
-    "", "", "", "", ""];
 
   const backgroundColor = {red: 220.0/255,
     green: 220.0/255, blue: 220.0/255, alpha: 1.0/3};
 
-  const values = appendValue.map((e, index) => (
-    {
-      userEnteredValue: {
-        numberValue: undefined,
-        stringValue: undefined,
-      },
-      userEnteredFormat: {backgroundColor,
-        numberFormat: undefined},
-    }));
-
-  const sheetId = await getSheetID(auth, spreadsheetID, username);
-
-  const sheets = google.sheets({version: "v4", auth});
-  sheets.spreadsheets.batchUpdate(
-      {
-        auth: auth,
-        spreadsheetId: spreadsheetID,
-        key: apiKey,
-        resource: {
-          requests: [
-            {
-              "appendCells": {
-                "rows": [{values}],
-                "sheetId": sheetId,
-                "fields": "userEnteredValue,userEnteredFormat",
-              },
-            },
-          ],
-        },
-      },
-  );
+  addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
 
   await sort(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
       [date, initialTime,
-        finalTime, "",
-        type, finalLocation,
-        "", "", "",
-        duration, milesDriven]);
+        finalTime, type,
+        "", finalLocation,
+        "", "",
+        duration, milesDriven, ""]);
   await sort(auth, apiKey, spreadsheetID, username);
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
 
@@ -279,58 +243,17 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
     ],
   });
 
-  // const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
-  // const date2 = ((new Date(date + ", " + initialTime)).getTime() /
-  //   1000 / 86400) + 25569;
-  // const date3 = ((new Date(date + ", " + finalTime)).getTime() /
-  //   1000 / 86400) + 25569;
-  const appendValue = ["", "",
-    "", "",
-    "", "",
-    "", "", "", "", ""];
-
   const backgroundColor = {red: 246.0/255,
     green: 178.0/255, blue: 107.0/255, alpha: 1.0/3};
-  // appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
-  //     appendValue);
 
-  const values = appendValue.map((e, index) => (
-    {
-      userEnteredValue: {
-        numberValue: undefined,
-        stringValue: undefined,
-      },
-      userEnteredFormat: {backgroundColor,
-        numberFormat: undefined},
-    }));
-  const sheetId = await getSheetID(auth, spreadsheetID, username);
-
-  const sheets = google.sheets({version: "v4", auth});
-  sheets.spreadsheets.batchUpdate(
-      {
-        auth: auth,
-        spreadsheetId: spreadsheetID,
-        key: apiKey,
-        resource: {
-          requests: [
-            {
-              "appendCells": {
-                "rows": [{values}],
-                "sheetId": sheetId,
-                "fields": "userEnteredValue,userEnteredFormat",
-              },
-            },
-          ],
-        },
-      },
-  );
+  addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
 
   const range = "'" + username + "'!A1";
   await sort(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
       [date, initialTime,
-        finalTime, "",
-        "BREAK", "",
+        finalTime, "BREAK",
+        "", "",
         "0.00", "", "",
         "", ""]);
   await sort(auth, apiKey, spreadsheetID, username);
@@ -357,55 +280,18 @@ exports.append_clockinout_to_spreadsheet = onRequest(async (req, res) => {
     ],
   });
 
-  const appendValue = ["", "",
-    "", "",
-    "", "",
-    "",
-    "", "",
-    "",
-    ""];
-  const range = "'" + username + "'!A1";
+
   const backgroundColor = type == "Clock In" ? {red: 255/255,
     green: 210/255, blue: 217/255, alpha: 3.0/3} :
     {red: 215/255,
       green: 199/255, blue: 255/255, alpha: 3.0/3};
 
-  // const dateNumber = ((new Date(date)).getTime() / 1000 / 86400) + 25569;
-  const values = appendValue.map((e, index) => (
-    {
-      userEnteredValue: {
-        numberValue: undefined,
-        stringValue: undefined,
-      },
-      userEnteredFormat: {backgroundColor,
-        numberFormat: undefined},
-    }));
-  const sheetId = await getSheetID(auth, spreadsheetID, username);
+  addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
 
-  const sheets = google.sheets({version: "v4", auth});
-  sheets.spreadsheets.batchUpdate(
-      {
-        auth: auth,
-        spreadsheetId: spreadsheetID,
-        key: apiKey,
-        resource: {
-          requests: [
-            {
-              "appendCells": {
-                "rows": [{values}],
-                "sheetId": sheetId,
-                "fields": "userEnteredValue,userEnteredFormat"
-                ,
-              },
-            },
-          ],
-        },
-      },
-  );
-
+  const range = "'" + username + "'!A1";
   await sort(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
-      [date, time, "", "", type, location,
+      [date, time, "", type, "", location,
         "", "", "", "", ""]);
   await sort(auth, apiKey, spreadsheetID, username);
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
@@ -428,15 +314,15 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
   });
 
   const appendValue = [date, "",
+    "", "Daily Summary",
     "", "",
-    "Daily Summary", "",
-    "=SUM(FILTER(INDIRECT(\"G1:G\"& ROW()-1), " +
-      "INDIRECT(\"A1:A\"&ROW()-1) = INDIRECT(\"A\"&ROW())))",
-    "", "",
-    "=SUM(FILTER(INDIRECT(\"J1:J\"& ROW()-1), " +
-      "INDIRECT(\"A1:A\"&ROW()-1) = INDIRECT(\"A\"&ROW())))",
-    "=SUM(FILTER(INDIRECT(\"K1:K\"& ROW()-1), " +
-    "INDIRECT(\"A1:A\"&ROW()-1) = INDIRECT(\"A\"&ROW())))"];
+    "=SUM(FILTER(INDIRECT(ADDRESS(1, COLUMN()) & \":\" & ADDRESS(ROW()-1, "+
+      "COLUMN())), INDIRECT(\"A1:A\" & ROW()-1) = INDIRECT(\"A\" & ROW())))",
+    "",
+    "=SUM(FILTER(INDIRECT(ADDRESS(1, COLUMN()) & \":\" & ADDRESS(ROW()-1, "+
+      "COLUMN())), INDIRECT(\"A1:A\" & ROW()-1) = INDIRECT(\"A\" & ROW())))",
+    "=SUM(FILTER(INDIRECT(ADDRESS(1, COLUMN()) & \":\" & ADDRESS(ROW()-1, "+
+    "COLUMN())), INDIRECT(\"A1:A\" & ROW()-1) = INDIRECT(\"A\" & ROW())))"];
 
   const backgroundColor = {red: 183.0/255,
     green: 215.0/255, blue: 168.0/255, alpha: 3.0/3};
@@ -447,9 +333,9 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
     {
       userEnteredValue: {
         stringValue: (index === 6 || index == 0 ||
-          index === 9 || index === 10) ? undefined : e,
-        formulaValue: (index === 6 || index === 9 ||
-          index === 10) ? e : undefined,
+          index === 8 || index === 9) ? undefined : e,
+        formulaValue: (index === 6 || index === 8 ||
+          index === 9) ? e : undefined,
         numberValue: index === 0 ? dateNumber : undefined},
       userEnteredFormat: {backgroundColor,
         numberFormat: index <= 2 ?
@@ -677,6 +563,57 @@ async function deleteRow(auth, apiKey, spreadsheetID, username, row) {
 }
 
 /**
+ * Adds a blank row with a given color to the spreadsheet
+ * @param {*} auth TODO: OAUTH
+ * @param {*} apiKey the apiKey
+ * @param {*} spreadsheetID the id of ENTIRE spreadsheet
+ * @param {*} username name of user
+ * @param {*} color the color to make the row
+ */
+async function addBlankRow(auth, apiKey, spreadsheetID, username, color) {
+  const appendValue = ["", "",
+    "", "",
+    "", "",
+    "", "", "", "", ""];
+
+  const backgroundColor = color;
+  // appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
+  //     appendValue);
+
+  const values = appendValue.map((e, index) => (
+    {
+      userEnteredValue: {
+        numberValue: undefined,
+        stringValue: undefined,
+      },
+      userEnteredFormat: {backgroundColor,
+        numberFormat: undefined},
+    }));
+
+  const sheetId = await getSheetID(auth, spreadsheetID, username);
+
+  const sheets = google.sheets({version: "v4", auth});
+  sheets.spreadsheets.batchUpdate(
+      {
+        auth: auth,
+        spreadsheetId: spreadsheetID,
+        key: apiKey,
+        resource: {
+          requests: [
+            {
+              "appendCells": {
+                "rows": [{values}],
+                "sheetId": sheetId,
+                "fields": "userEnteredValue,userEnteredFormat",
+              },
+            },
+          ],
+        },
+      },
+  );
+}
+
+/**
  * Adds a new sheet
  * @param {auth} auth TODO: OAUTH
  * @param {String} apiKey API Key
@@ -721,9 +658,9 @@ function resetHeader(auth, apiKey, spreadsheetID, name) {
     key: apiKey,
     valueInputOption: "RAW",
     resource: {values: [["Date", "Start", "Finish",
-      "Appfolio Ticket Number", "Type", "Location",
-      "Expense Amount", "Receipt Link", "Description",
-      "Duration", "Miles Driven"]]},
+      "Type", "Appfolio Ticket Number", "Location",
+      "Expense Amount", "Description",
+      "Duration", "Miles Driven", "Receipt Link"]]},
   }, (err, result) => {
     if (err) {
       throw err;

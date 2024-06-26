@@ -62,7 +62,7 @@ class DropboxConnectVC: UIViewController {
         
         updateDropboxButton()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             DropboxAssistant.shared.getAllFolders() { folders in
                 self.showFolders(folders)
             }
