@@ -1883,7 +1883,7 @@
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BEK-5P-nP0">
-                                <rect key="frame" x="20" y="118" width="353" height="685"/>
+                                <rect key="frame" x="20" y="118" width="353" height="636"/>
                                 <subviews>
                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Property name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="7y9-5a-jDv">
                                         <rect key="frame" x="0.0" y="0.0" width="252" height="45"/>
@@ -1901,7 +1901,7 @@
                                         <buttonConfiguration key="configuration" style="plain" title="Unit #"/>
                                     </button>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" bouncesZoom="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="97q-xi-vmW">
-                                        <rect key="frame" x="0.0" y="50" width="353" height="635"/>
+                                        <rect key="frame" x="0.0" y="50" width="353" height="586"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="JXt-Au-ZfC">
                                             <size key="itemSize" width="128" height="128"/>
@@ -1999,7 +1999,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="K74-x9-3B5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-705" y="-445"/>
+            <point key="canvasLocation" x="-665" y="-445"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="pha-UI-1tn">
@@ -2015,17 +2015,18 @@
                     <connections>
                         <segue destination="mIn-kx-Gwc" kind="relationship" relationship="viewControllers" id="gJ0-9M-aJe"/>
                         <segue destination="RT2-dA-0lI" kind="relationship" relationship="viewControllers" id="VsA-bj-eVd"/>
+                        <segue destination="O0G-f7-zUi" kind="relationship" relationship="viewControllers" id="s1h-er-duk"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Qk6-pV-JvL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="947.32824427480909" y="3.5211267605633805"/>
         </scene>
-        <!--Construction-->
+        <!--Photos-->
         <scene sceneID="53X-nZ-aRl">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="O0G-f7-zUi" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Construction" image="hammer" catalog="system" selectedImage="hammer.fill" id="fHU-ci-fhf"/>
+                    <tabBarItem key="tabBarItem" title="Photos" image="camera" catalog="system" selectedImage="camera.fill" id="fHU-ci-fhf"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="BXA-uB-UpL">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -2045,14 +2046,13 @@
         <image name="bag" catalog="system" width="128" height="128"/>
         <image name="bag.fill" catalog="system" width="128" height="128"/>
         <image name="camera" catalog="system" width="128" height="93"/>
+        <image name="camera.fill" catalog="system" width="128" height="93"/>
         <image name="car" catalog="system" width="128" height="95"/>
         <image name="checkmark" catalog="system" width="128" height="114"/>
         <image name="chevron.right" catalog="system" width="97" height="128"/>
         <image name="clock" catalog="system" width="128" height="123"/>
         <image name="clock.fill" catalog="system" width="128" height="123"/>
         <image name="gear" catalog="system" width="128" height="122"/>
-        <image name="hammer" catalog="system" width="128" height="117"/>
-        <image name="hammer.fill" catalog="system" width="128" height="117"/>
         <image name="map" catalog="system" width="128" height="112"/>
         <image name="mappin.and.ellipse.circle.fill" catalog="system" width="128" height="123"/>
         <image name="pause" catalog="system" width="88" height="128"/>
