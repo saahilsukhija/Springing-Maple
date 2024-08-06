@@ -26,6 +26,9 @@ class PhotoUploadVC: UIViewController {
     var keys: [Int] = []
     
     var shouldChangePropertyField = true
+    
+    var timer: Timer?
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -53,6 +56,11 @@ class PhotoUploadVC: UIViewController {
         let alignedFlowLayout = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
         collectionView.collectionViewLayout = alignedFlowLayout
         
+        timer = Timer.scheduledTimer(timeInterval: 180, target: self, selector: #selector(autofillTextField), userInfo: nil, repeats: true)
+    }
+    
+    deinit {
+        timer?.invalidate()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -125,17 +133,23 @@ class PhotoUploadVC: UIViewController {
     @objc func clearAllButtonClicked() {
         guard images.count != 0 else { return }
         
-        self.images.removeAll()
-        self.keys.removeAll()
-        let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
-        self.unitButton.setAttributedTitle(mutableString, for: .normal)
-        self.doneButton.tintColor = .systemGray
-        self.clearAllButton.tintColor = .systemGray
-        self.configureButtonItems()
-        self.autofillTextField()
-        self.collectionView.reloadData()
+        let alert = UIAlertController(title: "Are you sure?", message: "This will remove all images that have been taken", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
+            self.images.removeAll()
+            self.keys.removeAll()
+            let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
+            self.unitButton.setAttributedTitle(mutableString, for: .normal)
+            self.doneButton.tintColor = .systemGray
+            self.clearAllButton.tintColor = .systemGray
+            self.configureButtonItems()
+            self.autofillTextField()
+            self.collectionView.reloadData()
+        }))
+        self.present(alert, animated: true)
         
     }
+    
     @IBAction func connectToDropboxButtonClicked(_ sender: Any) {
         let vc = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: DropboxConnectVC.identifier)
         navigationController?.pushViewController(vc, animated: true)
@@ -154,6 +168,22 @@ class PhotoUploadVC: UIViewController {
         clearAllButton.tintColor = .accentColor
     }
     
+    func imageRemoved(_ image: UIImage, key: Int) {
+        guard let index = keys.firstIndex(of: key) else {
+            print("ERROR DELETING")
+            return
+        }
+        
+        keys.remove(at: index)
+        self.images.remove(at: index)
+        self.collectionView.reloadData()
+        
+        if images.count == 0 {
+            doneButton.tintColor = .systemGray
+            clearAllButton.tintColor = .systemGray
+        }
+    }
+    
 }
 
 extension PhotoUploadVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -169,12 +199,12 @@ extension PhotoUploadVC: UICollectionViewDelegate, UICollectionViewDataSource, U
             return cell
         }
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImagePreviewCell.identifier, for: indexPath) as! ImagePreviewCell
-        cell.setup(with: images[indexPath.row])
+        cell.setup(with: images[indexPath.row], key: keys[indexPath.row], self)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.size.width / 3 - 20, height: collectionView.frame.size.width / 3 - 20)
+        return CGSize(width: collectionView.frame.size.width / 3 - 10, height: collectionView.frame.size.width / 3 - 10)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -212,6 +242,9 @@ extension PhotoUploadVC {
         for unit in 1...Constants.MAX_UNITS {
             menuChildren.append(UIAction(title: "Unit \(unit)", handler: actionClosure))
         }
+        for unit in "abcdefghijklmnopqrstuvwxyz".uppercased() {
+            menuChildren.append(UIAction(title: "Unit \(unit)", handler: actionClosure))
+        }
         
         unitButton.menu = UIMenu(options: .displayInline, children: menuChildren)
         
@@ -220,7 +253,7 @@ extension PhotoUploadVC {
     }
     
     
-    func autofillTextField() {
+    @objc func autofillTextField() {
         guard shouldChangePropertyField else { return }
         
         if !Stopwatch.shared.isRunning {

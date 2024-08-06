@@ -34,7 +34,7 @@ class AddPropertyImagesVC: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        let alignedFlowLayout = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
+        let alignedFlowLayout = AlignedCollectionViewFlowLayout(horizontalAlignment: .leading, verticalAlignment: .top)
         collectionView.collectionViewLayout = alignedFlowLayout
         
     }
@@ -96,6 +96,21 @@ class AddPropertyImagesVC: UIViewController {
         doneButton.tintColor = .accentColor
     }
     
+    func imageRemoved(_ image: UIImage, key: Int) {
+        guard let index = keys.firstIndex(of: key) else {
+            print("ERROR DELETING")
+            return
+        }
+        
+        keys.remove(at: index)
+        self.images.remove(at: index)
+        self.collectionView.reloadData()
+        
+        if images.count == 0 {
+            doneButton.tintColor = .systemGray
+        }
+    }
+    
 }
 
 extension AddPropertyImagesVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -109,16 +124,17 @@ extension AddPropertyImagesVC: UICollectionViewDelegate, UICollectionViewDataSou
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddNewImageCell.identifier, for: indexPath) as! AddNewImageCell
             cell.setup(with: self)
             return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImagePreviewCell.identifier, for: indexPath) as! ImagePreviewCell
+            cell.setup(with: images[indexPath.row], key: keys[indexPath.row], self)
+            return cell
         }
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImagePreviewCell.identifier, for: indexPath) as! ImagePreviewCell
-        cell.setup(with: images[indexPath.row])
-        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.size.width / 3 - 20, height: collectionView.frame.size.width / 3 - 20)
+        return CGSize(width: collectionView.frame.size.width / 3 - 1, height: collectionView.frame.size.width / 3 - 1)
     }
-    
+
     
     
     

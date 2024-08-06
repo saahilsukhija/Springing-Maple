@@ -8,6 +8,7 @@
 import UIKit
 import BSImagePicker
 import Photos
+import YPImagePicker
 
 class AddNewImageCell: UICollectionViewCell {
     
@@ -55,7 +56,7 @@ class AddNewImageCell: UICollectionViewCell {
                 self.parentVC.present(imagePicker, animated: true, completion: nil)
             }
             else{
-                let alert  = UIAlertController(title: "Warning", message: "You don't have camera", preferredStyle: .alert)
+                let alert  = UIAlertController(title: "Error", message: "You don't have a camera enabled", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                 self.parentVC.present(alert, animated: true, completion: nil)
             }
@@ -64,7 +65,14 @@ class AddNewImageCell: UICollectionViewCell {
         
         let vc = CameraViewController()
         vc.parentVC = self.parentVC
+        vc.modalPresentationStyle = .fullScreen
         self.parentVC.present(vc, animated: true)
+//        var config = YPImagePickerConfiguration()
+//        config.screens = [.photo]
+//        let picker = YPImagePicker(configuration: config)
+//        
+//        self.parentVC.present(picker, animated: true)
+        
 
     }
 
@@ -82,7 +90,6 @@ class AddNewImageCell: UICollectionViewCell {
                 let image = asset.getAssetThumbnail()
                 PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil) { [self] (_, info) in
                         if let vc = parentVC as? AddPropertyImagesVC {
-                            
                             vc.newImageAdded(image, key: info?["PHImageResultRequestIDKey"] as? Int ?? 0)
                         }
                         if let vc = parentVC as? PhotoUploadVC {

@@ -173,7 +173,7 @@ exports.append_unreg_drive_to_spreadsheet = onRequest(async (req, res) => {
   const backgroundColor = {red: 220.0/255,
     green: 220.0/255, blue: 220.0/255, alpha: 1.0/3};
 
-  addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
+  await addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
 
   await sort(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
@@ -246,7 +246,7 @@ exports.append_break_to_spreadsheet = onRequest(async (req, res) => {
   const backgroundColor = {red: 246.0/255,
     green: 178.0/255, blue: 107.0/255, alpha: 1.0/3};
 
-  addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
+  await addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
 
   const range = "'" + username + "'!A1";
   await sort(auth, apiKey, spreadsheetID, username);
@@ -291,7 +291,7 @@ exports.append_clockinout_to_spreadsheet = onRequest(async (req, res) => {
   const range = "'" + username + "'!A1";
   await sort(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
-      [date, time, "", type, "", location,
+      [date, time, time, type, "", location,
         "", "", "", "", ""]);
   await sort(auth, apiKey, spreadsheetID, username);
   logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});

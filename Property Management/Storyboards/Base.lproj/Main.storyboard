@@ -1903,7 +1903,7 @@
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" bouncesZoom="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="97q-xi-vmW">
                                         <rect key="frame" x="0.0" y="50" width="353" height="586"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                        <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="JXt-Au-ZfC">
+                                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="1" minimumInteritemSpacing="1" id="JXt-Au-ZfC">
                                             <size key="itemSize" width="128" height="128"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -2000,6 +2000,57 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="K74-x9-3B5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-665" y="-445"/>
+        </scene>
+        <!--Image PreviewVC-->
+        <scene sceneID="mun-ts-Am5">
+            <objects>
+                <viewController storyboardIdentifier="ImagePreviewScreen" id="f31-sD-n7H" customClass="ImagePreviewVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Myb-oS-2zJ">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="w4p-VR-ALO">
+                                <rect key="frame" x="0.0" y="103" width="393" height="749"/>
+                            </imageView>
+                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TwJ-Zx-Q30">
+                                <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                                <items>
+                                    <navigationItem title="Image Preview" id="VCU-I1-Ivw">
+                                        <barButtonItem key="leftBarButtonItem" image="trash" catalog="system" id="haY-5Q-qvD">
+                                            <color key="tintColor" name="Map Red"/>
+                                            <connections>
+                                                <action selector="deleteButtonClicked:" destination="f31-sD-n7H" id="LPa-ic-2Mw"/>
+                                            </connections>
+                                        </barButtonItem>
+                                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="xM1-vY-SwM">
+                                            <color key="tintColor" name="AccentColor"/>
+                                            <connections>
+                                                <action selector="doneButtonClicked:" destination="f31-sD-n7H" id="QDi-Z0-3YV"/>
+                                            </connections>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="HTZ-lw-PZS"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="HTZ-lw-PZS" firstAttribute="trailing" secondItem="w4p-VR-ALO" secondAttribute="trailing" id="KGw-qg-xXD"/>
+                            <constraint firstItem="w4p-VR-ALO" firstAttribute="top" secondItem="TwJ-Zx-Q30" secondAttribute="bottom" id="Lzp-fk-8vG"/>
+                            <constraint firstItem="TwJ-Zx-Q30" firstAttribute="leading" secondItem="Myb-oS-2zJ" secondAttribute="leading" id="Nkf-Yv-xuK"/>
+                            <constraint firstAttribute="bottom" secondItem="w4p-VR-ALO" secondAttribute="bottom" id="SUO-kU-ZdJ"/>
+                            <constraint firstItem="TwJ-Zx-Q30" firstAttribute="top" secondItem="HTZ-lw-PZS" secondAttribute="top" id="VQg-tS-DOY"/>
+                            <constraint firstItem="HTZ-lw-PZS" firstAttribute="trailing" secondItem="TwJ-Zx-Q30" secondAttribute="trailing" id="nNv-WW-OHo"/>
+                            <constraint firstItem="w4p-VR-ALO" firstAttribute="leading" secondItem="HTZ-lw-PZS" secondAttribute="leading" id="qDK-PY-DzD"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="w4p-VR-ALO" id="M3V-eg-pWd"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Mo1-4s-sUq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-655.72519083969462" y="227.46478873239437"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="pha-UI-1tn">

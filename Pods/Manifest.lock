@@ -1206,8 +1206,13 @@ PODS:
   - nanopb/decode (2.30910.0)
   - nanopb/encode (2.30910.0)
   - PromisesObjC (2.4.0)
+  - PryntTrimmerView (4.0.2)
   - RecaptchaInterop (100.0.0)
+  - SteviaLayout (5.1.2)
   - SwiftyDropbox (10.0.7)
+  - YPImagePicker (5.2.2):
+    - PryntTrimmerView (= 4.0.2)
+    - SteviaLayout (= 5.1.2)
 
 DEPENDENCIES:
   - BSImagePicker (~> 3.1)
@@ -1222,6 +1227,7 @@ DEPENDENCIES:
   - GoogleSignIn
   - lottie-ios
   - SwiftyDropbox
+  - YPImagePicker
 
 SPEC REPOS:
   trunk:
@@ -1257,8 +1263,11 @@ SPEC REPOS:
     - lottie-ios
     - nanopb
     - PromisesObjC
+    - PryntTrimmerView
     - RecaptchaInterop
+    - SteviaLayout
     - SwiftyDropbox
+    - YPImagePicker
 
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
@@ -1293,9 +1302,12 @@ SPEC CHECKSUMS:
   lottie-ios: fcb5e73e17ba4c983140b7d21095c834b3087418
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  PryntTrimmerView: 6a43cc90df5d99addeabd33d4ba09b1365322130
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  SteviaLayout: 05424e528d643657d39ce72c786e4adf13cfc5f2
   SwiftyDropbox: bd1e6f84cf36fa8d1440d4b54421d297e292dcd5
+  YPImagePicker: afc81b3cffab05a6e7261c5daf80dc31b4e917b4
 
-PODFILE CHECKSUM: 89020798b73b17ee47ac8906a26a56e7d6269289
+PODFILE CHECKSUM: 3aae48d80eab61d2a6c19af01de6020b0f2c4a26
 
 COCOAPODS: 1.15.2

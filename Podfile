@@ -16,7 +16,7 @@ target 'Property Management' do
     pod 'SwiftyDropbox'
   # Regular Animations
     pod 'lottie-ios'
-    
+    pod 'YPImagePicker'
   # Google Maps
     #pod 'GoogleMaps'
     
