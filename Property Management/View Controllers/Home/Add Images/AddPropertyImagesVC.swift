@@ -132,7 +132,7 @@ extension AddPropertyImagesVC: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.size.width / 3 - 1, height: collectionView.frame.size.width / 3 - 1)
+        return CGSize(width: collectionView.frame.size.width / 3 - 10, height: collectionView.frame.size.width / 3 - 10)
     }
 
     
