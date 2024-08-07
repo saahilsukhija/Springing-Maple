@@ -8,7 +8,6 @@
 import UIKit
 import BSImagePicker
 import Photos
-import YPImagePicker
 
 class AddNewImageCell: UICollectionViewCell {
     
@@ -41,7 +40,7 @@ class AddNewImageCell: UICollectionViewCell {
         }))
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         self.parentVC.present(sheet, animated: true)
-    
+        
     }
     
     func openCamera() {
@@ -67,18 +66,21 @@ class AddNewImageCell: UICollectionViewCell {
         vc.parentVC = self.parentVC
         vc.modalPresentationStyle = .fullScreen
         self.parentVC.present(vc, animated: true)
-//        var config = YPImagePickerConfiguration()
-//        config.screens = [.photo]
-//        let picker = YPImagePicker(configuration: config)
-//        
-//        self.parentVC.present(picker, animated: true)
+        //        var config = YPImagePickerConfiguration()
+        //        config.screens = [.photo]
+        //        let picker = YPImagePicker(configuration: config)
+        //
+        //        self.parentVC.present(picker, animated: true)
         
-
+        
     }
-
+    
     /// Choose image from camera roll
     func openGallery() {
         let multiSelectImagePicker = ImagePickerController()
+        if let vc = self.parentVC as? PhotoUploadVC {
+            multiSelectImagePicker.settings.fetch.assets.supportedMediaTypes = [.image, .video]
+        }
         parentVC.presentImagePicker(multiSelectImagePicker, select: { (asset) in
             // User selected an asset. Do something with it. Perhaps begin processing/upload?
         }, deselect: { (asset) in
@@ -88,18 +90,32 @@ class AddNewImageCell: UICollectionViewCell {
         }, finish: { (assets) in
             for asset in assets {
                 let image = asset.getAssetThumbnail()
-                PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil) { [self] (_, info) in
+                if asset.mediaType == .video {
+                    PHImageManager.default().requestAVAsset(forVideo: asset,
+                                                            options: nil) { (asset, audioMix, info) in
+                        if let asset = asset as? AVURLAsset, let data = NSData(contentsOf: asset.url) {
+                            if let vc = self.parentVC as? PhotoUploadVC {
+                                DispatchQueue.main.async {
+                                    vc.newVideoAdded(data, thumbnail: image, key: info?["PHImageResultRequestIDKey"] as? Int ?? 0)
+                                    print(data)
+                                }
+                            }
+                        }
+                    }
+                    
+                } else {
+                    PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil) { [self] (_, info) in
                         if let vc = parentVC as? AddPropertyImagesVC {
                             vc.newImageAdded(image, key: info?["PHImageResultRequestIDKey"] as? Int ?? 0)
                         }
                         if let vc = parentVC as? PhotoUploadVC {
                             vc.newImageAdded(image, key: info?["PHImageResultRequestIDKey"] as? Int ?? 0)
                         }
+                    }
                 }
-                //(parentVC as? AddPropertyImagesVC)?.newImageAdded(asset.)
             }
         })
     }
     
 }
-    
+

@@ -1920,8 +1920,19 @@
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WJM-Co-gdO">
                                                             <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
                                                         </imageView>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="play" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="GRs-PR-Vsf">
+                                                            <rect key="frame" x="103" y="105" width="20" height="16"/>
+                                                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" secondItem="GRs-PR-Vsf" secondAttribute="height" multiplier="1:1" id="r5l-hP-VBa"/>
+                                                                <constraint firstAttribute="width" constant="20" id="wGx-tW-Mp3"/>
+                                                            </constraints>
+                                                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" weight="regular"/>
+                                                        </imageView>
                                                     </subviews>
                                                     <constraints>
+                                                        <constraint firstAttribute="trailing" secondItem="GRs-PR-Vsf" secondAttribute="trailing" constant="5" id="081-0C-yHA"/>
+                                                        <constraint firstAttribute="bottom" secondItem="GRs-PR-Vsf" secondAttribute="bottom" constant="5" id="Gz2-4o-icX"/>
                                                         <constraint firstAttribute="bottom" secondItem="WJM-Co-gdO" secondAttribute="bottom" id="NBS-KE-obT"/>
                                                         <constraint firstAttribute="trailing" secondItem="WJM-Co-gdO" secondAttribute="trailing" id="bd9-Gb-Y9x"/>
                                                         <constraint firstItem="WJM-Co-gdO" firstAttribute="top" secondItem="jEa-6c-NId" secondAttribute="top" id="dJR-OW-UaR"/>
@@ -1930,6 +1941,7 @@
                                                 </collectionViewCellContentView>
                                                 <connections>
                                                     <outlet property="imageView" destination="WJM-Co-gdO" id="rHb-9S-G18"/>
+                                                    <outlet property="playButton" destination="GRs-PR-Vsf" id="bRQ-bT-TpG"/>
                                                 </connections>
                                             </collectionViewCell>
                                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="NewImageCell" id="dWX-98-UOy" customClass="AddNewImageCell" customModule="Property_Management" customModuleProvider="target">
@@ -2050,7 +2062,59 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mo1-4s-sUq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-655.72519083969462" y="227.46478873239437"/>
+            <point key="canvasLocation" x="-1521" y="447"/>
+        </scene>
+        <!--Video PreviewVC-->
+        <scene sceneID="wiT-kn-lQ1">
+            <objects>
+                <viewController storyboardIdentifier="VideoPreviewScreen" id="mBJ-4p-KFY" customClass="VideoPreviewVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="X3m-u6-xj9">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O1O-6K-Lc8">
+                                <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                                <items>
+                                    <navigationItem title="Video Preview" id="ZCq-vh-03f">
+                                        <barButtonItem key="leftBarButtonItem" image="trash" catalog="system" id="glk-g8-FW9">
+                                            <color key="tintColor" name="Map Red"/>
+                                            <connections>
+                                                <action selector="deleteButtonClicked:" destination="mBJ-4p-KFY" id="Fh1-xf-xSX"/>
+                                            </connections>
+                                        </barButtonItem>
+                                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="vjm-02-bUw">
+                                            <color key="tintColor" name="AccentColor"/>
+                                            <connections>
+                                                <action selector="doneButtonClicked:" destination="mBJ-4p-KFY" id="eFk-T2-7Dp"/>
+                                            </connections>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mPe-UZ-DHM">
+                                <rect key="frame" x="0.0" y="103" width="393" height="715"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Sei-iQ-XFt"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Sei-iQ-XFt" firstAttribute="trailing" secondItem="mPe-UZ-DHM" secondAttribute="trailing" id="89q-nN-H5M"/>
+                            <constraint firstItem="mPe-UZ-DHM" firstAttribute="leading" secondItem="Sei-iQ-XFt" secondAttribute="leading" id="8A4-qt-HVJ"/>
+                            <constraint firstAttribute="trailing" secondItem="O1O-6K-Lc8" secondAttribute="trailing" id="HZ6-Zs-6Sp"/>
+                            <constraint firstItem="O1O-6K-Lc8" firstAttribute="leading" secondItem="Sei-iQ-XFt" secondAttribute="leading" id="O6a-Oz-Kfq"/>
+                            <constraint firstItem="Sei-iQ-XFt" firstAttribute="bottom" secondItem="mPe-UZ-DHM" secondAttribute="bottom" id="lwP-Zt-jRs"/>
+                            <constraint firstItem="O1O-6K-Lc8" firstAttribute="top" secondItem="Sei-iQ-XFt" secondAttribute="top" id="w5U-A8-luh"/>
+                            <constraint firstItem="mPe-UZ-DHM" firstAttribute="top" secondItem="O1O-6K-Lc8" secondAttribute="bottom" id="xEN-Xl-aFu"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="videoContainerView" destination="mPe-UZ-DHM" id="QAm-ve-OGA"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="l7c-fi-bVm" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-407" y="446"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="pha-UI-1tn">
@@ -2108,6 +2172,7 @@
         <image name="mappin.and.ellipse.circle.fill" catalog="system" width="128" height="123"/>
         <image name="pause" catalog="system" width="88" height="128"/>
         <image name="person" catalog="system" width="128" height="121"/>
+        <image name="play" catalog="system" width="117" height="128"/>
         <image name="plus" catalog="system" width="128" height="113"/>
         <image name="steeringwheel" catalog="system" width="128" height="123"/>
         <image name="trash" catalog="system" width="117" height="128"/>

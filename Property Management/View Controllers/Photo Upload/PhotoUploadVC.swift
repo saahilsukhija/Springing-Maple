@@ -23,7 +23,9 @@ class PhotoUploadVC: UIViewController {
     var clearAllButton: UIBarButtonItem!
     
     var images: [UIImage] = []
+    var videos: [(NSData, UIImage)] = []
     var keys: [Int] = []
+    var videoKeys: [Int] = []
     
     var shouldChangePropertyField = true
     
@@ -91,7 +93,7 @@ class PhotoUploadVC: UIViewController {
             Alert.showDefaultAlert(title: "No Dropbox folder linked!", message: "Please go to the app settings and link a root folder", self)
             return
         }
-        guard images.count != 0 else { return }
+        guard images.count + videos.count != 0 else { return }
         
         guard let propertyName = propertyField.text, propertyName.count != 0 else {
             self.showFailureToast(message: "Please enter a property name")
@@ -101,43 +103,55 @@ class PhotoUploadVC: UIViewController {
         let unit = unitButton.attributedTitle(for: .normal)?.string
         let path = (unit == "Unit #" || unit == nil) ? "/\(selectedFolder)/\(propertyName)" : "/\(selectedFolder)/\(propertyName)/\(unit ?? "unknown")"
         let name = (unit == "Unit #" || unit == nil) ? "\(propertyName)" : "\(propertyName)_\(unit ?? "unknown")"
-        let loadingScreen = createLoadingScreen(frame: view.frame)
+        let loadingScreen = createLoadingScreen(frame: view.frame, message: "Uploading photos...")
         view.addSubview(loadingScreen)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-
+            
             DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: path, namingConvention: .propertyName, property: name) { completed, error in
-                if let error = error {
-                    print(error.localizedDescription)
+                var vids: [NSData] = []
+                for v in self.videos {
+                    vids.append(v.0)
                 }
-                else {
-                    print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(propertyName)!")
-                    self.showConfirmWorkToast(message: "Uploaded images!")
-                    self.images.removeAll()
-                    self.keys.removeAll()
-                    let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
-                    self.unitButton.setAttributedTitle(mutableString, for: .normal)
-                    self.doneButton.tintColor = .systemGray
-                    self.clearAllButton.tintColor = .systemGray
-                    self.configureButtonItems()
-                    self.autofillTextField()
-                    self.collectionView.reloadData()
-
-                    loadingScreen.removeFromSuperview()
+                DropboxAssistant.shared.uploadVideosToFolder(videos: vids, folderPath: path, namingConvention: .propertyName, property: name) { completed2, error2 in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    }
+                    else {
+                        print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(propertyName)!")
+                        self.showConfirmWorkToast(message: "Uploaded images!")
+                        self.images.removeAll()
+                        self.keys.removeAll()
+                        self.videos.removeAll()
+                        self.videoKeys.removeAll()
+                        let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
+                        self.unitButton.setAttributedTitle(mutableString, for: .normal)
+                        self.doneButton.tintColor = .systemGray
+                        self.clearAllButton.tintColor = .systemGray
+                        self.configureButtonItems()
+                        self.autofillTextField()
+                        self.collectionView.reloadData()
+                        
+                        loadingScreen.removeFromSuperview()
+                    }
                 }
+                
             }
             
         }
     }
     
     @objc func clearAllButtonClicked() {
-        guard images.count != 0 else { return }
+        guard images.count + videos.count != 0 else { return }
         
         let alert = UIAlertController(title: "Are you sure?", message: "This will remove all images that have been taken", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
             self.images.removeAll()
             self.keys.removeAll()
+            self.videos.removeAll()
+            self.videoKeys.removeAll()
+            
             let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
             self.unitButton.setAttributedTitle(mutableString, for: .normal)
             self.doneButton.tintColor = .systemGray
@@ -168,6 +182,19 @@ class PhotoUploadVC: UIViewController {
         clearAllButton.tintColor = .accentColor
     }
     
+    func newVideoAdded(_ data: NSData, thumbnail: UIImage, key: Int) {
+        if self.videoKeys.contains(key) && key != -1 {
+            return
+        }
+        self.videoKeys.append(key)
+        
+        self.videos.append((data, thumbnail))
+        self.collectionView.reloadData()
+        
+        doneButton.tintColor = .accentColor
+        clearAllButton.tintColor = .accentColor
+    }
+    
     func imageRemoved(_ image: UIImage, key: Int) {
         guard let index = keys.firstIndex(of: key) else {
             print("ERROR DELETING")
@@ -178,7 +205,23 @@ class PhotoUploadVC: UIViewController {
         self.images.remove(at: index)
         self.collectionView.reloadData()
         
-        if images.count == 0 {
+        if images.count + videos.count == 0 {
+            doneButton.tintColor = .systemGray
+            clearAllButton.tintColor = .systemGray
+        }
+    }
+    
+    func videoRemoved(_ image: UIImage, key: Int) {
+        guard let index = videoKeys.firstIndex(of: key) else {
+            print("ERROR DELETING")
+            return
+        }
+        
+        videoKeys.remove(at: index)
+        self.videos.remove(at: index)
+        self.collectionView.reloadData()
+        
+        if images.count + videos.count == 0 {
             doneButton.tintColor = .systemGray
             clearAllButton.tintColor = .systemGray
         }
@@ -188,18 +231,23 @@ class PhotoUploadVC: UIViewController {
 
 extension PhotoUploadVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return images.count + 1
+        return images.count + videos.count + 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        if indexPath.row >= images.count {
+        if indexPath.row >= images.count + videos.count {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddNewImageCell.identifier, for: indexPath) as! AddNewImageCell
             cell.setup(with: self)
             return cell
         }
+        if indexPath.row < images.count {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImagePreviewCell.identifier, for: indexPath) as! ImagePreviewCell
+            cell.setup(with: images[indexPath.row], key: keys[indexPath.row], self)
+            return cell
+        }
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImagePreviewCell.identifier, for: indexPath) as! ImagePreviewCell
-        cell.setup(with: images[indexPath.row], key: keys[indexPath.row], self)
+        cell.setup(with: videos[indexPath.row - images.count].1, key: videoKeys[indexPath.row - images.count], self, true, data: videos[indexPath.row - images.count].0)
         return cell
     }
     
@@ -209,7 +257,7 @@ extension PhotoUploadVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.row >= images.count {
-//            plusButtonClicked()
+            //            plusButtonClicked()
         }
     }
     
@@ -238,11 +286,25 @@ extension PhotoUploadVC {
             self.unitButton.setAttributedTitle(mutableString, for: .normal)
         }
         
-        var menuChildren: [UIMenuElement] = []
-        for unit in 1...Constants.MAX_UNITS {
-            menuChildren.append(UIAction(title: "Unit \(unit)", handler: actionClosure))
+        let customClosure = { (action: UIAction) in
+            let alertController = UIAlertController(title: "Custom Unit Number", message: "", preferredStyle: UIAlertController.Style.alert)
+            alertController.addTextField { (textField : UITextField!) -> Void in
+                textField.placeholder = "Enter Unit"
+            }
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let saveAction = UIAlertAction(title: "Save", style: .default) { action in
+                let txt = (alertController.textFields![0] as UITextField).text ?? ""
+                let mutableString = NSMutableAttributedString(string: "\(txt)", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
+                self.unitButton.setAttributedTitle(mutableString, for: .normal)
+            }
+            alertController.addAction(cancelAction)
+            alertController.addAction(saveAction)
+            self.present(alertController, animated: true)
         }
-        for unit in "abcdefghijklmnopqrstuvwxyz".uppercased() {
+        
+        var menuChildren: [UIMenuElement] = []
+        menuChildren.append(UIAction(title: "Custom", handler: customClosure))
+        for unit in 1...Constants.MAX_UNITS {
             menuChildren.append(UIAction(title: "Unit \(unit)", handler: actionClosure))
         }
         
@@ -256,9 +318,7 @@ extension PhotoUploadVC {
     @objc func autofillTextField() {
         guard shouldChangePropertyField else { return }
         
-        if !Stopwatch.shared.isRunning {
-            LocationManager.shared.startTracking()
-        }
+        LocationManager.shared.startTracking()
         DispatchQueue.main.asyncAfter(deadline: .now() + (LocationManager.shared.lastLocation == nil ? 1 : 0)) {
             guard let loc = LocationManager.shared.lastLocation else {
                 print("NO LOCATION")
@@ -297,7 +357,7 @@ extension PhotoUploadVC: UIImagePickerControllerDelegate, UINavigationController
         // Dismiss the UIImagePicker after selection
         picker.dismiss(animated: true, completion: nil)
     }
-
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.isNavigationBarHidden = false
         self.dismiss(animated: true, completion: nil)

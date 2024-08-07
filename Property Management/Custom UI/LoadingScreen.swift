@@ -31,7 +31,7 @@ extension UIViewController {
         
         let messageView = UILabel(frame: CGRect(x: view.center.x - 100, y: view.center.y + 60, width: 200, height: 50))
         messageView.textAlignment = .center
-        messageView.font = UIFont(name: "DIN Alternate Bold", size: 20)
+        messageView.font = UIFont(name: "Montserrat-Medium", size: 20)
         messageView.text = message
         messageView.numberOfLines = 0
         loadingScreen.addSubview(messageView)
