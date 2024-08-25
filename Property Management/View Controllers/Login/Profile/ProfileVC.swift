@@ -53,9 +53,6 @@ class ProfileVC: UIViewController {
         
         spreadsheetView.dropShadow()
         memberView.dropShadow()
-        
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        versionNumberLabel.text = "version \(appVersion ?? "(error)")"
     }
     
     @IBAction func logOutButtonClicked(_ sender: Any) {

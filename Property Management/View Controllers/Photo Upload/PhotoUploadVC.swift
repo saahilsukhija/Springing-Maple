@@ -28,13 +28,12 @@ class PhotoUploadVC: UIViewController {
     var videoKeys: [Int] = []
     
     var shouldChangePropertyField = true
-    
+    var oldProperty: String = ""
     var timer: Timer?
     
     override func viewDidLoad() {
-        
+
         super.viewDidLoad()
-        
         propertyField.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(textFieldClicked)))
         propertyField.font = UIFont(name: "Montserrat-Medium", size: 16)
         
@@ -48,7 +47,7 @@ class PhotoUploadVC: UIViewController {
         doneButton.tintColor = .systemGray
         self.navigationItem.rightBarButtonItem = doneButton
         
-        clearAllButton = UIBarButtonItem(title: "Clear All", style: .plain, target: self, action: #selector(clearAllButtonClicked))
+        clearAllButton = UIBarButtonItem(title: "Clear", style: .plain, target: self, action: #selector(clearAllButtonClicked))
         clearAllButton.tintColor = .systemGray
         self.navigationItem.leftBarButtonItem = clearAllButton
         
@@ -59,6 +58,7 @@ class PhotoUploadVC: UIViewController {
         collectionView.collectionViewLayout = alignedFlowLayout
         
         timer = Timer.scheduledTimer(timeInterval: 180, target: self, selector: #selector(autofillTextField), userInfo: nil, repeats: true)
+        getCapturesFromDefaults()
     }
     
     deinit {
@@ -132,6 +132,8 @@ class PhotoUploadVC: UIViewController {
                         self.autofillTextField()
                         self.collectionView.reloadData()
                         
+                        self.removeCapturesFromDefaults()
+                        
                         loadingScreen.removeFromSuperview()
                     }
                 }
@@ -159,6 +161,8 @@ class PhotoUploadVC: UIViewController {
             self.configureButtonItems()
             self.autofillTextField()
             self.collectionView.reloadData()
+            
+            self.removeCapturesFromDefaults()
         }))
         self.present(alert, animated: true)
         
@@ -180,6 +184,8 @@ class PhotoUploadVC: UIViewController {
         
         doneButton.tintColor = .accentColor
         clearAllButton.tintColor = .accentColor
+        
+        saveCapturesToDefaults()
     }
     
     func newVideoAdded(_ data: NSData, thumbnail: UIImage, key: Int) {
@@ -193,6 +199,8 @@ class PhotoUploadVC: UIViewController {
         
         doneButton.tintColor = .accentColor
         clearAllButton.tintColor = .accentColor
+        
+        saveCapturesToDefaults()
     }
     
     func imageRemoved(_ image: UIImage, key: Int) {
@@ -209,6 +217,8 @@ class PhotoUploadVC: UIViewController {
             doneButton.tintColor = .systemGray
             clearAllButton.tintColor = .systemGray
         }
+        
+        saveCapturesToDefaults()
     }
     
     func videoRemoved(_ image: UIImage, key: Int) {
@@ -225,6 +235,37 @@ class PhotoUploadVC: UIViewController {
             doneButton.tintColor = .systemGray
             clearAllButton.tintColor = .systemGray
         }
+        
+        saveCapturesToDefaults()
+    }
+    
+    func saveCapturesToDefaults() {
+        do {
+            try UserDefaults.standard.set(object: keys, forKey: "images_keys_temp")
+//            try UserDefaults.standard.set(object: videoKeys, forKey: "videos_keys_temp")
+            try UserDefaults.standard.saveImages(images, forKey: "images_temp")
+//            try UserDefaults.standard.saveVideos(videos, forKey: "videos_temp")
+        } catch {}
+    }
+    
+    func removeCapturesFromDefaults() {
+        UserDefaults.standard.removeObject(forKey: "images_keys_temp")
+        UserDefaults.standard.removeObject(forKey: "images_temp")
+//        UserDefaults.standard.removeObject(forKey: "videos_keys_temp")
+//        UserDefaults.standard.removeObject(forKey: "videos_temp")
+//        UserDefaults.standard.removeObject(forKey: "videos_temp" + "_videos")
+//        UserDefaults.standard.removeObject(forKey: "videos_temp" + "_thumbnails")
+    }
+    
+    func getCapturesFromDefaults() {
+        do {
+            self.keys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "images_keys_temp") ?? []
+//            self.videoKeys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "videos_keys_temp") ?? []
+            self.images = try UserDefaults.standard.getImages(forKey: "images_temp")
+//            self.videos = try UserDefaults.standard.getVideos(forKey: "videos_temp")
+        } catch {
+            print("NO IMAGES SAVED")
+        }
     }
     
 }
@@ -235,7 +276,6 @@ extension PhotoUploadVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         if indexPath.row >= images.count + videos.count {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AddNewImageCell.identifier, for: indexPath) as! AddNewImageCell
             cell.setup(with: self)
@@ -318,7 +358,7 @@ extension PhotoUploadVC {
     @objc func autofillTextField() {
         guard shouldChangePropertyField else { return }
         
-        LocationManager.shared.startTracking()
+        LocationManager.shared.startTrackingTempLocation()
         DispatchQueue.main.asyncAfter(deadline: .now() + (LocationManager.shared.lastLocation == nil ? 1 : 0)) {
             guard let loc = LocationManager.shared.lastLocation else {
                 print("NO LOCATION")
@@ -335,7 +375,10 @@ extension PhotoUploadVC {
                     print("ERROR: \(error?.localizedDescription ?? "error")")
                     return
                 }
-                self.propertyField.text = pl.name
+                
+                if self.oldProperty != pl.name {
+                    self.propertyField.text = pl.name
+                }
             }
         }
     }
@@ -344,6 +387,7 @@ extension PhotoUploadVC {
         let vc = storyboard?.instantiateViewController(withIdentifier: AddressLookupVC.identifier) as! AddressLookupVC
         vc.delegate = self
         shouldChangePropertyField = false
+        oldProperty = propertyField.text ?? ""
         navigationController?.pushViewController(vc, animated: true)
     }
 }

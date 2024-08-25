@@ -436,6 +436,28 @@ final class LocationManager: NSObject {
         setupActivityManager()
     }
     
+    func startTrackingTempLocation() {
+        if locationManager != nil {
+            if #available(iOS 14.0, *) {
+                self.check(status: locationManager?.authorizationStatus)
+            } else {
+                self.check(status: CLLocationManager.authorizationStatus())
+                // Fallback on earlier versions
+            }
+            return
+        }
+        //Setting of location manager
+        locationManager = CLLocationManager()
+        locationManager?.delegate = self
+        locationManager?.desiredAccuracy = locationAccuracy
+        locationManager?.pausesLocationUpdatesAutomatically = false
+        locationManager?.distanceFilter = 20;
+        locationManager?.allowsBackgroundLocationUpdates = true
+        locationManager?.activityType = .automotiveNavigation
+        
+        locationManager?.requestLocation()
+    }
+    
 }
 
 extension LocationManager: CLLocationManagerDelegate {

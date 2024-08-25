@@ -14,7 +14,8 @@ class DropboxConnectVC: UIViewController {
     
     @IBOutlet weak var dropboxButton: UIButton!
     @IBOutlet weak var folderSelectButton: UIButton!
-
+    @IBOutlet weak var currentlyConnectedLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -30,6 +31,7 @@ class DropboxConnectVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateDropboxButton()
+        currentlyConnectedLabel.text = "Currently selected: \(User.shared.dropbox.selectedFolder?.name ?? "None")"
     }
     
     func updateDropboxButton() {
@@ -90,9 +92,11 @@ class DropboxConnectVC: UIViewController {
     
     func showFolders(_ folders: [DropboxFolder]) {
         let vc = storyboard?.instantiateViewController(withIdentifier: DropboxFolderConnectVC.identifier) as! DropboxFolderConnectVC
-        vc.setupFolders(folders)
+        vc.setupFolders(folders, isRoot: true, baseFolder: nil, path: "")
         vc.parentVC = self
-        self.present(vc, animated: true)
+        
+        let navController = UINavigationController(rootViewController: vc)
+        self.present(navController, animated: true)
     }
     
     func dropboxFolderChosen(_ folder: DropboxFolder) {

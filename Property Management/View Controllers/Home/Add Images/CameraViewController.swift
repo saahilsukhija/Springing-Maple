@@ -20,7 +20,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     var zoomLabel: UILabel!
     var lastImagePreviewImageView: UIImageView!
     
-    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .all }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -208,6 +208,27 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     
     @objc func didTapCaptureButton() {
         // Add a flash view
+        if let photoOutputConnection = photoOutput.connection(with: AVMediaType.video) {
+            switch UIDevice.current.orientation {
+            case .unknown:
+                photoOutputConnection.videoOrientation = .portrait
+            case .portrait:
+                photoOutputConnection.videoOrientation = .portrait
+            case .portraitUpsideDown:
+                photoOutputConnection.videoOrientation = .portraitUpsideDown
+            case .landscapeLeft:
+                photoOutputConnection.videoOrientation = .landscapeRight
+            case .landscapeRight:
+                photoOutputConnection.videoOrientation = .landscapeLeft
+            case .faceUp:
+                photoOutputConnection.videoOrientation = .portrait
+            case .faceDown:
+                photoOutputConnection.videoOrientation = .portrait
+            @unknown default:
+                print("huh")
+            }
+            
+        }
         flickerView = UIView(frame: view.bounds)
         flickerView?.backgroundColor = UIColor.black.withAlphaComponent(0.6)
         if let flickerView = flickerView {

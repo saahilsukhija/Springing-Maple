@@ -13,6 +13,8 @@ class SettingsVC: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var versionNumberLabel: UILabel!
+    
     let settings = ["Notifications", "Profile", "Drives", "Dropbox"]
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,6 +22,9 @@ class SettingsVC: UIViewController {
         // Do any additional setup after loading the view.
         tableView.delegate = self
         tableView.dataSource = self
+        
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        versionNumberLabel.text = "version \(appVersion ?? "(error)")"
     }
     
     override func viewDidAppear(_ animated: Bool) {

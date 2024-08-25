@@ -235,16 +235,9 @@ class HomeVC: UIViewController {
     }
     
     
-    @IBAction func profileButtonClicked(_ sender: Any) {
-        if !User.shared.isLoggedIn() {
-            let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: "LoginScreen") as! LoginVC
-            self.modalPresentationStyle = .fullScreen
-            navigationController?.pushViewController(vc, animated: true)
-        } else {
-            let vc = UIStoryboard(name: "LoginScreens", bundle: nil).instantiateViewController(withIdentifier: ProfileVC.identifier) as! ProfileVC
-            self.modalPresentationStyle = .fullScreen
-            navigationController?.pushViewController(vc, animated: true)
-        }
+    @IBAction func settingsButtonClicked(_ sender: Any) {
+        let vc = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: SettingsVC.identifier) as! SettingsVC
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func presentAddActivityVC() {

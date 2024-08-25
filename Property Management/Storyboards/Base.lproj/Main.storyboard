@@ -678,10 +678,10 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Activities" id="wpW-2z-tU3">
-                        <barButtonItem key="leftBarButtonItem" title="Item" image="person" catalog="system" id="eea-aV-kdP">
+                        <barButtonItem key="leftBarButtonItem" title="Item" image="gear" catalog="system" id="eea-aV-kdP">
                             <color key="tintColor" name="DarkAccentColor"/>
                             <connections>
-                                <action selector="profileButtonClicked:" destination="BYZ-38-t0r" id="wwr-7B-FWy"/>
+                                <action selector="settingsButtonClicked:" destination="BYZ-38-t0r" id="bux-Fm-KAy"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="WQr-QL-Hqt">
@@ -2182,7 +2182,6 @@
         <image name="map" catalog="system" width="128" height="112"/>
         <image name="mappin.and.ellipse.circle.fill" catalog="system" width="128" height="123"/>
         <image name="pause" catalog="system" width="88" height="128"/>
-        <image name="person" catalog="system" width="128" height="121"/>
         <image name="play" catalog="system" width="117" height="128"/>
         <image name="plus" catalog="system" width="128" height="113"/>
         <image name="steeringwheel" catalog="system" width="128" height="123"/>
