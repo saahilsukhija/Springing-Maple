@@ -57,8 +57,10 @@ class PhotoUploadVC: UIViewController {
         let alignedFlowLayout = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
         collectionView.collectionViewLayout = alignedFlowLayout
         
-        timer = Timer.scheduledTimer(timeInterval: 180, target: self, selector: #selector(autofillTextField), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(autofillTextField), userInfo: nil, repeats: true)
         getCapturesFromDefaults()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(autofillTextField), name: .applicationEnteredForeground, object: nil)
     }
     
     deinit {
@@ -81,6 +83,14 @@ class PhotoUploadVC: UIViewController {
         autofillTextField()
         
         
+    }
+    
+    @IBAction func refreshButtonClicked(_ sender: Any) {
+        self.propertyField.text = "Loading..."
+        autofillTextField()
+    }
+    
+    override func viewDidLayoutSubviews() {
     }
     
     @objc func doneButtonClicked() {
@@ -355,16 +365,19 @@ extension PhotoUploadVC {
     }
     
     
-    @objc func autofillTextField() {
+    @objc func autofillTextField(_ count: Int = 0) {
+        print("resetting text field: \(count)")
         guard shouldChangePropertyField else { return }
-        
+        guard count != 10 else { return }
+        LocationManager.shared.lastLocation = nil
         LocationManager.shared.startTrackingTempLocation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + (LocationManager.shared.lastLocation == nil ? 1 : 0)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             guard let loc = LocationManager.shared.lastLocation else {
                 print("NO LOCATION")
                 if !Stopwatch.shared.isRunning {
                     LocationManager.shared.stopTracking()
                 }
+                self.autofillTextField(count + 1)
                 return
             }
             LocationManager.geocode(coordinate: loc.coordinate) { placemark, error in

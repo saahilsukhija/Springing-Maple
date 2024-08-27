@@ -75,6 +75,9 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
+    static var applicationEnteredForeground: Notification.Name {
+        return .init(rawValue: #function)
+    }
     
     
     

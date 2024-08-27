@@ -87,7 +87,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         LocationManager.shared.restartMotionManager()
+        print("Did enter foreground")
+        NotificationCenter.default.post(name: .applicationEnteredForeground, object: nil)
         //NotificationManager.shared.sendNotificationNow(title: "Restarting motion manager", subtitle: "for test purposes")
+    }
+    func applicationDidBecomeActive(_ application: UIApplication) {
+
+        // app becomes active
+        // this method is called on first launch when app was closed / killed and every time app is reopened or change status from background to foreground (ex. mobile call)
+        NotificationCenter.default.post(name: .applicationEnteredForeground, object: nil)
     }
     
     static func saveVariables() {
