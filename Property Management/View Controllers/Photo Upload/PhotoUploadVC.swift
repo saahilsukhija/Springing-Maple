@@ -99,7 +99,7 @@ class PhotoUploadVC: UIViewController {
             Alert.showDefaultAlert(title: "No Dropbox account linked!", message: "Please go to the app settings and enable Dropbox", self)
             return
         }
-        guard let selectedFolder = User.shared.dropbox.selectedFolder?.name else {
+        guard let selectedFolder = User.shared.dropbox.selectedFolder?.path else {
             Alert.showDefaultAlert(title: "No Dropbox folder linked!", message: "Please go to the app settings and link a root folder", self)
             return
         }
@@ -111,13 +111,12 @@ class PhotoUploadVC: UIViewController {
         }
         
         let unit = unitButton.attributedTitle(for: .normal)?.string
-        let path = (unit == "Unit #" || unit == nil) ? "/\(selectedFolder)/\(propertyName)" : "/\(selectedFolder)/\(propertyName)/\(unit ?? "unknown")"
+        let path = (unit == "Unit #" || unit == nil) ? "\(selectedFolder)/\(propertyName)" : "\(selectedFolder)/\(propertyName)/\(unit ?? "unknown")"
         let name = (unit == "Unit #" || unit == nil) ? "\(propertyName)" : "\(propertyName)_\(unit ?? "unknown")"
         let loadingScreen = createLoadingScreen(frame: view.frame, message: "Uploading photos...")
         view.addSubview(loadingScreen)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            
             DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: path, namingConvention: .propertyName, property: name) { completed, error in
                 var vids: [NSData] = []
                 for v in self.videos {

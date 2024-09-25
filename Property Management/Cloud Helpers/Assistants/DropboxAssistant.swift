@@ -32,7 +32,8 @@ class DropboxAssistant {
                 
                 for entry in result.entries {
                     if let folder = entry as? Files.FolderMetadata {
-                        folders.append(DropboxFolder(id: folder.id, name: folder.name))
+                        folders.append(DropboxFolder(id: folder.id, name: folder.name, path: folder.pathLower ?? "\(folder.name)"))
+                        print(folder.pathLower ?? "no path")
                     }
                 }
                 completion(folders)
@@ -205,6 +206,7 @@ struct DropboxFolder: Codable {
     
     var id: String!
     var name: String!
+    var path: String!
     
 }
 

@@ -78,7 +78,7 @@ extension DropboxFolderConnectVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = storyboard?.instantiateViewController(withIdentifier: DropboxFolderConnectVC.identifier) as! DropboxFolderConnectVC
         DropboxAssistant.shared.getAllFolders(at: path + "/\(folders[indexPath.row].name ?? "")") { [self] result in
-            vc.setupFolders(result, isRoot: false, baseFolder: folders[indexPath.row], path: path + "/\(folders[indexPath.row])")
+            vc.setupFolders(result, isRoot: false, baseFolder: folders[indexPath.row], path: path + "/\(folders[indexPath.row].name ?? "")")
             vc.parentVC = self
             self.navigationController?.pushViewController(vc, animated: true)
             self.tableView.deselectRow(at: indexPath, animated: true)
