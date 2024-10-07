@@ -70,5 +70,7 @@
 		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Enable photo library access to save images to your photo library directly from the app.</string>
 </dict>
 </plist>

@@ -9,21 +9,57 @@ import UIKit
 
 class PhotoSettingsVC: UIViewController {
 
+    static let identifier = "PhotoSettingsScreen"
+    
+    @IBOutlet weak var autoSavePhotosEnabledSwitch: UISwitch!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if User.shared.settings.autoSavePhotos {
+            autoSavePhotosEnabledSwitch.isOn = true
+        } else {
+            autoSavePhotosEnabledSwitch.isOn = false
+        }
 
-        // Do any additional setup after loading the view.
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    @IBAction func driveNotificationSwitchButtonClicked() {
+        autoSavePhotosEnabledSwitch.isOn = !autoSavePhotosEnabledSwitch.isOn
+        
+        if autoSavePhotosEnabledSwitch.isOn {
+            autoSavePhotosEnabledSwitch.isOn = false
+            User.shared.settings.enableAutoSavePhotos(false)
+            updateAllViews()
+            return
+        }
+        else {
+            autoSavePhotosEnabledSwitch.isOn = true
+            User.shared.settings.enableAutoSavePhotos(true)
+            updateAllViews()
+            return
+        }
+        
     }
-    */
 
+}
+
+extension PhotoSettingsVC {
+    
+    func updateAllViews() {
+        
+        updateSwitches()
+        
+    }
+    
+    func updateSwitches() {
+        
+        if let settings = User.shared.settings {
+            
+            autoSavePhotosEnabledSwitch.isOn = settings.autoSavePhotos
+            
+        }
+        
+    }
+    
 }

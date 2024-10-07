@@ -15,7 +15,7 @@ class SettingsVC: UIViewController {
     
     @IBOutlet weak var versionNumberLabel: UILabel!
     
-    let settings = ["Notifications", "Profile", "Drives", "Dropbox"]
+    let settings = ["Notifications", "Profile", "Drives", "Photos", "Dropbox"]
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -57,6 +57,9 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             cell.setup(title: settings[indexPath.row], status: "")
         }
         else if indexPath.row == 3 {
+            cell.setup(title: settings[indexPath.row], status: User.shared.settings.autoSavePhotos ? "Auto save enabled" : "Auto save disabled")
+        }
+        else if indexPath.row == 4 {
             cell.setup(title: settings[indexPath.row], status: User.shared.dropbox.isConnected ? "Connected" : "Not connected")
         }
         //Separator Full Line
@@ -83,6 +86,10 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             self.navigationController?.pushViewController(vc, animated: true)
         }
         else if indexPath.row == 3 {
+            let vc = storyboard?.instantiateViewController(withIdentifier: PhotoSettingsVC.identifier) as! PhotoSettingsVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        else if indexPath.row == 4 {
             let vc = storyboard?.instantiateViewController(withIdentifier: DropboxConnectVC.identifier) as! DropboxConnectVC
             self.navigationController?.pushViewController(vc, animated: true)
         }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="WhB-BJ-bHh">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="WhB-BJ-bHh">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -31,20 +31,20 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="SettingCell" id="iM0-fR-Pxq" customClass="SettingCell" customModule="Property_Management" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="50" width="393" height="50.333332061767578"/>
+                                        <rect key="frame" x="0.0" y="50" width="393" height="49"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="iM0-fR-Pxq" id="y5S-s5-Pv6">
-                                            <rect key="frame" x="0.0" y="0.0" width="393" height="50.333332061767578"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZRg-Hx-PtF">
-                                                    <rect key="frame" x="40" y="15.999999999999998" width="31.333333333333329" height="18.333333333333329"/>
+                                                    <rect key="frame" x="40" y="16" width="31.333333333333329" height="17"/>
                                                     <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="14"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uws-tt-bf3">
-                                                    <rect key="frame" x="280.66666666666669" y="15.999999999999998" width="45.333333333333314" height="18.333333333333329"/>
+                                                    <rect key="frame" x="280.66666666666669" y="16" width="45.333333333333314" height="17"/>
                                                     <attributedString key="attributedText">
                                                         <fragment content="Status">
                                                             <attributes>
@@ -57,7 +57,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chevron.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="p0e-h3-8WW">
-                                                    <rect key="frame" x="351" y="21.333333333333336" width="12" height="8.3333333333333321"/>
+                                                    <rect key="frame" x="351" y="20.666666666666671" width="12" height="8.3333333333333321"/>
                                                     <color key="tintColor" systemColor="systemGrayColor"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="12" id="hYr-zl-ztJ"/>
@@ -208,6 +208,66 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6Nj-vq-G01" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2554.9618320610684" y="1641.549295774648"/>
+        </scene>
+        <!--Photo SettingsVC-->
+        <scene sceneID="fhf-A4-gqN">
+            <objects>
+                <viewController storyboardIdentifier="PhotoSettingsScreen" id="UZ5-NC-2rd" customClass="PhotoSettingsVC" customModule="Property_Management" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="wcH-Rb-F3a">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QMp-pU-jEA">
+                                <rect key="frame" x="15" y="69" width="363" height="45"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yZL-nN-nrl">
+                                        <rect key="frame" x="10" y="5" width="180.33333333333334" height="35"/>
+                                        <attributedString key="attributedText">
+                                            <fragment content="Save photos to Camera Roll">
+                                                <attributes>
+                                                    <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                    <font key="NSFont" size="13" name="MontserratRoman-Medium"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                        </attributedString>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="SIc-Od-Z20">
+                                        <rect key="frame" x="309" y="7" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="driveNotificationSwitchButtonClicked" destination="FSz-Tz-c1g" eventType="touchUpInside" id="2rQ-MV-VO9"/>
+                                            <action selector="driveNotificationSwitchButtonClicked" destination="AEq-fe-Cs1" eventType="touchUpInside" id="NVF-Im-3Pt"/>
+                                            <action selector="driveNotificationSwitchButtonClicked" destination="UZ5-NC-2rd" eventType="touchUpInside" id="jnK-MV-9TN"/>
+                                        </connections>
+                                    </switch>
+                                </subviews>
+                                <color key="backgroundColor" name="Background Gray"/>
+                                <constraints>
+                                    <constraint firstItem="yZL-nN-nrl" firstAttribute="leading" secondItem="QMp-pU-jEA" secondAttribute="leading" constant="10" id="3J5-0c-XpE"/>
+                                    <constraint firstItem="yZL-nN-nrl" firstAttribute="top" secondItem="QMp-pU-jEA" secondAttribute="top" constant="5" id="4Pm-bv-p3F"/>
+                                    <constraint firstAttribute="height" constant="45" id="86f-HO-uuA"/>
+                                    <constraint firstAttribute="trailing" secondItem="SIc-Od-Z20" secondAttribute="trailing" constant="5" id="WA8-b9-fKq"/>
+                                    <constraint firstItem="SIc-Od-Z20" firstAttribute="centerY" secondItem="QMp-pU-jEA" secondAttribute="centerY" id="Yh2-PF-AXr"/>
+                                    <constraint firstAttribute="bottom" secondItem="yZL-nN-nrl" secondAttribute="bottom" constant="5" id="gKs-ld-clG"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="H4B-zY-2sX"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="QMp-pU-jEA" firstAttribute="leading" secondItem="H4B-zY-2sX" secondAttribute="leading" constant="15" id="SIs-DL-hGb"/>
+                            <constraint firstAttribute="trailing" secondItem="QMp-pU-jEA" secondAttribute="trailing" constant="15" id="n69-iQ-rqD"/>
+                            <constraint firstItem="QMp-pU-jEA" firstAttribute="top" secondItem="H4B-zY-2sX" secondAttribute="top" constant="10" id="sVA-0D-USW"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="autoSavePhotosEnabledSwitch" destination="SIc-Od-Z20" id="KdG-Wh-Foe"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nwT-WE-a9F" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3566" y="1971"/>
         </scene>
         <!--Dropbox Folder ConnectVC-->
         <scene sceneID="J4H-ab-wkJ">

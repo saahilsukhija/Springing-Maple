@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreLocation
+import Photos
 class PhotoUploadVC: UIViewController {
     
     static let identifier = "PhotoUploadScreen"
@@ -125,6 +126,7 @@ class PhotoUploadVC: UIViewController {
                 DropboxAssistant.shared.uploadVideosToFolder(videos: vids, folderPath: path, namingConvention: .propertyName, property: name) { completed2, error2 in
                     if let error = error {
                         print(error.localizedDescription)
+                        self.showFailureToast(message: "Unable to upload images")
                     }
                     else {
                         print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(propertyName)!")
@@ -195,6 +197,7 @@ class PhotoUploadVC: UIViewController {
         clearAllButton.tintColor = .accentColor
         
         saveCapturesToDefaults()
+        savePhotoToCameraRoll(image)
     }
     
     func newVideoAdded(_ data: NSData, thumbnail: UIImage, key: Int) {
@@ -248,18 +251,37 @@ class PhotoUploadVC: UIViewController {
         saveCapturesToDefaults()
     }
     
+    func savePhotoToCameraRoll(_ image: UIImage) {
+        
+        guard User.shared.settings.autoSavePhotos else { return }
+        
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAsset(from: image)
+        }, completionHandler: { success, error in
+            if success {
+                print("Saved!")
+            }
+            else if let error = error {
+                print(error.localizedDescription)
+            }
+            else {
+                print("unknown error saving photo")
+            }
+        })
+    }
+    
     func saveCapturesToDefaults() {
-        do {
-            try UserDefaults.standard.set(object: keys, forKey: "images_keys_temp")
-//            try UserDefaults.standard.set(object: videoKeys, forKey: "videos_keys_temp")
-            try UserDefaults.standard.saveImages(images, forKey: "images_temp")
-//            try UserDefaults.standard.saveVideos(videos, forKey: "videos_temp")
-        } catch {}
+//        do {
+//            try UserDefaults.standard.set(object: keys, forKey: "images_keys_temp")
+////            try UserDefaults.standard.set(object: videoKeys, forKey: "videos_keys_temp")
+//            try UserDefaults.standard.saveImages(images, forKey: "images_temp")
+////            try UserDefaults.standard.saveVideos(videos, forKey: "videos_temp")
+//        } catch {}
     }
     
     func removeCapturesFromDefaults() {
-        UserDefaults.standard.removeObject(forKey: "images_keys_temp")
-        UserDefaults.standard.removeObject(forKey: "images_temp")
+//        UserDefaults.standard.removeObject(forKey: "images_keys_temp")
+//        UserDefaults.standard.removeObject(forKey: "images_temp")
 //        UserDefaults.standard.removeObject(forKey: "videos_keys_temp")
 //        UserDefaults.standard.removeObject(forKey: "videos_temp")
 //        UserDefaults.standard.removeObject(forKey: "videos_temp" + "_videos")
@@ -267,14 +289,14 @@ class PhotoUploadVC: UIViewController {
     }
     
     func getCapturesFromDefaults() {
-        do {
-            self.keys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "images_keys_temp") ?? []
-//            self.videoKeys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "videos_keys_temp") ?? []
-            self.images = try UserDefaults.standard.getImages(forKey: "images_temp")
-//            self.videos = try UserDefaults.standard.getVideos(forKey: "videos_temp")
-        } catch {
-            print("NO IMAGES SAVED")
-        }
+//        do {
+//            self.keys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "images_keys_temp") ?? []
+////            self.videoKeys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "videos_keys_temp") ?? []
+//            self.images = try UserDefaults.standard.getImages(forKey: "images_temp")
+////            self.videos = try UserDefaults.standard.getVideos(forKey: "videos_temp")
+//        } catch {
+//            print("NO IMAGES SAVED")
+//        }
     }
     
 }
@@ -368,6 +390,7 @@ extension PhotoUploadVC {
         print("resetting text field: \(count)")
         guard shouldChangePropertyField else { return }
         guard count != 10 else { return }
+        guard LocationManager.shared.locationManager?.authorizationStatus != .denied else { return }
         LocationManager.shared.lastLocation = nil
         LocationManager.shared.startTrackingTempLocation()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {

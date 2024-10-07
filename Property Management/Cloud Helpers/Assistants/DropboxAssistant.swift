@@ -175,17 +175,25 @@ extension DropboxAssistant {
                               finishBatchRequestError: BatchUploadError?,
                               fileUrlsToRequestErrors: [URL: BatchUploadError]) -> Void in
                 
+                var successful = 0
+                var failed = 0
                 if let uploadResults = uploadResults {
                     for (clientSideFileUrl, result) in uploadResults {
                         switch result {
                         case .success(let metadata):
                             let dropboxFilePath = metadata.pathDisplay!
-                            //print("Upload \(clientSideFileUrl.absoluteString) to \(dropboxFilePath) succeeded")
+                            print("Upload \(clientSideFileUrl.absoluteString) to \(dropboxFilePath) succeeded")
+                            successful += 1
                         case .failure(let error):
                             print("Upload \(clientSideFileUrl.absoluteString) failed: \(error)")
+                            failed += 1
                         }
                     }
-                    completion(true, nil)
+                    if failed == 0 {
+                        completion(true, nil)
+                    } else {
+                        completion(false, NSError(domain: "Failed uploading \(failed) images", code: 0))
+                    }
                 } else if let finishBatchRequestError = finishBatchRequestError {
                     print("Error uploading files: possible error on Dropbox server: \(finishBatchRequestError)")
                     completion(false, finishBatchRequestError as? Error)

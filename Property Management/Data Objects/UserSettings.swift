@@ -19,6 +19,7 @@ class UserSettings: Codable {
     private(set) var workNotificationsEnabled: Bool! = true
     
     private(set) var autoUploadDrives: Bool! = false
+    private(set) var autoSavePhotos: Bool! = true
     
     init() {
         do {
@@ -49,11 +50,18 @@ class UserSettings: Codable {
             else {
                 self.autoUploadDrives = false
             }
+            
+            if let savePhotos = s?.autoSavePhotos {
+                self.autoSavePhotos = savePhotos
+            } else {
+                self.autoSavePhotos = true
+            }
         } catch {
             self.notificationsEnabled = false
             self.driveNotificationsEnabled = false
             self.workNotificationsEnabled = false
             self.autoUploadDrives = false
+            self.autoSavePhotos = true
             print("no user settings available.")
         }
     }
@@ -126,6 +134,14 @@ class UserSettings: Codable {
     
     func enableAutoUploadDrives(_ enabled: Bool = true) {
         self.autoUploadDrives = enabled
+        
+        do {
+            try UserDefaults.standard.set(object: self, forKey: "user_settings")
+        } catch {}
+    }
+    
+    func enableAutoSavePhotos(_ enabled: Bool = true) {
+        self.autoSavePhotos = enabled
         
         do {
             try UserDefaults.standard.set(object: self, forKey: "user_settings")
