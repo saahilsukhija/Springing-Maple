@@ -93,12 +93,14 @@ extension DropboxAssistant {
             
             guard let imageData = ImageCompressor.compressImageToTargetSize(image: image, targetSize: CGFloat(Constants.MAX_IMAGE_SIZE)) else { print("unable to compress"); return }
             let fileName: String
+            let imagecount = UserDefaults.standard.getUploadedImagesCount(property: property)
             switch namingConvention {
             case .propertyName:
-                fileName = "\(property)_\(Date().toLongMonthDayYearFormat())_\(index+1).jpg"
+                fileName = "\(property)_\(Date().toLongMonthDayYearFormat())_\(imagecount+1) - \(User.shared.getUserFirstName()).jpg"
             default:
-                fileName = "\(Date().toLongMonthDayYearFormat())_\(index+1).jpg"
+                fileName = "\(Date().toLongMonthDayYearFormat())_\(imagecount+1) - \(User.shared.getUserFirstName()).jpg"
             }
+            UserDefaults.standard.updateUploadedImagesCount(property: property)
             let filePath = "\(folderPath)/\(fileName)"
             let tempUrl = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
             
@@ -106,7 +108,7 @@ extension DropboxAssistant {
                 try imageData.write(to: tempUrl)
                 filesCommitInfo[tempUrl] = Files.CommitInfo(path: filePath, mode: .overwrite)
             } catch {
-                print("Failed to write image data to temporary file for image \(index + 1)")
+                print("Failed to write image data to temporary file for image \(imagecount + 1)")
             }
             
         }

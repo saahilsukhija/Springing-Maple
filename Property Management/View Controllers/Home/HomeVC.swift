@@ -131,18 +131,26 @@ class HomeVC: UIViewController {
                 }
             }
             Task {
-//                for i in 0...10 {
-//                    let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 12*i), finalDate: Date().getDate(byAdding: .minute, value: 18*i), milesDriven: 1.7)
-//                    let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates:  CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), initialDate: Date().getDate(byAdding: .minute, value: 32*i), finalDate: Date().getDate(byAdding: .minute, value: 40*i), milesDriven: 1.7)
-//                    let work = Work(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 18*i), finalDate: Date().getDate(byAdding: .minute, value: 32*i))
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
-//                        Task {
-//                            try? await FirestoreDatabase.shared.uploadPrivateDrive(d1)
-//                            try? await FirestoreDatabase.shared.uploadPrivateWork(work)
-//                            try? await FirestoreDatabase.shared.uploadPrivateDrive(d2)
+        
+//                    let d1 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 12), finalDate: Date().getDate(byAdding: .minute, value: 18), milesDriven: 1.7)
+//                    let d2 = Drive(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates:  CLLocationCoordinate2D(latitude: 37.322557, longitude: -122.034679), initialDate: Date().getDate(byAdding: .minute, value: 32), finalDate: Date().getDate(byAdding: .minute, value: 40), milesDriven: 1.7)
+//                    let work = Work(initialCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), finalCoordinates: CLLocationCoordinate2D(latitude: 37.3150, longitude: -122.0562), initialDate: Date().getDate(byAdding: .minute, value: 18), finalDate: Date().getDate(byAdding: .minute, value: 32))
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+////                        Task {
+////                            try? await FirestoreDatabase.shared.uploadPrivateDrive(d1)
+////                            try? await FirestoreDatabase.shared.uploadPrivateWork(work)
+////                            try? await FirestoreDatabase.shared.uploadPrivateDrive(d2)
+////                        }
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+//                            LocationManager.shared.uploadDrive(d1)
+//                        }
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+//                            LocationManager.shared.uploadWork(work)
+//                        }
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 12) {
+//                            LocationManager.shared.uploadDrive(d2)
 //                        }
 //                    }
-//                }
                 
                 do {
                     GoogleSheetAssistant.shared.addUserSheet()

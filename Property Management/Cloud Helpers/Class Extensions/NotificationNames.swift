@@ -47,6 +47,14 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
+    static var mergedActivityMarkedAsRegistered: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var mergedActivityMarkedAsDeleted: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
     static var cloudDriveDetected: Notification.Name {
         return .init(rawValue: #function)
     }

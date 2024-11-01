@@ -27,7 +27,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         
         captureSession = AVCaptureSession()
         captureSession.sessionPreset = .photo
-        
+
         // Get available camera devices
         let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInTripleCamera], mediaType: .video, position: .unspecified)
         let devices = deviceDiscoverySession.devices
@@ -145,7 +145,10 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         
         setupPinchGesture()
         configureHardwareInteraction()
+
     }
+    
+    
     
     func configureHardwareInteraction() {
         // Create a new capture event interaction with a handler that captures a photo.
@@ -341,7 +344,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         guard let image = UIImage(data: imageData) else { return }
         capturedImages.append(image)
         if let vc = parentVC as? PhotoUploadVC {
-            vc.newImageAdded(image, key: -1)
+            vc.newImageAdded(image, key: -1, fromGallery: false)
         }
         lastImagePreviewImageView.image = image
         lastImagePreviewImageView.isHidden = false

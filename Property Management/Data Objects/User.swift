@@ -41,6 +41,11 @@ class User {
         return GIDSignIn.sharedInstance.currentUser!.profile!.name
     }
     
+    func getUserFirstName() -> String {
+        guard isLoggedIn() else { return "" }
+        return GIDSignIn.sharedInstance.currentUser!.profile!.givenName ?? String(GIDSignIn.sharedInstance.currentUser!.profile!.name.split(separator: " ")[0])
+    }
+    
     func getUserEmail() -> String {
         guard isLoggedIn() else { return "" }
         return GIDSignIn.sharedInstance.currentUser!.profile!.email

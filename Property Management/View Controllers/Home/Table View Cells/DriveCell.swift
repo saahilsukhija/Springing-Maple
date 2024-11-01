@@ -20,6 +20,7 @@ class DriveCell: UITableViewCell {
     @IBOutlet weak var initialTimeLabel: UILabel!
     @IBOutlet weak var finalTimeLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
+    
     @IBOutlet weak var milesDrivenLabel: UILabel!
     
     @IBOutlet weak var ticketNumberTextField: UITextField!

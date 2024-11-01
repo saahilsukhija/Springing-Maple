@@ -618,17 +618,21 @@ extension LocationManager: CLLocationManagerDelegate {
     }
     
     
-    private func uploadDrive(_ drive: Drive) {
+    func uploadDrive(_ drive: Drive) {
         if User.shared.settings.autoUploadDrives {
-            Task {
-                let registeredDrive = RegisteredDrive(from: drive, ticketNumber: "", notes: "")
-                do {
-                    try await FirestoreDatabase.shared.uploadRegisteredDrive(registeredDrive)
-                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive, deletePreviousEntry: false)
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
+            PendingDriveQueue.shared.putDrive(drive)
+            print(drive.initialDate.toHourMinuteTime() + "-" + drive.finalDate.toHourMinuteTime() + " " + (drive.finalPlace ?? "(none)"))
+            print("ADDING DRIVE TO PENDINGDRIVEQUEUE")
+            GoogleSheetAssistant.shared.appendUnregisteredDriveToSpreadsheet(drive)
+//            Task {
+//                let registeredDrive = RegisteredDrive(from: drive, ticketNumber: "", notes: "")
+//                do {
+//                    try await FirestoreDatabase.shared.uploadRegisteredDrive(registeredDrive)
+//                    GoogleSheetAssistant.shared.appendRegisteredDriveToSpreadsheet(registeredDrive, deletePreviousEntry: false)
+//                } catch {
+//                    print(error.localizedDescription)
+//                }
+//            }
         }
         else {
             Task {

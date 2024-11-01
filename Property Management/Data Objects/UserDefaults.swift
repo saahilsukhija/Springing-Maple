@@ -89,6 +89,21 @@ public extension UserDefaults {
         return retVal
     }
     
+    
+    func updateUploadedImagesCount(property: String, _ date: Date = Date()) {
+        print("UPDATING " + date.toMonthDate())
+        let key = "imagecount_\(property)_\(date.toMonthDate())"
+        let current = UserDefaults.standard.integer(forKey: key)
+        UserDefaults.standard.set(current + 1, forKey: key)
+    }
+    
+    func getUploadedImagesCount(property: String, _ date: Date = Date()) -> Int {
+        print("GETTING " + date.toMonthDate())
+        let key = "imagecount_\(property)_\(date.toMonthDate())"
+        let current = UserDefaults.standard.integer(forKey: key)
+        return current
+    }
+    
 //    func saveVideos(_ videos: [(NSData, UIImage)], forKey key: String) throws {
 //        var videoData: [Data] = []
 //        var thumbnailData: [UIImage] = []

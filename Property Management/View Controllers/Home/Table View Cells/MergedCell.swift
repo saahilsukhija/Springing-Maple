@@ -8,9 +8,9 @@
 import UIKit
 import FDTake
 
-class CombinedCell: UITableViewCell {
+class MergedCell: UITableViewCell {
 
-    static let identifier = "CombinedCell"
+    static let identifier = "MergedCell"
     
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var topBarView: UIView!
@@ -82,9 +82,9 @@ class CombinedCell: UITableViewCell {
         self.titleLabel.textColor = .black
         
         if drive.finalPlace != nil {
-            self.titleLabel.text = "\(drive.finalPlace!)"
+            self.titleLabel.text = "Merged activity at \(drive.finalPlace!)"
         } else if work.initialPlace != nil {
-            self.titleLabel.text = "\(work.initialPlace!)"
+            self.titleLabel.text = "Merged activity at \(work.initialPlace!)"
         } else {
             self.titleLabel.text = "Work at unknown location"
         }
@@ -118,6 +118,14 @@ class CombinedCell: UITableViewCell {
             self.driveInitialPlaceLabel.textColor = .black
         }
         
+        if w.initialPlace == nil {
+            //TODO: ADD TO REVERSE GEOLOCATION QUEUE
+        }
+        else {
+            self.workPlaceLabel.text = w.initialPlace?.removeNumbers()
+            self.workPlaceLabel.textColor = .black
+        }
+        
         if let fields = fields {
             self.ticketNumberTextField.text = fields.0
             self.notesTextField.text = fields.2
@@ -127,22 +135,61 @@ class CombinedCell: UITableViewCell {
            self.notesTextField.text = ""
        }
         
-        if drive.finalDate == .ongoingDate {
-            self.titleLabel.text = "Pending"
-            self.driveFinalPlaceLabel.text = "Pending"
-            self.driveFinalPlaceLabel.textColor = .systemGray
-            self.driveFinalTimeLabel.text = ""
-            self.dateLabel.text = "\(d.initialDate.get(.month))/\(d.initialDate.get(.day))"
+        if work.finalDate == .ongoingDate {
+            self.titleLabel.text = "Ongoing activity at \(drive.finalPlace ?? "location")"
+            self.workTimeLabel.text = "\(initTime) - Now"
         }
         
+    }
+    
+    @IBAction func checkMarkClicked(_ sender: Any) {
+        
+        let ticketNumber = ticketNumberTextField.text ?? ""
+        let money = moneyTextField.text == "" ? 0.00 : Double(moneyTextField.text ?? "0")
+        let notes = notesTextField.text ?? ""
+        
+        let registeredWork = RegisteredWork(from: work, moneySpent: money ?? 0.00, ticketNumber: ticketNumber, notes: notes, image: image ?? UIImage.checkmark)
+        let registeredDrive =  RegisteredDrive(from: drive, ticketNumber: ticketNumber, notes: notes)
+        
+        if let image = image {
+            NotificationCenter.default.post(name: .mergedActivityMarkedAsRegistered, object: nil, userInfo: ["work" : self.work!, "registered_work" : registeredWork, "drive" : self.drive!, "registered_drive" : registeredDrive, "receipt_image" : image])
+        } else {
+            NotificationCenter.default.post(name: .mergedActivityMarkedAsRegistered, object: nil, userInfo: ["work" : self.work!, "registered_work" : registeredWork, "drive" : self.drive!, "registered_drive" : registeredDrive])
+        }
+    }
+    
+    @IBAction func trashButtonClicked(_ sender: Any) {
+        NotificationCenter.default.post(name: .mergedActivityMarkedAsDeleted, object: nil, userInfo: ["work" : self.work!, "drive" : self.drive!])
+    }
+    
+    @IBAction func mapButtonClicked(_ sender: Any) {
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: DriveMapVC.identifier) as! DriveMapVC
+        
+        parentVC.present(vc, animated: true) {
+            vc.setup(with: self.drive)
+        }
+    }
+    
+    @IBAction func propertyImagesCameraButtonClicked(_ sender: Any) {
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: AddPropertyImagesVC.identifier) as! AddPropertyImagesVC
+        vc.propertyName = work.finalPlace?.removeNumbers()
+        parentVC.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func updateCameraButton() {
+        if self.image != nil {
+            self.receiptCameraButton.setImage(UIImage(systemName: "icloud.and.arrow.up"), for: .normal)
+        } else {
+            self.receiptCameraButton.setImage(UIImage(systemName: "camera"), for: .normal)
+        }
     }
     
     @objc func textFieldDidChange() {
         
         if moneyTextField.text?.count ?? 0 > 0 {
-            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", Double(moneyTextField.text ?? "0"), notesTextField.text ?? "", self.image)
+            parentVC.userEnteredValues[drive.initialDate] = (ticketNumberTextField.text ?? "", Double(moneyTextField.text ?? "0"), notesTextField.text ?? "", self.image)
         } else {
-            parentVC.userEnteredValues[work.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "", self.image)
+            parentVC.userEnteredValues[drive.initialDate] = (ticketNumberTextField.text ?? "", nil, notesTextField.text ?? "", self.image)
         }
         
     }

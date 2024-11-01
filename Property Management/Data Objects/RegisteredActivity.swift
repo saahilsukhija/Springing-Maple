@@ -27,6 +27,7 @@ class RegisteredActivity: Activity {
         self.internalID = internalID
         
         generateID()
+        formatTicketNumber()
         
     }
     
@@ -39,7 +40,7 @@ class RegisteredActivity: Activity {
         self.internalID = internalID
         
         generateID()
-        
+        formatTicketNumber()
         
         
     }
@@ -51,7 +52,7 @@ class RegisteredActivity: Activity {
         ticketNumber = try values.decode(String.self, forKey: .ticketNumber)
         notes = try values.decode(String.self, forKey: .notes)
         internalID = try values.decode(String.self, forKey: .internalID)
-        
+        formatTicketNumber()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -90,6 +91,11 @@ class RegisteredActivity: Activity {
             finalNumber += String(Int(randomNumber))
         }
         return finalNumber
+    }
+    
+    func formatTicketNumber() {
+        ticketNumber = ticketNumber?.filter { !$0.isWhitespace }
+        ticketNumber = ticketNumber?.components(separatedBy: "-")[0]
     }
     
 }

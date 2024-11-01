@@ -63,6 +63,7 @@ class GoogleSheetAssistant {
             print("NO SPREADSHEET ID")
             return
         }
+        checkForDriveUpload(work)
         Task {
             let link = try? await work.getReceiptURL()
             let dict = ["spreadsheetID" : spreadsheetID,
@@ -88,6 +89,21 @@ class GoogleSheetAssistant {
                 SpreadsheetEntryQueue.shared.putEntry(type: .drive, data: dict)
             }
         }
+        
+    }
+    
+    func checkForDriveUpload(_ registeredWork: RegisteredWork) {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            return
+        }
+        guard let drive = PendingDriveQueue.shared.getDrive(finalTime: registeredWork.initialDate, finalPlace: registeredWork.initialPlace ?? "", remove: true) else {
+            print ("NO PENDING DRIVE ASSOCIATED WITH WORK")
+            return
+        }
+        print("FOUND")
+        let registeredDrive = RegisteredDrive(from: drive, ticketNumber: registeredWork.ticketNumber ?? "", notes: "")
+        appendRegisteredDriveToSpreadsheet(registeredDrive, deletePreviousEntry: true)
         
     }
     
@@ -362,7 +378,9 @@ class SpreadsheetEntryQueue {
                 if entry.type == .createnewsheet {
                     self.entries.insert(SpreadsheetEntry(type: .resetheader, data: entry.data), at: 0)
                 }
-                self.executeNext()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.executeNext()
+                }
             }
         }
     }

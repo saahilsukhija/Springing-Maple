@@ -54,7 +54,7 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             cell.setup(title: settings[indexPath.row], status: User.shared.getUserName())
         }
         else if indexPath.row == 2 {
-            cell.setup(title: settings[indexPath.row], status: "")
+            cell.setup(title: settings[indexPath.row], status: User.shared.settings.autoUploadDrives ? "Auto upload enabled" : "Auto upload disabled")
         }
         else if indexPath.row == 3 {
             cell.setup(title: settings[indexPath.row], status: User.shared.settings.autoSavePhotos ? "Auto save enabled" : "Auto save disabled")

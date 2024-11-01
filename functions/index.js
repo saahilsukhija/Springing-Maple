@@ -130,7 +130,8 @@ exports.append_drive_to_spreadsheet = onRequest(async (req, res) => {
   });
   const range = "'" + username + "'!A1";
 
-  addNewSheet(auth, apiKey, spreadsheetID, username);
+  // addNewSheet(auth, apiKey, spreadsheetID, username);
+  await sort(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
       [date, initialTime,
         finalTime, type,
@@ -168,13 +169,11 @@ exports.append_unreg_drive_to_spreadsheet = onRequest(async (req, res) => {
   });
   const range = "'" + username + "'!A1";
 
-  addNewSheet(auth, apiKey, spreadsheetID, username);
+  // addNewSheet(auth, apiKey, spreadsheetID, username);
 
   const backgroundColor = {red: 220.0/255,
     green: 220.0/255, blue: 220.0/255, alpha: 1.0/3};
-
   await addBlankRow(auth, apiKey, spreadsheetID, username, backgroundColor);
-
   await sort(auth, apiKey, spreadsheetID, username);
   appendSpreadsheetRow(auth, apiKey, spreadsheetID, range,
       [date, initialTime,
@@ -302,16 +301,16 @@ exports.append_clockinout_to_spreadsheet = onRequest(async (req, res) => {
 
 exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
   const spreadsheetID = req.body.data.spreadsheetID;
-  const apiKey = req.body.data.apiKey;
-  const username = req.body.data.username;
+  // const apiKey = req.body.data.apiKey;
+  // const username = req.body.data.username;
   const date = req.body.data.date;
 
-  const auth = await google.auth.getClient({
-    scopes: [
-      "https://www.googleapis.com/auth/spreadsheets",
-      "https://www.googleapis.com/auth/devstorage.read_only",
-    ],
-  });
+  // const auth = await google.auth.getClient({
+  //   scopes: [
+  //     "https://www.googleapis.com/auth/spreadsheets",
+  //     "https://www.googleapis.com/auth/devstorage.read_only",
+  //   ],
+  // });
 
   const appendValue = [date, "",
     "", "Daily Summary",
@@ -344,32 +343,32 @@ exports.append_dailysummary_to_spreadsheet = onRequest(async (req, res) => {
           pattern: index === 0 ? "mm/dd/yy" : "h:mm A/PM"} : undefined},
     }));
   logger.info("Values: " + JSON.stringify(values), {structuredData: true});
-  const sheetId = await getSheetID(auth, spreadsheetID, username);
+  // const sheetId = await getSheetID(auth, spreadsheetID, username);
 
-  const sheets = google.sheets({version: "v4", auth});
-  sheets.spreadsheets.batchUpdate(
-      {
-        auth: auth,
-        spreadsheetId: spreadsheetID,
-        key: apiKey,
-        resource: {
-          requests: [
-            {
-              "appendCells": {
-                "rows": [{values}],
-                "sheetId": sheetId,
-                "fields": "userEnteredValue,userEnteredFormat"
-                ,
-              },
-            },
-          ],
-        },
-      },
-  );
+  // const sheets = google.sheets({version: "v4", auth});
+  // sheets.spreadsheets.batchUpdate(
+  //     {
+  //       auth: auth,
+  //       spreadsheetId: spreadsheetID,
+  //       key: apiKey,
+  //       resource: {
+  //         requests: [
+  //           {
+  //             "appendCells": {
+  //               "rows": [{values}],
+  //               "sheetId": sheetId,
+  //               "fields": "userEnteredValue,userEnteredFormat"
+  //               ,
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     },
+  // );
 
-  await sort(auth, apiKey, spreadsheetID, username);
-  logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
-  logger.info("auth: " + auth.email, {structuredData: true});
+  // await sort(auth, apiKey, spreadsheetID, username);
+  // logger.info("Spreadsheet ID: " + spreadsheetID, {structuredData: true});
+  // logger.info("auth: " + auth.email, {structuredData: true});
   res.send({result: "Added daily summary onto " + spreadsheetID});
   // return {result: "Hello from " + spreadsheetID};
 });
@@ -680,36 +679,6 @@ function resetHeader(auth, apiKey, spreadsheetID, name) {
                   "repeatCell": {
                     "range": {
                       "sheetId": spreadsheetID,
-                      "startColumnIndex": 0,
-                      "endColumnIndex": 7,
-                    },
-                    "cell": {
-                      "userEnteredFormat": {
-                        "numberFormat": {
-                          "type": "CURRENCY",
-                        },
-                      },
-                    },
-                    "fields": "userEnteredFormat",
-                  },
-                },
-              ],
-            },
-          },
-      );
-
-      sheets.spreadsheets.batchUpdate(
-          {
-            valueInputOption: "USER_ENTERED",
-            auth: auth,
-            spreadsheetId: spreadsheetID,
-            key: apiKey,
-            resource: {
-              requests: [
-                {
-                  "repeatCell": {
-                    "range": {
-                      "sheetId": spreadsheetID,
                       "startColumnIndex": 8,
                       "endColumnIndex": 10,
                     },
@@ -728,70 +697,71 @@ function resetHeader(auth, apiKey, spreadsheetID, name) {
             },
           },
       );
-
-      sheets.spreadsheets.batchUpdate(
-          {
-            valueInputOption: "USER_ENTERED",
-            auth: auth,
-            spreadsheetId: spreadsheetID,
-            key: apiKey,
-            resource: {
-              requests: [
-                {
-                  "repeatCell": {
-                    "range": {
-                      "sheetId": spreadsheetID,
-                      "startColumnIndex": 0,
-                      "endColumnIndex": 1,
-                    },
-                    "cell": {
-                      "userEnteredFormat": {
-                        "numberFormat": {
-                          "type": "DATE",
-                          "pattern": "mm/dd/yy",
-                        },
-                      },
-                    },
-                    "fields": "userEnteredFormat",
-                  },
-                },
-              ],
-            },
-          },
-      );
-
-      sheets.spreadsheets.batchUpdate(
-          {
-            valueInputOption: "USER_ENTERED",
-            auth: auth,
-            spreadsheetId: spreadsheetID,
-            key: apiKey,
-            resource: {
-              requests: [
-                {
-                  "repeatCell": {
-                    "range": {
-                      "sheetId": spreadsheetID,
-                      "startColumnIndex": 1,
-                      "endColumnIndex": 3,
-                    },
-                    "cell": {
-                      "userEnteredFormat": {
-                        "numberFormat": {
-                          "type": "TIME",
-                          "pattern": "h:mm A/PM",
-                        },
-                      },
-                    },
-                    "fields": "userEnteredFormat",
-                  },
-                },
-              ],
-            },
-          },
-      );
     }
-  });
+  },
+  );
+
+  sheets.spreadsheets.batchUpdate(
+      {
+        valueInputOption: "USER_ENTERED",
+        auth: auth,
+        spreadsheetId: spreadsheetID,
+        key: apiKey,
+        resource: {
+          requests: [
+            {
+              "repeatCell": {
+                "range": {
+                  "sheetId": spreadsheetID,
+                  "startColumnIndex": 0,
+                  "endColumnIndex": 1,
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "numberFormat": {
+                      "type": "DATE",
+                      "pattern": "mm/dd/yy",
+                    },
+                  },
+                },
+                "fields": "userEnteredFormat",
+              },
+            },
+          ],
+        },
+      },
+  );
+
+  sheets.spreadsheets.batchUpdate(
+      {
+        valueInputOption: "USER_ENTERED",
+        auth: auth,
+        spreadsheetId: spreadsheetID,
+        key: apiKey,
+        resource: {
+          requests: [
+            {
+              "repeatCell": {
+                "range": {
+                  "sheetId": spreadsheetID,
+                  "startColumnIndex": 1,
+                  "endColumnIndex": 3,
+                },
+                "cell": {
+                  "userEnteredFormat": {
+                    "numberFormat": {
+                      "type": "TIME",
+                      "pattern": "h:mm A/PM",
+                    },
+                  },
+                },
+                "fields": "userEnteredFormat",
+              },
+            },
+          ],
+        },
+      },
+  );
 
   sheets.spreadsheets.values.update({
     spreadsheetId: spreadsheetID,
@@ -808,6 +778,7 @@ function resetHeader(auth, apiKey, spreadsheetID, name) {
     }
   });
 }
+
 
 /**
  * Adds a row to the spreadsheet

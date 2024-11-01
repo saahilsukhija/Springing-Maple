@@ -60,6 +60,14 @@ extension UIViewController {
         showAnimationToast(animationName: "TrashComplete", message: message, duration: 2, color: .systemRed, fontColor: .systemRed)
     }
     
+    func showConfirmMergeToast(message: String = "Marked merged activity as done!") {
+        showAnimationToast(animationName: "SendComplete", message: message, duration: 2, color: .accent, fontColor: .accent)
+    }
+    
+    func showDeleteMergeToast(message: String = "Deleted merged activity!") {
+        showAnimationToast(animationName: "TrashComplete", message: message, duration: 2, color: .systemRed, fontColor: .systemRed)
+    }
+    
     ///Shows a green toast
     func showSuccessToast(message: String) {
         showAnimationToast(animationName: "CheckMark", message: message, color: .mapGreen, fontColor: .mapGreen)

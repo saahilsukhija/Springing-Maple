@@ -146,10 +146,26 @@ extension FirestoreDatabase {
                 try await db.collection("teams").document(team.id).collection(user.getUserEmail()).document("works").updateData(["registered": FieldValue.arrayUnion([JSONEncoder().encode(registeredWork)])])
                // print("exists")
             }
+            try await checkForDriveUpload(registeredWork)
             print("uploaded registered work: \(registeredWork)")
         } catch {
             throw FirestoreError("Error while uploading the registered work")
         }
+    }
+    
+    func checkForDriveUpload(_ registeredWork: RegisteredWork) async throws {
+        let user = User.shared
+        guard user.isLoggedIn() else {
+            throw FirestoreError("User is not logged in")
+        }
+        guard let drive = PendingDriveQueue.shared.getDrive(finalTime: registeredWork.initialDate, finalPlace: registeredWork.initialPlace ?? "", remove: false) else {
+            //print ("NO PENDING DRIVE ASSOCIATED WITH WORK")
+            return
+        }
+        
+        let registeredDrive = RegisteredDrive(from: drive, ticketNumber: registeredWork.ticketNumber ?? "", notes: registeredWork.notes ?? "")
+        try await uploadRegisteredDrive(registeredDrive)
+        
     }
     
     func getPrivateWorks() async throws -> [Work] {

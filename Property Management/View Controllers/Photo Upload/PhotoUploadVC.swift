@@ -184,7 +184,7 @@ class PhotoUploadVC: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    func newImageAdded(_ image: UIImage, key: Int) {
+    func newImageAdded(_ image: UIImage, key: Int, fromGallery: Bool = true) {
         if self.keys.contains(key) && key != -1 {
             return
         }
@@ -197,7 +197,9 @@ class PhotoUploadVC: UIViewController {
         clearAllButton.tintColor = .accentColor
         
         saveCapturesToDefaults()
-        savePhotoToCameraRoll(image)
+        if !fromGallery {
+            savePhotoToCameraRoll(image)
+        }
     }
     
     func newVideoAdded(_ data: NSData, thumbnail: UIImage, key: Int) {
