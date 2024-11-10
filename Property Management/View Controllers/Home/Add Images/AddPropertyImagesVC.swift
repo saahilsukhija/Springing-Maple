@@ -57,19 +57,19 @@ class AddPropertyImagesVC: UIViewController {
         let loadingScreen = createLoadingScreen(frame: view.frame)
         view.addSubview(loadingScreen)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            loadingScreen.removeFromSuperview()
-            self.navigationController?.popViewController(animated: true)
-            DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: "/\(selectedFolder)/\(propertyName)", namingConvention: .propertyName, property: propertyName) { completed, error in
-                if let error = error {
-                    print(error.localizedDescription)
-                }
-                else {
-                    print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(propertyName)!")
-                }
-            }
-            self.showConfirmWorkToast(message: "Uploading images...")
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//            loadingScreen.removeFromSuperview()
+//            self.navigationController?.popViewController(animated: true)
+//            DropboxAssistant.shared.uploadImagesToFolder(images: self.images, keys: self.keys, folderPath: "/\(selectedFolder)/\(propertyName)", namingConvention: .propertyName, property: propertyName) { completed, error in
+//                if let error = error {
+//                    print(error.localizedDescription)
+//                }
+//                else {
+//                    print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(propertyName)!")
+//                }
+//            }
+//            self.showConfirmWorkToast(message: "Uploading images...")
+//        }
         
         
     }

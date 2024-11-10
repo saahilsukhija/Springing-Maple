@@ -83,6 +83,14 @@ extension Notification.Name {
         return .init(rawValue: #function)
     }
     
+    static var dropboxImageUploadCompleted: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
+    static var dropboxImageUploadFailed: Notification.Name {
+        return .init(rawValue: #function)
+    }
+    
     static var applicationEnteredForeground: Notification.Name {
         return .init(rawValue: #function)
     }

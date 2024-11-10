@@ -20,6 +20,13 @@ class PhotoUploadVC: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
     
+    @IBOutlet weak var progressBar: UIProgressView!
+    @IBOutlet weak var statusLabel: UILabel!
+    
+    @IBOutlet weak var propertyFieldTopConstraint: NSLayoutConstraint!
+    
+    var isUploading = false
+    
     var doneButton: UIBarButtonItem!
     var clearAllButton: UIBarButtonItem!
     
@@ -33,7 +40,7 @@ class PhotoUploadVC: UIViewController {
     var timer: Timer?
     
     override func viewDidLoad() {
-
+        
         super.viewDidLoad()
         propertyField.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(textFieldClicked)))
         propertyField.font = UIFont(name: "Montserrat-Medium", size: 16)
@@ -54,6 +61,12 @@ class PhotoUploadVC: UIViewController {
         
         collectionView.delegate = self
         collectionView.dataSource = self
+        
+        progressBar.isHidden = true
+        progressBar.progress = 0
+        statusLabel.isHidden = true
+        statusLabel.text = ""
+        isUploading = false
         
         let alignedFlowLayout = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
         collectionView.collectionViewLayout = alignedFlowLayout
@@ -80,6 +93,12 @@ class PhotoUploadVC: UIViewController {
             connectToDropboxButton.setAttributedTitle(mutableString, for: .normal)
             return
         }
+        
+        progressBar.isHidden = true
+        progressBar.progress = 0
+        statusLabel.isHidden = true
+        statusLabel.text = ""
+        isUploading = false
         
         autofillTextField()
         
@@ -114,45 +133,138 @@ class PhotoUploadVC: UIViewController {
         let unit = unitButton.attributedTitle(for: .normal)?.string
         let path = (unit == "Unit #" || unit == nil) ? "\(selectedFolder)/\(propertyName)" : "\(selectedFolder)/\(propertyName)/\(unit ?? "unknown")"
         let name = (unit == "Unit #" || unit == nil) ? "\(propertyName)" : "\(propertyName)_\(unit ?? "unknown")"
-        let loadingScreen = createLoadingScreen(frame: view.frame, message: "Uploading photos...")
-        view.addSubview(loadingScreen)
+        //        let loadingScreen = createLoadingScreen(frame: view.frame, message: "Uploading photos...")
+        //        view.addSubview(loadingScreen)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            DropboxAssistant.shared.uploadImagesToFolder(images: self.images, folderPath: path, namingConvention: .propertyName, property: name) { completed, error in
+        progressBar.isHidden = false
+        progressBar.progress = 0
+        statusLabel.isHidden = false
+        
+        self.view.isUserInteractionEnabled = false
+        self.navigationController?.navigationBar.isUserInteractionEnabled = false
+        self.tabBarController?.tabBar.isUserInteractionEnabled = false
+        
+        animatePropertyFieldTopConstraint(to: 50)
+        var failedImages: [UIImage] = []
+        var failedKeys: [Int] = []
+        var successfulUploads = 0
+        let totalUploads = self.images.count + self.videos.count
+        
+        self.statusLabel.text = "Uploading image \(successfulUploads + failedImages.count + 1) of \(totalUploads)"
+        DropboxAssistant.shared.uploadImagesToFolder(
+            images: self.images,
+            keys: self.keys,
+            folderPath: path,
+            namingConvention: .propertyName,
+            property: name
+        ) { image, key, success, everythingCompleted in
+            
+            let currentUpload = successfulUploads + failedImages.count + 1
+            if success {
+                successfulUploads += 1
+                let progress = (Float(currentUpload)) / Float(totalUploads)
+                DispatchQueue.main.async {
+                    self.progressBar.setProgress(progress, animated: true)
+                    if successfulUploads + failedImages.count + 1 <= totalUploads {
+                        self.statusLabel.text = "Uploading image \(successfulUploads + failedImages.count + 1) of \(totalUploads)"
+                    }
+                }
+            } else {
+                self.statusLabel.text = "Image \(currentUpload) FAILED"
+                failedImages.append(image)
+                failedKeys.append(key)
+            }
+            
+            if everythingCompleted {
+                // Prepare to upload videos after images are done
                 var vids: [NSData] = []
                 for v in self.videos {
                     vids.append(v.0)
                 }
-                DropboxAssistant.shared.uploadVideosToFolder(videos: vids, folderPath: path, namingConvention: .propertyName, property: name) { completed2, error2 in
-                    if let error = error {
-                        print(error.localizedDescription)
-                        self.showFailureToast(message: "Unable to upload images")
+                DropboxAssistant.shared.uploadVideosToFolder(
+                    videos: vids,
+                    folderPath: path,
+                    namingConvention: .propertyName,
+                    property: name
+                ) { [self] completed2, error2 in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [self] in
+                        animatePropertyFieldTopConstraint(to: 0)
+                        progressBar.isHidden = true
+                        progressBar.progress = 0
+                        statusLabel.isHidden = true
+                        statusLabel.text = ""
                     }
-                    else {
-                        print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(propertyName)!")
-                        self.showConfirmWorkToast(message: "Uploaded images!")
-                        self.images.removeAll()
-                        self.keys.removeAll()
-                        self.videos.removeAll()
-                        self.videoKeys.removeAll()
-                        let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
-                        self.unitButton.setAttributedTitle(mutableString, for: .normal)
-                        self.doneButton.tintColor = .systemGray
-                        self.clearAllButton.tintColor = .systemGray
-                        self.configureButtonItems()
-                        self.autofillTextField()
-                        self.collectionView.reloadData()
+
+                        print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(name)!")
+                        self.clearEverything()
+                        self.statusLabel.text = "Finished uploading!"
                         
-                        self.removeCapturesFromDefaults()
+                        self.images = failedImages
+                        self.keys = failedKeys
                         
-                        loadingScreen.removeFromSuperview()
-                    }
+                        if self.images.count > 0 {
+                            self.doneButton.tintColor = .accentColor
+                            Alert.showDefaultAlert(title: "Some image uploads failed", message: "\(images.count) images out of \(totalUploads) failed. The failed images have stayed on this screen, you can try uploading them again.", self)
+                        }
+                    
+                    self.view.isUserInteractionEnabled = true
+                    self.navigationController?.navigationBar.isUserInteractionEnabled = true
+                    self.tabBarController?.tabBar.isUserInteractionEnabled = true
                 }
                 
             }
-            
         }
+        
     }
+    
+    func clearEverything() {
+        self.images.removeAll()
+        self.keys.removeAll()
+        self.videos.removeAll()
+        self.videoKeys.removeAll()
+        
+        // Reset UI components
+        let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [
+            NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
+            .foregroundColor: UIColor.black
+        ])
+        self.unitButton.setAttributedTitle(mutableString, for: .normal)
+        self.doneButton.tintColor = .systemGray
+        self.clearAllButton.tintColor = .systemGray
+        self.configureButtonItems()
+        self.autofillTextField()
+        self.collectionView.reloadData()
+        
+        self.removeCapturesFromDefaults()
+    }
+    
+    //    @objc func photoUploadedSuccess(_ notification: NSNotification) {
+    //        guard let info = notification.userInfo else {
+    //            print("NO INFO ON PHOTOUPLOADEDSUCCESS")
+    //            return
+    //        }
+    //
+    //
+    //        guard let image = info["image"], let key = info["key"], let code = info["code"], let imagecount = info["imagecount"] else {
+    //            print("INFO EXISTS, BUT NO DATA: \(info)")
+    //            return
+    //        }
+    //
+    //
+    //    }
+    //
+    //    @objc func photoUploadedFail(_ notification: NSNotification) {
+    //
+    //        guard let info = notification.userInfo else {
+    //            print("NO INFO ON PHOTOUPLOADEDFAIL")
+    //            return
+    //        }
+    //
+    //        guard let image = info["image"], let key = info["key"], let code = info["error_code"], let imagecount = info["imagecount"] else {
+    //            print("INFO EXISTS, BUT NO DATA: \(info)")
+    //            return
+    //        }
+    //    }
     
     @objc func clearAllButtonClicked() {
         guard images.count + videos.count != 0 else { return }
@@ -273,32 +385,32 @@ class PhotoUploadVC: UIViewController {
     }
     
     func saveCapturesToDefaults() {
-//        do {
-//            try UserDefaults.standard.set(object: keys, forKey: "images_keys_temp")
-////            try UserDefaults.standard.set(object: videoKeys, forKey: "videos_keys_temp")
-//            try UserDefaults.standard.saveImages(images, forKey: "images_temp")
-////            try UserDefaults.standard.saveVideos(videos, forKey: "videos_temp")
-//        } catch {}
+        //        do {
+        //            try UserDefaults.standard.set(object: keys, forKey: "images_keys_temp")
+        ////            try UserDefaults.standard.set(object: videoKeys, forKey: "videos_keys_temp")
+        //            try UserDefaults.standard.saveImages(images, forKey: "images_temp")
+        ////            try UserDefaults.standard.saveVideos(videos, forKey: "videos_temp")
+        //        } catch {}
     }
     
     func removeCapturesFromDefaults() {
-//        UserDefaults.standard.removeObject(forKey: "images_keys_temp")
-//        UserDefaults.standard.removeObject(forKey: "images_temp")
-//        UserDefaults.standard.removeObject(forKey: "videos_keys_temp")
-//        UserDefaults.standard.removeObject(forKey: "videos_temp")
-//        UserDefaults.standard.removeObject(forKey: "videos_temp" + "_videos")
-//        UserDefaults.standard.removeObject(forKey: "videos_temp" + "_thumbnails")
+        //        UserDefaults.standard.removeObject(forKey: "images_keys_temp")
+        //        UserDefaults.standard.removeObject(forKey: "images_temp")
+        //        UserDefaults.standard.removeObject(forKey: "videos_keys_temp")
+        //        UserDefaults.standard.removeObject(forKey: "videos_temp")
+        //        UserDefaults.standard.removeObject(forKey: "videos_temp" + "_videos")
+        //        UserDefaults.standard.removeObject(forKey: "videos_temp" + "_thumbnails")
     }
     
     func getCapturesFromDefaults() {
-//        do {
-//            self.keys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "images_keys_temp") ?? []
-////            self.videoKeys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "videos_keys_temp") ?? []
-//            self.images = try UserDefaults.standard.getImages(forKey: "images_temp")
-////            self.videos = try UserDefaults.standard.getVideos(forKey: "videos_temp")
-//        } catch {
-//            print("NO IMAGES SAVED")
-//        }
+        //        do {
+        //            self.keys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "images_keys_temp") ?? []
+        ////            self.videoKeys = try UserDefaults.standard.get(objectType: [Int].self, forKey: "videos_keys_temp") ?? []
+        //            self.images = try UserDefaults.standard.getImages(forKey: "images_temp")
+        ////            self.videos = try UserDefaults.standard.getVideos(forKey: "videos_temp")
+        //        } catch {
+        //            print("NO IMAGES SAVED")
+        //        }
     }
     
 }
@@ -426,6 +538,17 @@ extension PhotoUploadVC {
         shouldChangePropertyField = false
         oldProperty = propertyField.text ?? ""
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func animatePropertyFieldTopConstraint(to amount: CGFloat) {
+        // Update the constraint constant to the desired value
+        propertyFieldTopConstraint.constant = amount
+        
+        // Animate the layout update
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+            // Trigger the layout update
+            self.view.layoutIfNeeded()
+        }, completion: nil)
     }
 }
 
