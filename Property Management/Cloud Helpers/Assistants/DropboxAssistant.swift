@@ -118,7 +118,7 @@ extension DropboxAssistant {
             let imageCount = UserDefaults.standard.getUploadedImagesCount(property: property)
             switch namingConvention {
             case .propertyName:
-                fileName = "\(property)_\(Date().toLongMonthDayYearFormat())_\(imageCount + 1) - \(User.shared.getUserFirstName()).jpg"
+                fileName = "\(property)_\(Date().toShortMonthDayFormat())_\(imageCount + 1) - \(User.shared.getUserFirstName()).jpg"
             }
             
             UserDefaults.standard.updateUploadedImagesCount(property: property)
@@ -136,7 +136,7 @@ extension DropboxAssistant {
                     print("Upload failed for \(fileName): \(error)")
                     UserDefaults.standard.decreaseUploadedImagesCount(property: property)
                     uploadCallback(image, key, false, index == totalUploads - 1)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.34) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.34) { // Necessary to avoid Dropbox Rate Limit
                         uploadImage(at: index + 1) // Upload next image
                     }
                 }

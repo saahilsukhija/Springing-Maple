@@ -18,5 +18,5 @@ class Constants {
     
     static let MAX_UNITS = 25
     
-    static let MAX_IMAGE_SIZE = 5000000
+    static let MAX_IMAGE_SIZE = 2500000 //bytes
 }

@@ -194,18 +194,20 @@ class PhotoUploadVC: UIViewController {
                         statusLabel.isHidden = true
                         statusLabel.text = ""
                     }
-
-                        print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(name)!")
-                        self.clearEverything()
-                        self.statusLabel.text = "Finished uploading!"
-                        
-                        self.images = failedImages
-                        self.keys = failedKeys
-                        
-                        if self.images.count > 0 {
-                            self.doneButton.tintColor = .accentColor
-                            Alert.showDefaultAlert(title: "Some image uploads failed", message: "\(images.count) images out of \(totalUploads) failed. The failed images have stayed on this screen, you can try uploading them again.", self)
-                        }
+                    
+                    print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(name)!")
+                    let mutable = self.unitButton.attributedTitle(for: .normal)
+                    self.clearEverything()
+                    self.unitButton.setAttributedTitle(mutable, for: .normal)
+                    self.statusLabel.text = "Finished uploading!"
+                    
+                    self.images = failedImages
+                    self.keys = failedKeys
+                    
+                    if self.images.count > 0 {
+                        self.doneButton.tintColor = .accentColor
+                        Alert.showDefaultAlert(title: "Some image uploads failed", message: "\(images.count) images out of \(totalUploads) failed. The failed images have stayed on this screen, you can try uploading them again.", self)
+                    }
                     
                     self.view.isUserInteractionEnabled = true
                     self.navigationController?.navigationBar.isUserInteractionEnabled = true

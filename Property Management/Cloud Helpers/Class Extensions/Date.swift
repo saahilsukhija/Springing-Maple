@@ -52,6 +52,12 @@ extension Date
         return "\(month)/\(day)/\(year)"
     }
     
+    func toShortMonthDayFormat() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d"
+        return dateFormatter.string(from: self)
+    }
+    
     func toLongMonthDayYearFormat() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM d, yyyy"
