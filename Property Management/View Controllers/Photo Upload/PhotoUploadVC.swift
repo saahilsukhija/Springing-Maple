@@ -38,6 +38,7 @@ class PhotoUploadVC: UIViewController {
     var shouldChangePropertyField = true
     var oldProperty: String = ""
     var timer: Timer?
+    var isPresentingCamera: Bool = false
     
     override func viewDidLoad() {
         
@@ -46,7 +47,7 @@ class PhotoUploadVC: UIViewController {
         propertyField.font = UIFont(name: "Montserrat-Medium", size: 16)
         
         unitButton.layer.cornerRadius = 8
-        
+        print("CHANGING 2")
         let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
         unitButton.setAttributedTitle(mutableString, for: .normal)
         configureButtonItems()
@@ -99,14 +100,20 @@ class PhotoUploadVC: UIViewController {
         statusLabel.isHidden = true
         statusLabel.text = ""
         isUploading = false
-        
-        autofillTextField()
+
+        autofillTextField(disableUnitReset: true)
         
         
     }
     
     @IBAction func refreshButtonClicked(_ sender: Any) {
         self.propertyField.text = "Loading..."
+        let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [
+            NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
+            .foregroundColor: UIColor.black
+        ])
+        self.unitButton.setAttributedTitle(mutableString, for: .normal)
+        print("WHAT 1")
         autofillTextField()
     }
     
@@ -196,9 +203,9 @@ class PhotoUploadVC: UIViewController {
                     }
                     
                     print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(name)!")
-                    let mutable = self.unitButton.attributedTitle(for: .normal)
+                    let str = NSAttributedString(string: unit ?? "Unit #")
                     self.clearEverything()
-                    self.unitButton.setAttributedTitle(mutable, for: .normal)
+                    self.unitButton.setAttributedTitle(str, for: .normal)
                     self.statusLabel.text = "Finished uploading!"
                     
                     self.images = failedImages
@@ -226,6 +233,7 @@ class PhotoUploadVC: UIViewController {
         self.videoKeys.removeAll()
         
         // Reset UI components
+        print("CHANGING 3")
         let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [
             NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
             .foregroundColor: UIColor.black
@@ -234,6 +242,7 @@ class PhotoUploadVC: UIViewController {
         self.doneButton.tintColor = .systemGray
         self.clearAllButton.tintColor = .systemGray
         self.configureButtonItems()
+        print("WHAT 2")
         self.autofillTextField()
         self.collectionView.reloadData()
         
@@ -278,7 +287,7 @@ class PhotoUploadVC: UIViewController {
             self.keys.removeAll()
             self.videos.removeAll()
             self.videoKeys.removeAll()
-            
+            print("CHANGING 4")
             let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
             self.unitButton.setAttributedTitle(mutableString, for: .normal)
             self.doneButton.tintColor = .systemGray
@@ -456,6 +465,12 @@ extension PhotoUploadVC: AddressLookupDelegate {
     
     func didChooseAddress(_ address: String, coordinate: CLLocationCoordinate2D) {
         propertyField.text = address
+        print("CHANGING 5")
+        let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [
+            NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
+            .foregroundColor: UIColor.black
+        ])
+        self.unitButton.setAttributedTitle(mutableString, for: .normal)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.shouldChangePropertyField = true
         }
@@ -490,6 +505,7 @@ extension PhotoUploadVC {
         }
         
         var menuChildren: [UIMenuElement] = []
+        menuChildren.append(UIAction(title: "Unit #", handler: customClosure))
         menuChildren.append(UIAction(title: "Custom", handler: customClosure))
         for unit in 1...Constants.MAX_UNITS {
             menuChildren.append(UIAction(title: "Unit \(unit)", handler: actionClosure))
@@ -502,8 +518,9 @@ extension PhotoUploadVC {
     }
     
     
-    @objc func autofillTextField(_ count: Int = 0) {
+    @objc func autofillTextField(_ count: Int = 0, disableUnitReset val: Bool = false) {
         print("resetting text field: \(count)")
+        oldProperty = self.propertyField.text ?? ""
         guard shouldChangePropertyField else { return }
         guard count != 10 else { return }
         guard LocationManager.shared.locationManager?.authorizationStatus != .denied else { return }
@@ -515,7 +532,7 @@ extension PhotoUploadVC {
                 if !Stopwatch.shared.isRunning {
                     LocationManager.shared.stopTracking()
                 }
-                self.autofillTextField(count + 1)
+                self.autofillTextField(count + 1, disableUnitReset: val)
                 return
             }
             LocationManager.geocode(coordinate: loc.coordinate) { placemark, error in
@@ -528,7 +545,17 @@ extension PhotoUploadVC {
                 }
                 
                 if self.oldProperty != pl.name {
+                    print(self.oldProperty)
+                    print(pl.name)
                     self.propertyField.text = pl.name
+                    if val {
+                        print("CHANGING 1")
+                        let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [
+                            NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
+                            .foregroundColor: UIColor.black
+                        ])
+                        self.unitButton.setAttributedTitle(mutableString, for: .normal)
+                    }
                 }
             }
         }

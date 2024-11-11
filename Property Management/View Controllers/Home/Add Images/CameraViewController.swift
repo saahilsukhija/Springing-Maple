@@ -25,127 +25,144 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        captureSession = AVCaptureSession()
-        captureSession.sessionPreset = .photo
-
-        // Get available camera devices
-        let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInTripleCamera], mediaType: .video, position: .unspecified)
-        let devices = deviceDiscoverySession.devices
-        
-        for device in devices {
-            if device.position == .front {
-                frontCamera = device
-            } else if device.position == .back {
-                backCamera = device
+        if AVCaptureDevice.authorizationStatus(for: .video) ==  .authorized {
+            captureSession = AVCaptureSession()
+            captureSession.sessionPreset = .photo
+            
+            // Get available camera devices
+            let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInTripleCamera], mediaType: .video, position: .unspecified)
+            let devices = deviceDiscoverySession.devices
+            
+            for device in devices {
+                if device.position == .front {
+                    frontCamera = device
+                } else if device.position == .back {
+                    backCamera = device
+                }
+            }
+            
+            for device in AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified).devices {
+                if device.position == .front {
+                    frontCamera = device
+                }
+            }
+            
+            // Set default camera to back camera
+            currentCamera = (backCamera == nil ? frontCamera : backCamera)
+            
+            
+            let viewWidth = view.frame.size.width
+            let guide = view.safeAreaLayoutGuide
+            let viewHeight = guide.layoutFrame.size.height
+            let desiredHeight = viewWidth * 4/3
+            guard currentCamera != nil else {
+                self.dismiss(animated: true) {
+                    Alert.showDefaultAlert(title: "Invalid Camera", message: "The back camera is not working, please let the developer know", self)
+                }
+                return
+            }
+            do {
+                let input = try AVCaptureDeviceInput(device: currentCamera)
+                if captureSession.canAddInput(input) {
+                    captureSession.addInput(input)
+                }
+                
+                photoOutput = AVCapturePhotoOutput()
+                if captureSession.canAddOutput(photoOutput) {
+                    captureSession.addOutput(photoOutput)
+                }
+                
+                previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+                previewLayer.videoGravity = .resizeAspectFill
+                
+                previewLayer.frame = CGRect(x: 0, y: (viewHeight - desiredHeight)/3, width: viewWidth, height: desiredHeight)
+                view.layer.addSublayer(previewLayer)
+                
+                // Start the session on a background thread
+                DispatchQueue.global(qos: .userInitiated).async {
+                    self.captureSession.startRunning()
+                }
+            } catch let error {
+                print("Error Unable to initialize camera:  \(error.localizedDescription)")
+            }
+            updateZoom(scale: 2)
+            let visualEffectView = UIView()
+            visualEffectView.backgroundColor = .black
+            visualEffectView.frame = CGRect(x: 0, y: (viewHeight - desiredHeight)/3 + desiredHeight, width: view.frame.size.width, height: 300)
+            view.addSubview(visualEffectView)
+            
+            // Capture Button
+            let captureButton = CustomCaptureButton(frame: CGRect(x: (view.frame.size.width - 70) / 2, y: (viewHeight - desiredHeight)/3 + desiredHeight + 30, width: 70, height: 70))
+            captureButton.layer.cornerRadius = captureButton.frame.size.width / 2
+            captureButton.addTarget(self, action: #selector(didTapCaptureButton), for: .touchUpInside)
+            view.addSubview(captureButton)
+            
+            lastImagePreviewImageView = UIImageView(frame: CGRect(x: 35, y: (viewHeight - desiredHeight)/3 + desiredHeight + 40, width: 50, height: 50))
+            lastImagePreviewImageView.backgroundColor = .black
+            lastImagePreviewImageView.addGestureRecognizer(UITapGestureRecognizer(target: self,action: #selector(didTapCloseButton)))
+            lastImagePreviewImageView.isUserInteractionEnabled = true
+            lastImagePreviewImageView.layer.borderWidth = 2
+            lastImagePreviewImageView.layer.borderColor = UIColor.white.cgColor
+            lastImagePreviewImageView.isHidden = true
+            view.addSubview(lastImagePreviewImageView)
+            
+            // Switch Camera Button
+            let switchCameraButton = UIImageView(frame: CGRect(x: view.frame.size.width - 90, y: (viewHeight - desiredHeight)/3 + desiredHeight + 45, width: 40, height: 40))
+            switchCameraButton.image = UIImage(systemName: "arrow.triangle.2.circlepath")
+            switchCameraButton.contentMode = .scaleAspectFit
+            switchCameraButton.tintColor = .white
+            switchCameraButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapSwitchCameraButton)))
+            switchCameraButton.isUserInteractionEnabled = true
+            view.addSubview(switchCameraButton)
+            
+            // Flash Toggle Button
+            flashButton = UIImageView(frame: CGRect(x: 20, y: (viewHeight - desiredHeight)/6 + 5, width: 30, height: 30))
+            flashButton.image = UIImage(systemName: "bolt.slash.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .thin))
+            flashButton.tintColor = .white
+            
+            flashButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(toggleFlash)))
+            flashButton.isUserInteractionEnabled = true
+            view.addSubview(flashButton)
+            
+            zoomLabel = UILabel(frame: CGRect(x: viewWidth/2-20, y: (viewHeight - desiredHeight)/3 + desiredHeight - 50, width: 40, height: 40))
+            zoomLabel.layer.cornerRadius = 20
+            zoomLabel.font = UIFont(name: "Montserrat-Regular", size: 16)
+            zoomLabel.text = "1x"
+            zoomLabel.textAlignment = .center
+            zoomLabel.textColor = .systemYellow
+            zoomLabel.isUserInteractionEnabled = true
+            zoomLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomLabelClicked)))
+            
+            let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
+            let blurEffectView = UIVisualEffectView(effect: blurEffect)
+            blurEffectView.frame = CGRect(x: viewWidth/2-20, y: (viewHeight - desiredHeight)/3 + desiredHeight - 50, width: 40, height: 40)
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            blurEffectView.layer.masksToBounds = true
+            blurEffectView.layer.cornerRadius = 20
+            
+            view.addSubview(blurEffectView)
+            view.addSubview(zoomLabel)
+            
+            let xButton = UIImageView(frame: CGRect(x: viewWidth - 50, y: (viewHeight - desiredHeight)/6 + 10, width: 20, height: 20))
+            xButton.image = UIImage(systemName: "multiply")
+            xButton.tintColor = .white
+            xButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapCloseButton)))
+            xButton.isUserInteractionEnabled = true
+            view.addSubview(xButton)
+            
+            setupPinchGesture()
+            configureHardwareInteraction()
+        }
+        else { AVCaptureDevice.requestAccess(for: AVMediaType.video) { [self] response in
+            if response {
+                self.dismiss(animated: true, completion: nil)
+            } else {
+                Alert.showDefaultAlert(title: "Camera access not granted!", message: "Go to the Springing Maple settings and enable camera access", self)
             }
         }
-        
-        for device in AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified).devices {
-            if device.position == .front {
-                frontCamera = device
-            }
         }
         
-        // Set default camera to back camera
-        currentCamera = backCamera
         
-        
-        let viewWidth = view.frame.size.width
-        let guide = view.safeAreaLayoutGuide
-        let viewHeight = guide.layoutFrame.size.height
-        let desiredHeight = viewWidth * 4/3
-        do {
-            let input = try AVCaptureDeviceInput(device: currentCamera)
-            if captureSession.canAddInput(input) {
-                captureSession.addInput(input)
-            }
-            
-            photoOutput = AVCapturePhotoOutput()
-            if captureSession.canAddOutput(photoOutput) {
-                captureSession.addOutput(photoOutput)
-            }
-            
-            previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-            previewLayer.videoGravity = .resizeAspectFill
-            
-            previewLayer.frame = CGRect(x: 0, y: (viewHeight - desiredHeight)/3, width: viewWidth, height: desiredHeight)
-            view.layer.addSublayer(previewLayer)
-            
-            // Start the session on a background thread
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.captureSession.startRunning()
-            }
-        } catch let error {
-            print("Error Unable to initialize camera:  \(error.localizedDescription)")
-        }
-        updateZoom(scale: 2)
-        let visualEffectView = UIView()
-        visualEffectView.backgroundColor = .black
-        visualEffectView.frame = CGRect(x: 0, y: (viewHeight - desiredHeight)/3 + desiredHeight, width: view.frame.size.width, height: 300)
-        view.addSubview(visualEffectView)
-        
-        // Capture Button
-        let captureButton = CustomCaptureButton(frame: CGRect(x: (view.frame.size.width - 70) / 2, y: (viewHeight - desiredHeight)/3 + desiredHeight + 30, width: 70, height: 70))
-        captureButton.layer.cornerRadius = captureButton.frame.size.width / 2
-        captureButton.addTarget(self, action: #selector(didTapCaptureButton), for: .touchUpInside)
-        view.addSubview(captureButton)
-        
-        lastImagePreviewImageView = UIImageView(frame: CGRect(x: 35, y: (viewHeight - desiredHeight)/3 + desiredHeight + 40, width: 50, height: 50))
-        lastImagePreviewImageView.backgroundColor = .black
-        lastImagePreviewImageView.addGestureRecognizer(UITapGestureRecognizer(target: self,action: #selector(didTapCloseButton)))
-        lastImagePreviewImageView.isUserInteractionEnabled = true
-        lastImagePreviewImageView.layer.borderWidth = 2
-        lastImagePreviewImageView.layer.borderColor = UIColor.white.cgColor
-        lastImagePreviewImageView.isHidden = true
-        view.addSubview(lastImagePreviewImageView)
-        
-        // Switch Camera Button
-        let switchCameraButton = UIImageView(frame: CGRect(x: view.frame.size.width - 90, y: (viewHeight - desiredHeight)/3 + desiredHeight + 45, width: 40, height: 40))
-        switchCameraButton.image = UIImage(systemName: "arrow.triangle.2.circlepath")
-        switchCameraButton.contentMode = .scaleAspectFit
-        switchCameraButton.tintColor = .white
-        switchCameraButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapSwitchCameraButton)))
-        switchCameraButton.isUserInteractionEnabled = true
-        view.addSubview(switchCameraButton)
-        
-        // Flash Toggle Button
-        flashButton = UIImageView(frame: CGRect(x: 20, y: (viewHeight - desiredHeight)/6 + 5, width: 30, height: 30))
-        flashButton.image = UIImage(systemName: "bolt.slash.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .thin))
-        flashButton.tintColor = .white
-        
-        flashButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(toggleFlash)))
-        flashButton.isUserInteractionEnabled = true
-        view.addSubview(flashButton)
-        
-        zoomLabel = UILabel(frame: CGRect(x: viewWidth/2-20, y: (viewHeight - desiredHeight)/3 + desiredHeight - 50, width: 40, height: 40))
-        zoomLabel.layer.cornerRadius = 20
-        zoomLabel.font = UIFont(name: "Montserrat-Regular", size: 16)
-        zoomLabel.text = "1x"
-        zoomLabel.textAlignment = .center
-        zoomLabel.textColor = .systemYellow
-        zoomLabel.isUserInteractionEnabled = true
-        zoomLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomLabelClicked)))
-        
-        let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
-        let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.frame = CGRect(x: viewWidth/2-20, y: (viewHeight - desiredHeight)/3 + desiredHeight - 50, width: 40, height: 40)
-        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        blurEffectView.layer.masksToBounds = true
-        blurEffectView.layer.cornerRadius = 20
-        
-        view.addSubview(blurEffectView)
-        view.addSubview(zoomLabel)
-        
-        let xButton = UIImageView(frame: CGRect(x: viewWidth - 50, y: (viewHeight - desiredHeight)/6 + 10, width: 20, height: 20))
-        xButton.image = UIImage(systemName: "multiply")
-        xButton.tintColor = .white
-        xButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapCloseButton)))
-        xButton.isUserInteractionEnabled = true
-        view.addSubview(xButton)
-        
-        setupPinchGesture()
-        configureHardwareInteraction()
-
     }
     
     
@@ -271,6 +288,12 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         
         // Add new input
         do {
+            guard currentCamera != nil else {
+                self.dismiss(animated: true) {
+                    Alert.showDefaultAlert(title: "Invalid Camera", message: "The back camera is not working, please let the developer know", self)
+                }
+                return
+            }
             let newInput = try AVCaptureDeviceInput(device: currentCamera)
             if captureSession.canAddInput(newInput) {
                 captureSession.addInput(newInput)
@@ -325,11 +348,11 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         else if actualZoom == 1 {
             zoomFactor = 4
             zoomLabel.text = "2x"
-        } 
+        }
         else if actualZoom == 0.5 {
             zoomFactor = 2
             zoomLabel.text = "1x"
-        } 
+        }
         else {
             zoomFactor = 1
             zoomLabel.text = "0.5x"
