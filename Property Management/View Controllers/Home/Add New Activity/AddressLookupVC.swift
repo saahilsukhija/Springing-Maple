@@ -29,7 +29,6 @@ class AddressLookupVC: UIViewController {
         
         tableView.delegate = dataSource
         tableView.dataSource = dataSource
-        
         self.hideKeyboardWhenTappedAround()
     }
     
@@ -38,6 +37,11 @@ class AddressLookupVC: UIViewController {
         addressTextField.becomeFirstResponder()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        dataSource.updateQuery(with: "")
+    }
     @objc func textFieldChanged() {
         if addressTextField.text?.count ?? 0 > 0 {
             

@@ -233,7 +233,6 @@ class PhotoUploadVC: UIViewController {
         self.videoKeys.removeAll()
         
         // Reset UI components
-        print("CHANGING 3")
         let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [
             NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
             .foregroundColor: UIColor.black
@@ -287,7 +286,6 @@ class PhotoUploadVC: UIViewController {
             self.keys.removeAll()
             self.videos.removeAll()
             self.videoKeys.removeAll()
-            print("CHANGING 4")
             let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [NSAttributedString.Key.font : UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16), .foregroundColor : UIColor.black])
             self.unitButton.setAttributedTitle(mutableString, for: .normal)
             self.doneButton.tintColor = .systemGray
@@ -465,7 +463,6 @@ extension PhotoUploadVC: AddressLookupDelegate {
     
     func didChooseAddress(_ address: String, coordinate: CLLocationCoordinate2D) {
         propertyField.text = address
-        print("CHANGING 5")
         let mutableString = NSMutableAttributedString(string: "Unit #", attributes: [
             NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
             .foregroundColor: UIColor.black
@@ -511,6 +508,12 @@ extension PhotoUploadVC {
             menuChildren.append(UIAction(title: "Unit \(unit)", handler: actionClosure))
         }
         
+        for unit in "abcdefghijklmno".uppercased() {
+            menuChildren.append(UIAction(title: "Unit \(unit)", handler: actionClosure))
+        }
+        
+        
+        
         unitButton.menu = UIMenu(options: .displayInline, children: menuChildren)
         
         unitButton.showsMenuAsPrimaryAction = true
@@ -521,6 +524,8 @@ extension PhotoUploadVC {
     @objc func autofillTextField(_ count: Int = 0, disableUnitReset val: Bool = false) {
         print("resetting text field: \(count)")
         oldProperty = self.propertyField.text ?? ""
+        print(self.propertyField.text?.count ?? 0)
+        guard self.propertyField.text == "Loading..." || self.propertyField.text == "" else { return }
         guard shouldChangePropertyField else { return }
         guard count != 10 else { return }
         guard LocationManager.shared.locationManager?.authorizationStatus != .denied else { return }
