@@ -87,10 +87,10 @@ extension DropboxAssistant {
         folderPath: String,
         namingConvention: DropboxNamingConvention,
         property: String,
-        uploadCallback: @escaping (UIImage, Int, Bool, Bool) -> Void
+        uploadCallback: @escaping (UIImage, Int, Bool, Bool) -> Bool
     ) {
         guard let client = self.client else {
-            uploadCallback(UIImage(), 0, false, true) // Call callback with failure if client is nil
+            let res = uploadCallback(UIImage(), 0, false, true) // Call callback with failure if client is nil
             return
         }
         
@@ -100,7 +100,7 @@ extension DropboxAssistant {
         func uploadImage(at index: Int) {
             guard index < images.count else {
                 // All images are processed
-                uploadCallback(UIImage(), 0, true, true)
+                let res = uploadCallback(UIImage(), 0, true, true)
                 return
             }
             
@@ -109,8 +109,10 @@ extension DropboxAssistant {
             
             guard let imageData = ImageCompressor.compressImageToTargetSize(image: image, targetSize: CGFloat(Constants.MAX_IMAGE_SIZE)) else {
                 print("Unable to compress image")
-                uploadCallback(image, key, false, index == totalUploads - 1)
-                uploadImage(at: index + 1) // Move to next image
+                let resume = uploadCallback(image, key, false, index == totalUploads - 1)
+                if resume {
+                    uploadImage(at: index + 1) // Move to next image
+                }
                 return
             }
             
@@ -135,17 +137,21 @@ extension DropboxAssistant {
                 if let error = err {
                     print("Upload failed for \(fileName): \(error)")
                     UserDefaults.standard.decreaseUploadedImagesCount(property: property)
-                    uploadCallback(image, key, false, index == totalUploads - 1)
+                    let resume = uploadCallback(image, key, false, index == totalUploads - 1)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.34) { // Necessary to avoid Dropbox Rate Limit
-                        uploadImage(at: index + 1) // Upload next image
+                        if resume {
+                            uploadImage(at: index + 1) // Upload next image
+                        }
                     }
                 }
                 else {
                     successfulUploads += 1
                     print("SUCCESS UPLOADING \(fileName)")
-                    uploadCallback(image, key, true, successfulUploads == totalUploads)
+                    let resume = uploadCallback(image, key, true, successfulUploads == totalUploads)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.34) {
-                        uploadImage(at: index + 1) // Upload next image
+                        if resume {
+                            uploadImage(at: index + 1) // Upload next image
+                        }
                     }
                 }
             }

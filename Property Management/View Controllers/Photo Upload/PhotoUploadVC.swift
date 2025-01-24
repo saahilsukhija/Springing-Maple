@@ -8,6 +8,7 @@
 import UIKit
 import CoreLocation
 import Photos
+
 class PhotoUploadVC: UIViewController {
     
     static let identifier = "PhotoUploadScreen"
@@ -39,6 +40,7 @@ class PhotoUploadVC: UIViewController {
     var oldProperty: String = ""
     var timer: Timer?
     var isPresentingCamera: Bool = false
+    var shouldCancel: Bool = false
     
     override func viewDidLoad() {
         
@@ -122,6 +124,15 @@ class PhotoUploadVC: UIViewController {
     
     @objc func doneButtonClicked() {
         
+        if doneButton.title == "Cancel" {
+
+            DispatchQueue.main.async {
+                self.shouldCancel = true
+                self.statusLabel.text = "Cancelling Image Uploading..."
+            }
+            return
+        }
+        
         guard User.shared.dropbox.isConnected else {
             Alert.showDefaultAlert(title: "No Dropbox account linked!", message: "Please go to the app settings and enable Dropbox", self)
             return
@@ -140,24 +151,34 @@ class PhotoUploadVC: UIViewController {
         let unit = unitButton.attributedTitle(for: .normal)?.string
         let path = (unit == "Unit #" || unit == nil) ? "\(selectedFolder)/\(propertyName)" : "\(selectedFolder)/\(propertyName)/\(unit ?? "unknown")"
         let name = (unit == "Unit #" || unit == nil) ? "\(propertyName)" : "\(propertyName)_\(unit ?? "unknown")"
-        //        let loadingScreen = createLoadingScreen(frame: view.frame, message: "Uploading photos...")
-        //        view.addSubview(loadingScreen)
         
         progressBar.isHidden = false
         progressBar.progress = 0
         statusLabel.isHidden = false
+        animatePropertyFieldTopConstraint(to: 50)
         
         self.view.isUserInteractionEnabled = false
-        self.navigationController?.navigationBar.isUserInteractionEnabled = false
+        self.navigationController?.navigationBar.isUserInteractionEnabled = true
+        doneButton.title = "Cancel"
+        clearAllButton.title = ""
         self.tabBarController?.tabBar.isUserInteractionEnabled = false
         
-        animatePropertyFieldTopConstraint(to: 50)
+
         var failedImages: [UIImage] = []
         var failedKeys: [Int] = []
         var successfulUploads = 0
         let totalUploads = self.images.count + self.videos.count
         
         self.statusLabel.text = "Uploading image \(successfulUploads + failedImages.count + 1) of \(totalUploads)"
+        
+        // Start a background task to keep the app running
+        var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+        backgroundTask = UIApplication.shared.beginBackgroundTask {
+            // End the task if time expires
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTask = .invalid
+        }
+        
         DropboxAssistant.shared.uploadImagesToFolder(
             images: self.images,
             keys: self.keys,
@@ -169,6 +190,11 @@ class PhotoUploadVC: UIViewController {
             let currentUpload = successfulUploads + failedImages.count + 1
             if success {
                 successfulUploads += 1
+                if let index = self.keys.firstIndex(of: key) {
+                    self.images.remove(at: index)
+                    self.keys.remove(at: index)
+                    self.collectionView.reloadData()
+                }
                 let progress = (Float(currentUpload)) / Float(totalUploads)
                 DispatchQueue.main.async {
                     self.progressBar.setProgress(progress, animated: true)
@@ -180,10 +206,37 @@ class PhotoUploadVC: UIViewController {
                 self.statusLabel.text = "Image \(currentUpload) FAILED"
                 failedImages.append(image)
                 failedKeys.append(key)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.statusLabel.text = "Uploading image \(successfulUploads + failedImages.count + 1) of \(totalUploads)"
+                }
             }
             
+            if self.shouldCancel {
+                DispatchQueue.main.async {
+                    self.statusLabel.text = "Image Uploading CANCELLED"
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [self] in
+                    animatePropertyFieldTopConstraint(to: 0)
+                    progressBar.isHidden = true
+                    progressBar.progress = 0
+                    statusLabel.isHidden = true
+                    statusLabel.text = ""
+                }
+                self.doneButton.title = "Done"
+                self.clearAllButton.title = "Clear"
+                self.shouldCancel = false
+                self.view.isUserInteractionEnabled = true
+                self.navigationController?.navigationBar.isUserInteractionEnabled = true
+                self.tabBarController?.tabBar.isUserInteractionEnabled = true
+                UIApplication.shared.endBackgroundTask(backgroundTask)
+                backgroundTask = .invalid
+                
+                DispatchQueue.main.async {
+                    Alert.showDefaultAlert(title: "Cancelled image uploads", message: "\(successfulUploads) images out of \(totalUploads) have been uploaded. The cancelled images have stayed on this screen, you can try uploading them again.", self)
+                }
+                return false
+            }
             if everythingCompleted {
-                // Prepare to upload videos after images are done
                 var vids: [NSData] = []
                 for v in self.videos {
                     vids.append(v.0)
@@ -203,7 +256,10 @@ class PhotoUploadVC: UIViewController {
                     }
                     
                     print("COMPLETED UPLOAD OF DROPBOX IMAGES FOR \(name)!")
-                    let str = NSAttributedString(string: unit ?? "Unit #")
+                    let str = NSMutableAttributedString(string: unit ?? "Unit #", attributes: [
+                        NSAttributedString.Key.font: UIFont(name: "Montserrat-Medium", size: 16) ?? .systemFont(ofSize: 16),
+                        .foregroundColor: UIColor.black
+                    ])
                     self.clearEverything()
                     self.unitButton.setAttributedTitle(str, for: .normal)
                     self.statusLabel.text = "Finished uploading!"
@@ -216,15 +272,24 @@ class PhotoUploadVC: UIViewController {
                         Alert.showDefaultAlert(title: "Some image uploads failed", message: "\(images.count) images out of \(totalUploads) failed. The failed images have stayed on this screen, you can try uploading them again.", self)
                     }
                     
+                    doneButton.title = "Done"
+                    clearAllButton.title = "Clear"
+                    self.shouldCancel = false
                     self.view.isUserInteractionEnabled = true
                     self.navigationController?.navigationBar.isUserInteractionEnabled = true
                     self.tabBarController?.tabBar.isUserInteractionEnabled = true
+                    
+                    // End the background task
+                    UIApplication.shared.endBackgroundTask(backgroundTask)
+                    backgroundTask = .invalid
                 }
-                
             }
+            return true
+            
         }
         
     }
+
     
     func clearEverything() {
         self.images.removeAll()
@@ -579,7 +644,7 @@ extension PhotoUploadVC {
         propertyFieldTopConstraint.constant = amount
         
         // Animate the layout update
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+        UIView.animate(withDuration: 0.3, delay: 0.02, options: [.curveEaseInOut], animations: {
             // Trigger the layout update
             self.view.layoutIfNeeded()
         }, completion: nil)
