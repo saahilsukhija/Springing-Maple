@@ -16,7 +16,7 @@ class MockApiRequest: ApiRequest {
     }
 
     var requestUrl: URL?
-    var completionHandler: RequestCompletionHandler? {
+    var completionHandler: RequestCompletionHandlerProvider? {
         didSet {
             guard completionHandler != nil else {
                 return
@@ -60,8 +60,8 @@ class MockApiRequest: ApiRequest {
 
     func setProgressHandler(_ handler: @escaping (Progress) -> Void) -> Self { self }
 
-    func setCompletionHandler(queue: DispatchQueue?, completionHandler: RequestCompletionHandler) -> Self {
-        self.completionHandler = completionHandler
+    func setCompletionHandlerProvider(queue: DispatchQueue?, completionHandlerProvider: RequestCompletionHandlerProvider) -> Self {
+        completionHandler = completionHandlerProvider
         return self
     }
 
@@ -82,13 +82,13 @@ extension MockApiRequest {
         case .none:
             mappedInput = .none
         case .success(let model):
-            mappedInput = .success(json: try MockingUtilities.jsonObject(from: model))
+            mappedInput = .success(json: try MockingUtilities.jsonObject(from: model, isError: false))
         case .downloadSuccess(let model, let downloadLocation):
-            mappedInput = .downloadSuccess(json: try MockingUtilities.jsonObject(from: model), downloadLocation: downloadLocation)
+            mappedInput = .downloadSuccess(json: try MockingUtilities.jsonObject(from: model, isError: false), downloadLocation: downloadLocation)
         case .requestError(let model, let code):
-            mappedInput = .requestError(json: try MockingUtilities.jsonObject(from: model), code: code)
+            mappedInput = .requestError(json: try MockingUtilities.jsonObject(from: model, isError: true), code: code)
         case .routeError(let model):
-            mappedInput = .success(json: try MockingUtilities.jsonObject(from: model))
+            mappedInput = .routeError(json: try MockingUtilities.jsonObject(from: model, isError: true))
         }
 
         try _handleMockInput(mappedInput)
@@ -108,19 +108,19 @@ extension MockApiRequest {
 
         func callCompletion(data: Data?, response: HTTPURLResponse?, error: Error?, downloadLocation: URL? = nil) {
             switch completionHandler {
-            case .dataCompletionHandler(let handler):
-                handler(.init(
+            case .dataCompletionHandlerProvider(let handlerProvider):
+                handlerProvider(.init(
                     data: data,
                     response: response,
                     error: error.flatMap { .urlSessionError($0) }
-                ))
-            case .downloadFileCompletionHandler(let handler):
-                handler(.init(
+                ))()
+            case .downloadFileCompletionHandlerProvider(let handlerProvider):
+                handlerProvider(.init(
                     url: downloadLocation,
                     response: response,
                     error: error.flatMap { .urlSessionError($0) },
                     errorDataFromLocation: { _ in .init() }
-                ))
+                ))()
             case .none:
                 break
             }

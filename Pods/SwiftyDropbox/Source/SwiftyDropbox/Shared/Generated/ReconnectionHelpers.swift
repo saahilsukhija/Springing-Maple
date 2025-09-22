@@ -4,13 +4,16 @@
 
 import Foundation
 
+// The case string below must match those created by ReconnectionHelpers+Handwritten.swift using
+// the route name and namespace as formatted for the generated `Route` object in SwiftTypes.jinja
+// Format: "<namespace>/<route_name>" e.g., "files/upload_session/append_v2" for Files.uploadSessionAppendV2
 enum ReconnectionHelpers: ReconnectionHelpersShared {
     static func rebuildRequest(apiRequest: ApiRequest, client: DropboxTransportClientInternal) throws -> DropboxBaseRequestBox {
         let info = try persistedRequestInfo(from: apiRequest)
 
-        switch info.routeName {
-        case "alphaUpload":
-            return .alphaUpload(
+        switch info.namespaceRouteName {
+        case "files/alpha/upload":
+            return .files_alphaUpload(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -18,8 +21,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "download":
-            return .download(
+        case "files/download":
+            return .files_download(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -27,8 +30,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "downloadZip":
-            return .downloadZip(
+        case "files/download_zip":
+            return .files_downloadZip(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -36,8 +39,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "export":
-            return .export(
+        case "files/export":
+            return .files_export(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -45,8 +48,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "getPreview":
-            return .getPreview(
+        case "files/get_preview":
+            return .files_getPreview(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -54,8 +57,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "getThumbnail":
-            return .getThumbnail(
+        case "files/get_thumbnail":
+            return .files_getThumbnail(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -63,8 +66,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "getThumbnailV2":
-            return .getThumbnailV2(
+        case "files/get_thumbnail_v2":
+            return .files_getThumbnailV2(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -72,8 +75,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "paperCreate":
-            return .paperCreate(
+        case "files/paper/create":
+            return .files_paperCreate(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -81,8 +84,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "paperUpdate":
-            return .paperUpdate(
+        case "files/paper/update":
+            return .files_paperUpdate(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -90,8 +93,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "upload":
-            return .upload(
+        case "files/upload":
+            return .files_upload(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -99,17 +102,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "uploadSessionAppendV2":
-            return .uploadSessionAppendV2(
-                rebuildRequest(
-                    apiRequest: apiRequest,
-                    info: info,
-                    route: Files.uploadSessionAppendV2,
-                    client: client
-                )
-            )
-        case "uploadSessionAppend":
-            return .uploadSessionAppend(
+        case "files/upload_session/append":
+            return .files_uploadSessionAppend(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -117,8 +111,17 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "uploadSessionFinish":
-            return .uploadSessionFinish(
+        case "files/upload_session/append_v2":
+            return .files_uploadSessionAppendV2(
+                rebuildRequest(
+                    apiRequest: apiRequest,
+                    info: info,
+                    route: Files.uploadSessionAppendV2,
+                    client: client
+                )
+            )
+        case "files/upload_session/finish":
+            return .files_uploadSessionFinish(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -126,8 +129,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "uploadSessionStart":
-            return .uploadSessionStart(
+        case "files/upload_session/start":
+            return .files_uploadSessionStart(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -135,8 +138,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "docsCreate":
-            return .docsCreate(
+        case "paper/docs/create":
+            return .paper_docsCreate(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -144,8 +147,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "docsDownload":
-            return .docsDownload(
+        case "paper/docs/download":
+            return .paper_docsDownload(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -153,8 +156,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "docsUpdate":
-            return .docsUpdate(
+        case "paper/docs/update":
+            return .paper_docsUpdate(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,
@@ -162,8 +165,8 @@ enum ReconnectionHelpers: ReconnectionHelpersShared {
                     client: client
                 )
             )
-        case "getSharedLinkFile":
-            return .getSharedLinkFile(
+        case "sharing/get_shared_link_file":
+            return .sharing_getSharedLinkFile(
                 rebuildRequest(
                     apiRequest: apiRequest,
                     info: info,

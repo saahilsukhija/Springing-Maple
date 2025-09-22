@@ -72,6 +72,16 @@ public class Request<RSerial: JSONSerializer, ESerial: JSONSerializer> {
     }
 
     func handleResponseError(networkTaskFailure: NetworkTaskFailure) -> CallError<ESerial.ValueType> {
+        let callError = parseCallError(from: networkTaskFailure)
+        
+        // We call the global error response handler to alert it to an error
+        // But unlike in the objc SDK we do not stop the SDK from calling the per-route completion handler as well.
+        GlobalErrorResponseHandler.shared.reportGlobalError(callError.typeErased)
+        
+        return callError
+    }
+    
+    private func parseCallError(from networkTaskFailure: NetworkTaskFailure) -> CallError<ESerial.ValueType> {
         switch networkTaskFailure {
         case .badStatusCode(let data, _, let response):
             return CallError(response, data: data, errorSerializer: errorSerializer)
@@ -93,20 +103,28 @@ public class RpcRequest<RSerial: JSONSerializer, ESerial: JSONSerializer>: Reque
         queue: DispatchQueue? = nil,
         completionHandler: @escaping (RSerial.ValueType?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.setCompletionHandler(queue: queue, completionHandler: .dataCompletionHandler({ [weak self] response in
+        request.setCompletionHandlerProvider(queue: queue, completionHandlerProvider: .dataCompletionHandlerProvider({ [weak self] response in
             guard let strongSelf = self else {
-                completionHandler(nil, .clientError(.requestObjectDeallocated))
-                return
+                return {
+                    completionHandler(nil, .clientError(.requestObjectDeallocated))
+                }
             }
+
+            var (result, error): (RSerial.ValueType?, CallError<ESerial.ValueType>?)
+
             switch response {
             case .success((let data, _)):
                 do {
-                    try completionHandler(strongSelf.responseSerializer.deserialize(SerializeUtil.parseJSON(data)), nil)
-                } catch {
-                    completionHandler(nil, CallError.serializationError(error))
+                    (result, error) = (try strongSelf.responseSerializer.deserialize(SerializeUtil.parseJSON(data)), nil)
+                } catch let _error {
+                    (result, error) = (nil, CallError.serializationError(_error))
                 }
             case .failure(let failure):
-                completionHandler(nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+                (result, error) = (nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+            }
+
+            return {
+                completionHandler(result, error)
             }
         }))
         return self
@@ -126,20 +144,28 @@ public class UploadRequest<RSerial: JSONSerializer, ESerial: JSONSerializer>: Re
         queue: DispatchQueue? = nil,
         completionHandler: @escaping (RSerial.ValueType?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.setCompletionHandler(queue: queue, completionHandler: .dataCompletionHandler({ [weak self] response in
+        request.setCompletionHandlerProvider(queue: queue, completionHandlerProvider: .dataCompletionHandlerProvider({ [weak self] response in
             guard let strongSelf = self else {
-                completionHandler(nil, .clientError(.requestObjectDeallocated))
-                return
+                return {
+                    completionHandler(nil, .clientError(.requestObjectDeallocated))
+                }
             }
+
+            var (result, error): (RSerial.ValueType?, CallError<ESerial.ValueType>?)
+
             switch response {
             case .success((let data, _)):
                 do {
-                    try completionHandler(strongSelf.responseSerializer.deserialize(SerializeUtil.parseJSON(data)), nil)
-                } catch {
-                    completionHandler(nil, CallError.serializationError(error))
+                    (result, error) = (try strongSelf.responseSerializer.deserialize(SerializeUtil.parseJSON(data)), nil)
+                } catch let _error {
+                    (result, error) = (nil, CallError.serializationError(_error))
                 }
             case .failure(let failure):
-                completionHandler(nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+                (result, error) = (nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+            }
+
+            return {
+                completionHandler(result, error)
             }
         }))
         return self
@@ -175,33 +201,42 @@ public class DownloadRequestFile<RSerial: JSONSerializer, ESerial: JSONSerialize
         queue: DispatchQueue? = nil,
         completionHandler: @escaping ((RSerial.ValueType, URL)?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.setCompletionHandler(queue: queue, completionHandler: .downloadFileCompletionHandler({ [weak self] response in
+        request.setCompletionHandlerProvider(queue: queue, completionHandlerProvider: .downloadFileCompletionHandlerProvider({ [weak self] response in
             guard let strongSelf = self else {
-                completionHandler(nil, .clientError(.requestObjectDeallocated))
-                return
+                return {
+                    completionHandler(nil, .clientError(.requestObjectDeallocated))
+                }
             }
+
+            var (result, error): ((RSerial.ValueType, URL)?, CallError<ESerial.ValueType>?)
 
             switch response {
             case .success((let tempLocation, let response)):
                 var destination: URL
                 do {
                     try destination = strongSelf.moveToDestination(tempLocation)
-                } catch {
-                    return completionHandler(nil, CallError(clientError: .fileAccessError(error)))
+                } catch let _error {
+                    return {
+                        completionHandler(nil, CallError(clientError: .fileAccessError(_error)))
+                    }
                 }
 
                 do {
                     let headerFields: [AnyHashable: Any] = response.allHeaderFields
-                    let result = try caseInsensitiveLookup("Dropbox-Api-Result", dictionary: headerFields).orThrow(SerializationError.missingResultHeader)
-                    let resultData = try result.data(using: .utf8, allowLossyConversion: false).orThrow(SerializationError.missingResultData)
+                    let apiResult = try caseInsensitiveLookup("Dropbox-Api-Result", dictionary: headerFields).orThrow(SerializationError.missingResultHeader)
+                    let resultData = try apiResult.data(using: .utf8, allowLossyConversion: false).orThrow(SerializationError.missingResultData)
 
                     let resultObject = try strongSelf.responseSerializer.deserialize(SerializeUtil.parseJSON(resultData))
-                    completionHandler((resultObject, destination), nil)
-                } catch {
-                    completionHandler(nil, CallError.serializationError(error))
+                    (result, error) = ((resultObject, destination), nil)
+                } catch let _error {
+                    (result, error) = (nil, CallError.serializationError(_error))
                 }
             case .failure(let failure):
-                completionHandler(nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+                (result, error) = (nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+            }
+
+            return {
+                completionHandler(result, error)
             }
         }))
         return self
@@ -221,26 +256,34 @@ public class DownloadRequestMemory<RSerial: JSONSerializer, ESerial: JSONSeriali
         queue: DispatchQueue? = nil,
         completionHandler: @escaping ((RSerial.ValueType, Data)?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.setCompletionHandler(queue: queue, completionHandler: .dataCompletionHandler({ [weak self] response in
+        request.setCompletionHandlerProvider(queue: queue, completionHandlerProvider: .dataCompletionHandlerProvider({ [weak self] response in
             guard let strongSelf = self else {
-                completionHandler(nil, .clientError(.requestObjectDeallocated))
-                return
+                return {
+                    completionHandler(nil, .clientError(.requestObjectDeallocated))
+                }
             }
+
+            var (result, error): ((RSerial.ValueType, Data)?, CallError<ESerial.ValueType>?) = (nil, nil)
+
             switch response {
             case .success((let data, let response)):
                 do {
                     let headerFields: [AnyHashable: Any] = response.allHeaderFields
-                    let result = try caseInsensitiveLookup("Dropbox-Api-Result", dictionary: headerFields).orThrow(SerializationError.missingResultHeader)
-                    let resultData = try result.data(using: .utf8, allowLossyConversion: false).orThrow(SerializationError.missingResultData)
+                    let apiResult = try caseInsensitiveLookup("Dropbox-Api-Result", dictionary: headerFields).orThrow(SerializationError.missingResultHeader)
+                    let resultData = try apiResult.data(using: .utf8, allowLossyConversion: false).orThrow(SerializationError.missingResultData)
 
                     let resultObject = try strongSelf.responseSerializer.deserialize(SerializeUtil.parseJSON(resultData))
 
-                    completionHandler((resultObject, data), nil)
-                } catch {
-                    completionHandler(nil, CallError.serializationError(error))
+                    (result, error) = ((resultObject, data), nil)
+                } catch let _error {
+                    (result, error) = (nil, CallError.serializationError(_error))
                 }
             case .failure(let failure):
-                completionHandler(nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+                (result, error) = (nil, strongSelf.handleResponseError(networkTaskFailure: failure))
+            }
+
+            return {
+                completionHandler(result, error)
             }
         }))
         return self

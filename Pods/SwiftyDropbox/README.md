@@ -4,7 +4,7 @@
 
 The Official Dropbox Swift SDK for integrating with Dropbox [API v2](https://www.dropbox.com/developers/documentation/http/documentation) on iOS or macOS.
 
-Full documentation [here](http://dropbox.github.io/SwiftyDropbox/api-docs/10.0.0/).
+Full documentation [here](https://dropbox.github.io/SwiftyDropbox/api-docs/latest/).
 
 ---
 
@@ -760,7 +760,10 @@ import SwiftyDropbox
 
 DropboxClientsManager.setupWithAppKey(
     "<APP_KEY>",
-    backgroundSessionIdentifier: "<BACKGROUND_SESSION_IDENTIFIER>"
+    backgroundSessionIdentifier: "<BACKGROUND_SESSION_IDENTIFIER>",
+    requestsToReconnect: { requestResults in
+       // app code to handle results of completed requests
+   }
 )
 ```
 
@@ -769,7 +772,10 @@ If you're setting up a background client from an app extension, you'll need to s
 DropboxClientsManager.setupWithAppKey(
     "<APP_KEY>",
     backgroundSessionIdentifier: "<BACKGROUND_SESSION_IDENTIFIER>"
-    sharedContainerIdentifier: "<SHARED_CONTAINER_IDENTIFIER>"
+    sharedContainerIdentifier: "<SHARED_CONTAINER_IDENTIFIER>",
+    requestsToReconnect: { requestResults in
+       // app code to handle results of completed requests
+   }
 )
 ```
  Apps in an app group automatically have keychain sharing. App groups are required for using a shared container, which is necessary if your applications will be downloading files using background sessions in extensions. See:
@@ -816,12 +822,12 @@ In the reconnection block you're recieving a heterogenous collection of the rout
             creationInfos: [],
             completionHandler: completionHandler,
             requestsToReconnect: { requestResults in
-                processReconnect(requestResults: RequestResults)
+                processReconnect(requestResults: requestResults) // provide your own code here to process the completed requests. 
             }
         )
     }
 
-    static func processReconnect(requestResults: ([Result<DropboxBaseRequestBox, ReconnectionError>])) {
+    func processReconnect(requestResults: ([Result<DropboxBaseRequestBox, ReconnectionError>])) {
         let successfulReturnedRequests = requestResults.compactMap { result -> DropboxBaseRequestBox? in
             switch result {
             case .success(let requestBox):
@@ -843,6 +849,8 @@ In the reconnection block you're recieving a heterogenous collection of the rout
                     // handle response
                 }
             // or .downloadZip, .paperCreate, .getSharedLinkFile etc.
+            default:
+                // handle every case you expect to see, this should never be reached.
             }
         }
     }
@@ -862,7 +870,7 @@ In the event that the requests originated from an App Extension, SwiftyDropbox m
             creationInfos: [extensionCreationInfo],
             completionHandler: completionHandler,
             requestsToReconnect: { requestResults in
-                processReconnect(requestResults: RequestResults)
+                processReconnect(requestResults: requestResults) // provide your own code here to process the completed requests.
             }
         )
     }
@@ -944,7 +952,7 @@ For cocoapods, in your Podfile, simply specify `SwiftyDropboxObjC` instead of (o
 use_frameworks!
 
 target '<YOUR_PROJECT_NAME>' do
-    pod 'SwiftyDropboxObjC', '~> 10.0.7'
+    pod 'SwiftyDropboxObjC', '~> 10.2.0'
 end
 ```
 

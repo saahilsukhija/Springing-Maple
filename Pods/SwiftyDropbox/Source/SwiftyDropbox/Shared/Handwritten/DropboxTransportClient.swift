@@ -13,6 +13,24 @@ enum ApiClientConstants {
 }
 
 public class DropboxTransportClientImpl: DropboxTransportClientInternal {
+    public static var serializeOnBackgroundThread: Bool {
+        set {
+            staticConfigurationLock.lock()
+            _serializeOnBackgroundThread = newValue
+            staticConfigurationLock.unlock()
+        }
+        get {
+            defer {
+                staticConfigurationLock.unlock()
+            }
+            staticConfigurationLock.lock()
+            return _serializeOnBackgroundThread
+        }
+    }
+
+    private static var staticConfigurationLock = NSLock()
+    private static var _serializeOnBackgroundThread: Bool = false
+
     public var identifier: String? {
         manager.identifier
     }
@@ -48,17 +66,18 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
         appKey: String,
         appSecret: String,
         baseHosts: BaseHosts = .default,
-        firstPartyUserAgent: String?,
-        authChallengeHandler: @escaping AuthChallenge.Handler
+        userAgent: String?,
+        authChallengeHandler: @escaping AuthChallenge.Handler,
+        headersForRouteHost: HeadersForRouteRequest? = nil
     ) {
         self.init(
             authStrategy: .appKeyAndSecret(appKey, appSecret),
             baseHosts: baseHosts,
-            userAgent: nil,
-            firstPartyUserAgent: firstPartyUserAgent,
+            userAgent: userAgent,
             selectUser: nil,
             sessionCreation: DefaultSessionCreation,
-            authChallengeHandler: authChallengeHandler
+            authChallengeHandler: authChallengeHandler,
+            headersForRouteHost: headersForRouteHost
         )
     }
 
@@ -81,7 +100,6 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
         accessToken: String,
         baseHosts: BaseHosts = .default,
         userAgent: String? = nil,
-        firstPartyUserAgent: String? = nil,
         selectUser: String? = nil,
         sessionConfiguration: NetworkSessionConfiguration = .default,
         longpollSessionConfiguration: NetworkSessionConfiguration = .defaultLongpoll,
@@ -94,7 +112,6 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
             accessTokenProvider: LongLivedAccessTokenProvider(accessToken: accessToken),
             baseHosts: baseHosts,
             userAgent: userAgent,
-            firstPartyUserAgent: firstPartyUserAgent,
             selectUser: selectUser,
             sessionConfiguration: sessionConfiguration,
             longpollSessionConfiguration: longpollSessionConfiguration,
@@ -121,7 +138,6 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
         accessTokenProvider: AccessTokenProvider,
         baseHosts: BaseHosts = .default,
         userAgent: String?,
-        firstPartyUserAgent: String? = nil,
         selectUser: String?,
         sessionConfiguration: NetworkSessionConfiguration = .default,
         longpollSessionConfiguration: NetworkSessionConfiguration = .defaultLongpoll,
@@ -134,7 +150,6 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
             authStrategy: .accessToken(accessTokenProvider),
             baseHosts: baseHosts,
             userAgent: userAgent,
-            firstPartyUserAgent: firstPartyUserAgent,
             selectUser: selectUser,
             sessionConfiguration: sessionConfiguration,
             sessionCreation: DefaultSessionCreation,
@@ -159,7 +174,6 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
                 LongLivedAccessTokenProvider(accessToken: accessToken)
             ),
             userAgent: nil,
-            firstPartyUserAgent: nil,
             selectUser: selectUser,
             sessionCreation: sessionCreation,
             authChallengeHandler: nil,
@@ -172,7 +186,6 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
         authStrategy: AuthStrategy,
         baseHosts: BaseHosts = .default,
         userAgent: String?,
-        firstPartyUserAgent: String?,
         selectUser: String?,
         sessionConfiguration: NetworkSessionConfiguration = .default,
         sessionCreation: SessionCreation = DefaultSessionCreation,
@@ -212,9 +225,7 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
 
         let defaultUserAgent = ApiClientConstants.defaultUserAgent
 
-        if let firstPartyUserAgent = firstPartyUserAgent {
-            self.userAgent = firstPartyUserAgent
-        } else if let userAgent = userAgent {
+        if let userAgent = userAgent {
             self.userAgent = "\(userAgent)/\(defaultUserAgent)"
         } else {
             self.userAgent = defaultUserAgent
@@ -502,7 +513,7 @@ public class DropboxTransportClientImpl: DropboxTransportClientInternal {
         for route: Route<ASerial, RSerial, ESerial>,
         baseHosts: BaseHosts = .default
     ) -> URL {
-        let urlString = "\(baseHosts.url(for: route.attributes.host))/\(route.namespace)/\(route.name)"
+        let urlString = "\(baseHosts.url(for: route.attributes))/\(route.namespace)/\(route.name)"
         return URL(string: urlString)!
     }
 
@@ -521,16 +532,34 @@ public class BaseHosts: NSObject {
     @objc
     let contentHost: String
     @objc
+    let downloadContentHost: String
+    @objc
     let notifyHost: String
+
+    @objc
+    public convenience init(
+        apiHost: String,
+        contentHost: String,
+        notifyHost: String
+    ) {
+        self.init(
+            apiHost: apiHost,
+            contentHost: contentHost,
+            downloadContentHost: contentHost,
+            notifyHost: notifyHost
+        )
+    }
 
     @objc
     public required init(
         apiHost: String,
         contentHost: String,
+        downloadContentHost: String,
         notifyHost: String
     ) {
         self.apiHost = apiHost
         self.contentHost = contentHost
+        self.downloadContentHost = downloadContentHost
         self.notifyHost = notifyHost
     }
 
@@ -538,17 +567,20 @@ public class BaseHosts: NSObject {
         .init(
             apiHost: ApiClientConstants.apiHost,
             contentHost: ApiClientConstants.contentHost,
+            downloadContentHost: ApiClientConstants.contentHost,
             notifyHost: ApiClientConstants.notifyHost
         )
     }
 }
 
 extension BaseHosts {
-    func url(for host: RouteHost) -> String {
+    func url(for attr: RouteAttributes) -> String {
         {
-            switch host {
+            switch attr.host {
             case .api:
                 return apiHost
+            case .content where attr.style == .download:
+                return downloadContentHost
             case .content:
                 return contentHost
             case .notify:

@@ -3,12 +3,16 @@
 ///
 import Foundation
 
+typealias WrappedCompletionHandler = () -> Void
+typealias DataCompletionHandlerProvider = (NetworkDataTaskResult) -> WrappedCompletionHandler
+typealias DownloadCompletionHandlerProvider = (NetworkDownloadTaskResult) -> WrappedCompletionHandler
+
 /// Completion handler for ApiRequest.
-enum RequestCompletionHandler {
-    /// Handler for data requests whose results are in memory.
-    case dataCompletionHandler((NetworkDataTaskResult) -> Void)
-    /// Handler for download request which stores download result into a file.
-    case downloadFileCompletionHandler((NetworkDownloadTaskResult) -> Void)
+enum RequestCompletionHandlerProvider {
+    /// Provider of handler for data requests whose results are in memory.
+    case dataCompletionHandlerProvider(DataCompletionHandlerProvider)
+    /// Provider of handler for download request which stores download result into a file.
+    case downloadFileCompletionHandlerProvider(DownloadCompletionHandlerProvider)
 }
 
 /// Protocol specifying an entity that can recieve networking info from a NetworkSessionDelegate
@@ -46,10 +50,10 @@ protocol RequestControlling {
     /// Sets a completion handler for the request.
     ///
     /// - Parameters:
-    ///     - completionHandler The completion handler.
-    ///     - queue: The queue where the completion handler will be called from.
+    ///     - completionHandlerProvider The completion handler provider.
+    ///     - queue: The queue where the provided completion handler will be called from.
     @discardableResult
-    func setCompletionHandler(queue: DispatchQueue?, completionHandler: RequestCompletionHandler) -> Self
+    func setCompletionHandlerProvider(queue: DispatchQueue?, completionHandlerProvider: RequestCompletionHandlerProvider) -> Self
 
     /// Cancels the request.
     func cancel()
@@ -66,16 +70,25 @@ protocol RequestControlling {
 class RequestWithTokenRefresh: ApiRequest {
     class StateAccess {
         private var mutableState: MutableState
-        private var lock = os_unfair_lock()
+        private var lock = { // heap allocate the lock for use in Swift
+            let lock = UnsafeMutablePointer<os_unfair_lock>.allocate(capacity: 1)
+            lock.initialize(to: .init())
+            return lock
+        }()
 
         init(mutableState: MutableState) {
             self.mutableState = mutableState
         }
 
+        deinit {
+            lock.deinitialize(count: 1)
+            lock.deallocate()
+        }
+
         fileprivate func accessStateWithLock<T>(block: (MutableState) throws -> T) rethrows -> T {
-            try lock.sync {
-                try block(mutableState)
-            }
+            os_unfair_lock_lock(lock)
+            defer { os_unfair_lock_unlock(lock) }
+            return try block(mutableState)
         }
     }
 
@@ -141,7 +154,7 @@ class RequestWithTokenRefresh: ApiRequest {
         fileprivate var cancelled = false
         fileprivate var isComplete = false
         fileprivate var responseQueue: DispatchQueue?
-        fileprivate var completionHandler: RequestCompletionHandler?
+        fileprivate var completionHandlerProvider: RequestCompletionHandlerProvider?
         fileprivate var progressHandler: ((Progress) -> Void)?
         fileprivate var cleanupHandler: (() -> Void)?
 
@@ -266,13 +279,13 @@ class RequestWithTokenRefresh: ApiRequest {
         self.filesAccess = filesAccess
     }
 
-    func setCompletionHandler(queue: DispatchQueue?, completionHandler: RequestCompletionHandler) -> Self {
+    func setCompletionHandlerProvider(queue: DispatchQueue?, completionHandlerProvider: RequestCompletionHandlerProvider) -> Self {
         accessStateWithLock { mutableState in
             mutableState.responseQueue = queue
             if mutableState.isComplete {
-                call(completionHandler: completionHandler, error: mutableState.request?.clientError, mutableState: mutableState)
+                call(completionHandler: completionHandlerProvider, error: mutableState.request?.clientError, mutableState: mutableState)
             } else {
-                mutableState.completionHandler = completionHandler
+                mutableState.completionHandlerProvider = completionHandlerProvider
             }
         }
         return self
@@ -304,7 +317,7 @@ class RequestWithTokenRefresh: ApiRequest {
             mutableState.cleanupHandler?()
             mutableState.cleanupHandler = nil
             mutableState.progressHandler = nil
-            mutableState.completionHandler = nil
+            mutableState.completionHandlerProvider = nil
         }
 
         if let mutableState = mutableState {
@@ -341,22 +354,8 @@ class RequestWithTokenRefresh: ApiRequest {
 
     private func completeWithError(_ error: ClientError) {
         accessStateWithLock { mutableState in
-            switch mutableState.completionHandler {
-            case .dataCompletionHandler(let handler):
-                mutableState.completionHandlerQueue.async {
-                    handler(NetworkDataTaskResult(data: nil, response: nil, error: error))
-                }
-            case .downloadFileCompletionHandler(let handler):
-                mutableState.completionHandlerQueue.async {
-                    handler(NetworkDownloadTaskResult(
-                        url: nil,
-                        response: nil,
-                        error: error,
-                        errorDataFromLocation: self.filesAccess.errorData(from:)
-                    ))
-                }
-            case .none:
-                break
+            if let completionHandler = mutableState.completionHandlerProvider {
+                call(completionHandler: completionHandler, error: error, mutableState: mutableState)
             }
         }
 
@@ -419,7 +418,7 @@ extension RequestWithTokenRefresh {
         accessStateWithLock { mutableState in
             mutableState.isComplete = true
 
-            if let completionHandler = mutableState.completionHandler {
+            if let completionHandler = mutableState.completionHandlerProvider {
                 DropboxClientsManager.logBackgroundSession("handleCompletion called with handler \(mutableState.taskIdentifier)")
                 call(completionHandler: completionHandler, error: error, mutableState: mutableState)
             } else {
@@ -429,32 +428,89 @@ extension RequestWithTokenRefresh {
         }
     }
 
-    private func call(completionHandler: RequestCompletionHandler, error: ClientError?, mutableState: MutableState) {
-        switch completionHandler {
-        case .dataCompletionHandler(let handler):
-            let data = mutableState.data
-            let response = mutableState.response?.copy() as? HTTPURLResponse
+    private func call(completionHandler completionHanderProvider: RequestCompletionHandlerProvider, error: ClientError?, mutableState: MutableState) {
+        switch completionHanderProvider {
+        case .dataCompletionHandlerProvider(let handlerProvider):
+            callDataCompletionHandler(error: error, mutableState: mutableState, handlerProvider: handlerProvider)
+        case .downloadFileCompletionHandlerProvider(let handlerProvider):
+            callDownloadCompletionHandler(error: error, mutableState: mutableState, handlerProvider: handlerProvider)
+        }
+    }
 
-            mutableState.completionHandlerQueue.async {
-                handler(.init(
+    private func callDataCompletionHandler(
+        error: ClientError?,
+        mutableState: MutableState,
+        handlerProvider: @escaping ((NetworkDataTaskResult) -> WrappedCompletionHandler)
+    ) {
+        // copy for use out of lock
+        let data = mutableState.data
+        let response = mutableState.response
+        let completionQueue = mutableState.completionHandlerQueue
+
+        // lock is held above this line but not below, do not again reference mutableState
+
+        if DropboxTransportClientImpl.serializeOnBackgroundThread {
+            DispatchQueue.global(qos: .userInitiated).async {
+                let handler = handlerProvider(.init(
                     data: data,
                     response: response,
                     error: error
                 ))
+
+                completionQueue.async {
+                    handler()
+                    self.cleanup()
+                }
+            }
+        } else {
+            completionQueue.async {
+                let handler = handlerProvider(.init(
+                    data: data,
+                    response: response,
+                    error: error
+                ))
+                handler()
                 self.cleanup()
             }
-        case .downloadFileCompletionHandler(let handler):
-            let temporaryDownloadURL = mutableState.temporaryDownloadURL
-            let response = mutableState.response?.copy() as? HTTPURLResponse
-            let moveDownloadError: ClientError? = mutableState.moveDownloadError.map { .fileAccessError($0) }
+        }
+    }
 
-            mutableState.completionHandlerQueue.async {
-                handler(.init(
+    private func callDownloadCompletionHandler(
+        error: ClientError?,
+        mutableState: MutableState,
+        handlerProvider: @escaping ((NetworkDownloadTaskResult) -> WrappedCompletionHandler)
+    ) {
+        // copy for use out of lock
+        let temporaryDownloadURL = mutableState.temporaryDownloadURL
+        let response = mutableState.response
+        let moveDownloadError: ClientError? = mutableState.moveDownloadError.map { .fileAccessError($0) }
+        let completionQueue = mutableState.completionHandlerQueue
+
+        // lock is held above this line but not below, do not again reference mutableState
+
+        if DropboxTransportClientImpl.serializeOnBackgroundThread {
+            DispatchQueue.global(qos: .userInitiated).async {
+                let handler = handlerProvider(.init(
                     url: temporaryDownloadURL,
                     response: response,
                     error: error ?? moveDownloadError,
                     errorDataFromLocation: self.filesAccess.errorData(from:)
                 ))
+
+                completionQueue.async {
+                    handler()
+                    self.cleanup()
+                }
+            }
+        } else {
+            completionQueue.async {
+                let handler = handlerProvider(.init(
+                    url: temporaryDownloadURL,
+                    response: response,
+                    error: error ?? moveDownloadError,
+                    errorDataFromLocation: self.filesAccess.errorData(from:)
+                ))
+                handler()
                 self.cleanup()
             }
         }

@@ -1,6 +1,7 @@
 AppCheckCore
 Firebase
 FirebaseABTesting
+FirebaseAI
 FirebaseAppCheck
 FirebaseAppCheckInterop
 FirebaseAppDistribution
@@ -21,6 +22,7 @@ FirebaseRemoteConfig
 FirebaseRemoteConfigInterop
 FirebaseSessions
 FirebaseStorage
+FirebaseVertexAI
 GTMSessionFetcher
 GoogleDataTransport
 PromisesObjC
@@ -1927,6 +1929,9 @@ FirebaseSharedSwift
    See the License for the specific language governing permissions and
    limitations under the License.
 
+
+GoogleAdsOnDeviceConversion
+Copyright 2024 Google
 
 GoogleUtilities
 
