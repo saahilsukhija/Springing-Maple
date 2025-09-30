@@ -2,6 +2,17 @@
 API_KEYS.swift
 Route.gpx
 
+# Ignore sensitive API key files
+Property Management/Property Management/Cloud Helpers/API_KEYS.swift
+Property Management/Property Management/Master Items/GoogleService-Info.plist
+
+# Xcode
+*.xcuserstate
+*.xcworkspace
+DerivedData/
+build/"Property Management/Property Management/Cloud Helpers/API_KEYS.swift"
+"Property Management/Property Management/Master Items/GoogleService-Info.plist"
+
 
 # Logs
 logs
