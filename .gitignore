@@ -5,6 +5,8 @@ Route.gpx
 # Ignore sensitive API key files
 Property Management/Property Management/Cloud Helpers/API_KEYS.swift
 Property Management/Property Management/Master Items/GoogleService-Info.plist
+Property Management/functions/google_sheet_credentials.json
+Property Management/functions/keys.json
 
 # Xcode
 *.xcuserstate
